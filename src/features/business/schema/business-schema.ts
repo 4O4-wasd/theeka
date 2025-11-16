@@ -7,7 +7,6 @@ import z from "zod";
 export const businessSchema = defaultBusinessSchema.extend({
     professional: defaultProfessionalSchema.omit({
         userId: true,
-        updatedAt: true,
         createdAt: true,
     }),
 });
