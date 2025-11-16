@@ -11,6 +11,13 @@
         "generate:env": "node ./generators/generate-env.mjs"
     },
     "dependencies": {
+        "@mantine/carousel": "^8.3.6",
+        "@mantine/core": "^8.3.6",
+        "@mantine/dropzone": "^8.3.6",
+        "@mantine/form": "^8.3.6",
+        "@mantine/hooks": "^8.3.6",
+        "@mantine/modals": "^8.3.6",
+        "@mantine/notifications": "^8.3.6",
         "@hono/zod-validator": "^0.7.4",
         "@hookform/resolvers": "^5.2.2",
         "@libsql/client": "^0.15.15",
