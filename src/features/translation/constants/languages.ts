@@ -1,0 +1,27 @@
+export const languages = {
+    en: "English",
+    hi: "Hindi",
+    bn: "Bengali",
+    te: "Telugu",
+    mr: "Marathi",
+    ta: "Tamil",
+    ur: "Urdu",
+    gu: "Gujarati",
+    kn: "Kannada",
+    ml: "Malayalam",
+    or: "Odia (Oriya)",
+    pa: "Punjabi",
+    as: "Assamese",
+    mai: "Maithili",
+    ne: "Nepali",
+    sa: "Sanskrit",
+    sd: "Sindhi",
+    ks: "Kashmiri",
+    kok: "Konkani",
+    doi: "Dogri",
+    "mni-Mtei": "Meiteilon (Manipuri)",
+    bho: "Bhojpuri",
+    lus: "Mizo",
+} as const;
+
+export type LanguageType = keyof typeof languages;
