@@ -1,5 +1,5 @@
 import { getProfessional } from "@/features/professional/actions/get-professional";
-import { database } from "@/shared";
+import { database } from "@/shared/db";
 
 const BusinessAdminPage = async ({
     params: p,

@@ -2,27 +2,14 @@
 
 import { TT } from "@/features/translation";
 import { defaultUserSchema } from "@/shared/schemas";
-import {
-    ActionIcon,
-    Button,
-    Card,
-    Container,
-    Group,
-    NumberInput,
-    Stack,
-    Text,
-    TextInput,
-    Title,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import {
-    IconArrowRight,
-    IconBriefcase,
-    IconPhone,
-    IconPlus,
-    IconX,
-} from "@tabler/icons-react";
-import { zod4Resolver } from "mantine-form-zod-resolver";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { useFieldArray, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowRight, Briefcase, Phone, Plus, X } from "lucide-react";
+import { cn } from "@/shared";
 import { useAction } from "next-safe-action/hooks";
 import { useRouter } from "next/navigation";
 import z from "zod";
@@ -32,7 +19,7 @@ import {
     createProfessionalProfileSchema,
 } from "../schema/create-professional";
 
-const BecomeProfessionalFrom = ({
+const BecomeProfessionalForm = ({
     user,
 }: {
     user: z.infer<typeof defaultUserSchema>;
@@ -48,20 +35,29 @@ const BecomeProfessionalFrom = ({
     );
 
     const form = useForm<CreateProfessionalProfileFormValues>({
-        validate: zod4Resolver(createProfessionalProfileSchema),
-        initialValues: {
+        resolver: zodResolver(createProfessionalProfileSchema),
+        defaultValues: {
             professionalName: user.name,
             phoneNumbers: [0],
         },
     });
 
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        rules: {
+            minLength: 1,
+            maxLength: 5
+        },
+        name: "phoneNumbers" as never,
+    });
+
     const addPhone = () => {
-        form.insertListItem("phoneNumbers", "");
+        append("");
     };
 
     const removePhone = (index: number) => {
-        if (form.values.phoneNumbers.length > 1) {
-            form.removeListItem("phoneNumbers", index);
+        if (fields.length > 1) {
+            remove(index);
         }
     };
 
@@ -71,112 +67,110 @@ const BecomeProfessionalFrom = ({
 
     return (
         <div className="min-h-screen flex items-center justify-center">
-            <Container size="xs" className="w-full py-24">
-                <Card
-                    padding="xl"
-                    radius="md"
-                    shadow="none"
-                    className="border-0"
-                >
-                    <Stack gap="xl">
-                        <div>
-                            <Title order={1} ta="center" mb="xs">
+            <div className="w-full max-w-sm px-4 py-24">
+                <Card className="border-0">
+                    <CardContent className="p-6 space-y-6">
+                        <div className="space-y-2 text-center">
+                            <h1 className="text-2xl font-bold">
                                 <TT>Create Business Profile</TT>
-                            </Title>
-                            <Text ta="center" c="dimmed" size="sm">
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
                                 Set up your professional profile to connect with
                                 customers
-                            </Text>
+                            </p>
                         </div>
-                        <form onSubmit={form.onSubmit(handleSubmit)}>
-                            <Stack gap="lg">
-                                <TextInput
-                                    label="Professional Name"
-                                    placeholder="Akash Singh"
-                                    leftSection={<IconBriefcase size={16} />}
-                                    disabled={isSubmitting}
-                                    {...form.getInputProps("professionalName")}
-                                />
+                        <form onSubmit={form.handleSubmit(handleSubmit)}>
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="professionalName">
+                                        Professional Name
+                                    </Label>
+                                    <div className="relative">
+                                        <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            id="professionalName"
+                                            placeholder="Akash Singh"
+                                            className="pl-10"
+                                            disabled={isSubmitting}
+                                            {...form.register(
+                                                "professionalName"
+                                            )}
+                                        />
+                                    </div>
+                                </div>
 
                                 <div>
-                                    <Group justify="space-between" mb="xs">
-                                        <Text size="sm" fw={500}>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <p className="text-sm font-medium">
                                             Phone Number(s)
-                                        </Text>
-                                        <ActionIcon
-                                            variant="subtle"
-                                            onClick={addPhone}
+                                        </p>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
                                             size="sm"
+                                            onClick={addPhone}
                                         >
-                                            <IconPlus size={16} />
-                                        </ActionIcon>
-                                    </Group>
-                                    <Stack gap="xs">
-                                        {form.values.phoneNumbers.map(
-                                            (_, index) => (
-                                                <Group
-                                                    key={index}
-                                                    gap="xs"
-                                                    wrap="nowrap"
-                                                >
-                                                    <NumberInput
-                                                        placeholder="1234567890"
-                                                        disabled={isSubmitting}
+                                            <Plus className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                    <div className="space-y-1">
+                                        {fields.map((field, index) => (
+                                            <div
+                                                key={field.id}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <div className="relative flex-1">
+                                                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                    <Input
                                                         type="tel"
+                                                        placeholder="1234567890"
                                                         maxLength={10}
-                                                        leftSection={
-                                                            <IconPhone
-                                                                size={16}
-                                                            />
-                                                        }
-                                                        className="flex-1"
-                                                        {...form.getInputProps(
+                                                        className="pl-10"
+                                                        disabled={isSubmitting}
+                                                        {...form.register(
                                                             `phoneNumbers.${index}`
                                                         )}
                                                     />
-                                                    {form.values.phoneNumbers
-                                                        .length > 1 && (
-                                                        <ActionIcon
-                                                            variant="subtle"
-                                                            color="red"
-                                                            onClick={() =>
-                                                                removePhone(
-                                                                    index
-                                                                )
-                                                            }
-                                                            loading={
-                                                                isSubmitting
-                                                            }
-                                                            size="lg"
-                                                        >
-                                                            <IconX size={16} />
-                                                        </ActionIcon>
-                                                    )}
-                                                </Group>
-                                            )
-                                        )}
-                                    </Stack>
+                                                </div>
+                                                {fields.length > 1 && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            removePhone(index)
+                                                        }
+                                                        disabled={isSubmitting}
+                                                    >
+                                                        <X className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                <Group gap="xs" grow>
+                                <div className="flex gap-2">
                                     <Button
                                         type="submit"
-                                        loading={isSubmitting}
-                                        rightSection={
-                                            <IconArrowRight size={16} />
-                                        }
-                                        justify="space-between"
+                                        className="flex-1 justify-between gap-2"
+                                        disabled={isSubmitting}
                                     >
-                                        Continue
+                                        {isSubmitting ? (
+                                            <span>Submitting...</span>
+                                        ) : (
+                                            <span>Continue</span>
+                                        )}
+                                        <ArrowRight className="h-4 w-4" />
                                     </Button>
-                                </Group>
-                            </Stack>
+                                </div>
+                            </div>
                         </form>
-                    </Stack>
+                    </CardContent>
                 </Card>
-            </Container>
+            </div>
         </div>
     );
 };
 
-export { BecomeProfessionalFrom };
+export { BecomeProfessionalForm };

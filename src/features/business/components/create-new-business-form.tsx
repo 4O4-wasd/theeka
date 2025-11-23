@@ -1,37 +1,23 @@
 "use client";
 
 import { uploadFile } from "@/shared";
-import {
-    ActionIcon,
-    Alert,
-    Button,
-    Card,
-    Container,
-    FileButton,
-    Group,
-    NumberInput,
-    Paper,
-    Stack,
-    Text,
-    Textarea,
-    TextInput,
-    Title,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { notifications } from "@mantine/notifications";
-import {
-    IconPhoto,
-    IconSend,
-    IconShoppingBag,
-    IconTrash,
-    IconUpload,
-    IconVideo,
-} from "@tabler/icons-react";
-import { Check, SkipForward, X } from "lucide-react";
-import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useAction } from "next-safe-action/hooks";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { z } from "zod";
+
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { Separator } from "@/shared/components/ui/separator";
+
+import { Check, SkipForward, X, Upload, Image as ImageIcon, Video, Trash2, Send, ShoppingBag } from "lucide-react";
 import { createNewBusiness } from "../actions/create-new-business";
 import {
     createBusinessSchema,
@@ -40,22 +26,19 @@ import {
 import CategoryAutocomplete from "./catergory-autocomplete";
 import { LocationSearch } from "./location-search";
 import { Map } from "./map";
+import { useAction } from "next-safe-action/hooks";
 
 const CreateNewBusinessForm = () => {
-    const [submitStatus, setSubmitStatus] = useState<{
-        type: "error" | "success";
-        message: string;
-    } | null>(null);
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-    const [mediaFile, setMediaFiles] = useState<
-        { type: "image" | "video"; url: File }[] | null
-    >(null);
+    const [mediaFiles, setMediaFiles] = useState<
+        { type: "image" | "video"; url: File }[]
+    >([]);
     const { executeAsync, result } = useAction(createNewBusiness);
     const [isPending, startTransition] = useTransition();
 
     const form = useForm<CreateBusinessSchemaType>({
-        validate: zod4Resolver(createBusinessSchema),
-        initialValues: {
+        resolver: zodResolver(createBusinessSchema),
+        defaultValues: {
             title: "",
             description: "",
             thumbnail: "",
@@ -72,6 +55,8 @@ const CreateNewBusinessForm = () => {
         },
     });
 
+    const watch = form.watch;
+
     const handleThumbnailSelect = (file: File | null): void => {
         if (!file) return;
 
@@ -84,7 +69,7 @@ const CreateNewBusinessForm = () => {
 
             const url = e.target.result as string;
 
-            form.setFieldValue("thumbnail", url);
+            form.setValue("thumbnail", url);
         };
 
         reader.readAsDataURL(file);
@@ -122,8 +107,8 @@ const CreateNewBusinessForm = () => {
 
                 // Once all files are loaded, update the form
                 if (loadedCount === files.length) {
-                    form.setFieldValue("media", [
-                        ...form.values.media,
+                    form.setValue("media", [
+                        ...form.getValues().media,
                         ...newMediaItems,
                     ]);
                 }
@@ -134,14 +119,16 @@ const CreateNewBusinessForm = () => {
     };
 
     const removeThumbnail = (): void => {
-        form.setFieldValue("thumbnail", "");
+        form.setValue("thumbnail", "");
+        setThumbnailFile(null);
     };
 
     const removeMedia = (index: number): void => {
-        form.setFieldValue(
+        form.setValue(
             "media",
-            form.values.media.filter((_, i) => i !== index)
+            form.getValues().media.filter((_, i) => i !== index)
         );
+        setMediaFiles((prev) => prev?.filter((_, i) => i !== form.getValues().media.length - index - 1) || null);
     };
 
     const router = useRouter();
@@ -170,8 +157,8 @@ const CreateNewBusinessForm = () => {
             );
         }
 
-        if (mediaFile && mediaFile.length > 0) {
-            mediaFile.forEach((m) => {
+        if (mediaFiles && mediaFiles.length > 0) {
+            mediaFiles.forEach((m) => {
                 uploadPromises.push(
                     uploadFile(
                         m.url,
@@ -192,35 +179,27 @@ const CreateNewBusinessForm = () => {
 
         const mediaUrls = uploadResults
             .filter((r) => r.type === "image" || r.type === "video")
-            .map((r) => r);
+            .map((r) => r as { type: "image" | "video"; url: string });
 
         return { thumbnailUrl, mediaUrls };
     };
 
     return (
         <div className="min-h-screen p-4 md:p-8">
-            <Container size="sm">
-                <div className="mb-8 mx-4 my-10">
-                    <Title order={1} mb="xs">
-                        Create Your Business
-                    </Title>
-                    <Text c="dimmed">
+            <div className="max-w-2xl mx-auto">
+                <div className="mb-8 space-y-2">
+                    <h1 className="text-3xl font-bold">Create Your Business</h1>
+                    <p className="text-muted-foreground">
                         Share your business with the community
-                    </Text>
+                    </p>
                 </div>
 
                 <form
-                    onSubmit={form.onSubmit(async (data) => {
+                    onSubmit={form.handleSubmit(async (data) => {
                         startTransition(async () => {
-                            notifications.clean();
-
-                            const id = notifications.show({
-                                loading: true,
-                                title: "Uploading files",
-                                message:
+                            const id = toast.loading("Uploading files", {
+                                description:
                                     "Please wait while your files are uploading...",
-                                autoClose: false,
-                                withCloseButton: false,
                             });
 
                             const { mediaUrls, thumbnailUrl } =
@@ -228,351 +207,336 @@ const CreateNewBusinessForm = () => {
 
                             const validMediaUrls = mediaUrls.filter(
                                 (v) => !!v.url
-                            ) as {
-                                type: "image" | "video";
-                                url: string;
-                            }[];
+                            );
 
                             if (!thumbnailUrl) {
-                                notifications.update({
-                                    id,
-                                    color: "red",
-                                    title: "Error occurred",
-                                    message:
+                                toast.dismiss(id);
+                                toast.error("Error occurred", {
+                                    description:
                                         "There was an error while we were uploading your files",
-                                    icon: <X size={18} />,
-                                    loading: false,
-                                    autoClose: 5000,
                                 });
                                 return;
                             }
 
-                            notifications.update({
-                                id,
-                                title: "Creating your business",
-                                message:
-                                    "Please wait while we are creating your business...",
-                            });
+                            toast.dismiss(id);
+                            const createId = toast.loading(
+                                "Creating your business",
+                                {
+                                    description:
+                                        "Please wait while we are creating your business...",
+                                }
+                            );
 
                             const { data: bId } = await executeAsync({
-                                ...form.values,
+                                ...data,
                                 thumbnail: thumbnailUrl,
                                 media: validMediaUrls,
                             });
                             if (!bId) {
-                                notifications.update({
-                                    id,
-                                    color: "red",
-                                    title: "Error occurred",
-                                    message:
+                                toast.dismiss(createId);
+                                toast.error("Error occurred", {
+                                    description:
                                         "There was an error while creating your business, please try again later",
-                                    icon: <X size={18} />,
-                                    loading: false,
-                                    autoClose: 5000,
                                 });
                                 return;
                             }
 
-                            notifications.update({
-                                id,
-                                color: "blue",
-                                title: "Success",
-                                message: "Your business was created",
-                                icon: <Check size={18} />,
-                                loading: false,
-                                autoClose: 2000,
-                                onClose: () => {
-                                    router.push(`/profile/b/${bId}`);
-                                },
+                            toast.dismiss(createId);
+                            toast.success("Success", {
+                                description: "Your business was created",
+                                duration: 2000,
                             });
+                            setTimeout(() => {
+                                router.push(`/profile/b/${bId}`);
+                            }, 2000);
                         });
                     })}
+                    className="space-y-8"
                 >
-                    <Stack gap="xl">
-                        <Card shadow="none" radius="md">
-                            <Stack gap="lg">
-                                <div>
-                                    <Title order={3} size="h4" mb="xs">
-                                        Cover Image
-                                    </Title>
-                                    <Text size="sm" c="dimmed">
-                                        Upload a high-quality image that
-                                        represents your business
-                                    </Text>
-                                </div>
-
-                                <div>
-                                    {!form.values.thumbnail ? (
-                                        <FileButton
-                                            onChange={(file) =>
-                                                handleThumbnailSelect(file)
-                                            }
+                    <Card>
+                        <CardHeader className="space-y-4">
+                            <div className="space-y-1">
+                                <CardTitle className="text-lg">
+                                    Cover Image
+                                </CardTitle>
+                                <CardDescription>
+                                    Upload a high-quality image that represents
+                                    your business
+                                </CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {!watch("thumbnail") ? (
+                                    <>
+                                        <label
+                                            htmlFor="thumbnail-upload"
+                                            className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors hover:bg-muted border-border"
+                                        >
+                                            <Upload className="h-12 w-12 text-muted-foreground mb-3" />
+                                            <span className="font-medium text-sm">
+                                                Click to upload cover image
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                PNG, JPG or WEBP (recommended:
+                                                1200x630px)
+                                            </span>
+                                        </label>
+                                        <input
+                                            id="thumbnail-upload"
+                                            type="file"
                                             accept="image/*"
+                                            onChange={(e) =>
+                                                handleThumbnailSelect(
+                                                    e.target.files?.[0] || null
+                                                )
+                                            }
+                                            className="sr-only"
+                                        />
+                                    </>
+                                ) : (
+                                    <div className="relative w-full h-64 border border-border rounded-lg overflow-hidden">
+                                        <img
+                                            src={watch("thumbnail")}
+                                            alt="Cover preview"
+                                            className="w-full h-full object-contain"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            className="absolute top-2 right-2"
+                                            onClick={removeThumbnail}
                                         >
-                                            {(props) => (
-                                                <div
-                                                    {...props}
-                                                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors hover:bg-gray-50"
-                                                    style={{
-                                                        borderColor:
-                                                            "var(--mantine-color-default-border)",
-                                                    }}
-                                                >
-                                                    <IconUpload
-                                                        size={48}
-                                                        className="mb-3"
-                                                        style={{
-                                                            color: "var(--mantine-color-dimmed)",
-                                                        }}
-                                                    />
-                                                    <Text fw={500} size="sm">
-                                                        Click to upload cover
-                                                        image
-                                                    </Text>
-                                                    <Text size="xs" c="dimmed">
-                                                        PNG, JPG or WEBP
-                                                        (recommended:
-                                                        1200x630px)
-                                                    </Text>
-                                                </div>
-                                            )}
-                                        </FileButton>
-                                    ) : (
-                                        <Paper
-                                            withBorder
-                                            className="relative w-full h-64"
-                                        >
-                                            <img
-                                                src={form.values.thumbnail}
-                                                alt="Cover preview"
-                                                className="w-full h-full object-contain rounded-lg"
-                                            />
-                                            <ActionIcon
-                                                color="red"
-                                                variant="filled"
-                                                className="!absolute top-2 right-2"
-                                                onClick={removeThumbnail}
-                                            >
-                                                <IconTrash size={16} />
-                                            </ActionIcon>
-                                        </Paper>
-                                    )}
-                                    {form.errors.thumbnail && (
-                                        <Text size="sm" c="red" mt="xs">
-                                            {form.errors.thumbnail}
-                                        </Text>
-                                    )}
-                                </div>
-                            </Stack>
-                        </Card>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                )}
+                                {form.formState.errors.thumbnail && (
+                                    <p className="text-sm text-destructive">
+                                        {
+                                            form.formState.errors.thumbnail
+                                                .message
+                                        }
+                                    </p>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        <Card shadow="none" radius="md">
-                            <Stack gap="lg">
-                                <div>
-                                    <Title order={3} size="h4" mb="xs">
-                                        Basic Information
-                                    </Title>
-                                    <Text size="sm" c="dimmed">
-                                        Tell us about your business
-                                    </Text>
-                                </div>
-
-                                <TextInput
-                                    label="Business Name"
+                    <Card>
+                        <CardHeader className="space-y-4">
+                            <div className="space-y-1">
+                                <CardTitle className="text-lg">
+                                    Basic Information
+                                </CardTitle>
+                                <CardDescription>
+                                    Tell us about your business
+                                </CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="title">Business Name</Label>
+                                <Input
+                                    id="title"
                                     placeholder="e.g., Joe's Coffee Shop"
-                                    rightSection={<IconShoppingBag size={16} />}
-                                    {...form.getInputProps("title")}
+                                    {...form.register("title")}
                                 />
+                                {form.formState.errors.title && (
+                                    <p className="text-sm text-destructive">
+                                        {form.formState.errors.title.message}
+                                    </p>
+                                )}
+                            </div>
 
-                                <CategoryAutocomplete
-                                    error={form.errors.categoryNames}
-                                    categoryNames={form.values.categoryNames}
-                                    setCategoryNames={(c) =>
-                                        form.setFieldValue("categoryNames", c)
-                                    }
-                                />
+                            <CategoryAutocomplete
+                                error={
+                                    form.formState.errors.categoryNames?.message
+                                }
+                                categoryNames={watch("categoryNames")}
+                                setCategoryNames={(c) =>
+                                    form.setValue("categoryNames", c)
+                                }
+                            />
 
-                                <div className="flex flex-col gap-2 sm:flex-row">
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <div className="flex-1">
                                     <LocationSearch
                                         className="flex-1"
                                         onChange={(city) => {
-                                            form.setFieldValue(
-                                                "location",
-                                                city
-                                            );
+                                            form.setValue("location", city);
                                         }}
                                         label="Location (where your business is from)"
                                         placeholder="Search address..."
                                     />
-                                    <div className="flex-1 sm:flex-[0.4]">
-                                        <NumberInput
-                                            label="Location Radius (km)"
-                                            placeholder="Input radius"
-                                            {...form.getInputProps("radius")}
-                                        />
-                                        <Text size="xs" c="dimmed" mt="xs">
-                                            Define the maximum distance you can
-                                            operate within.
-                                        </Text>
-                                    </div>
                                 </div>
-
-                                {form.values.location.coordinates.length ===
-                                    2 &&
-                                    form.values.radius >= 1 && (
-                                        <div className="h-64 w-full">
-                                            <Map
-                                                {...{
-                                                    name: form.values.location
-                                                        .name,
-                                                    lat: form.values.location
-                                                        .coordinates[1],
-                                                    lng: form.values.location
-                                                        .coordinates[0],
-                                                    serviceRadius:
-                                                        form.values.radius,
-                                                }}
-                                            />
-                                        </div>
+                                <div className="flex-1 sm:flex-[0.4] space-y-2">
+                                    <Label htmlFor="radius">
+                                        Location Radius (km)
+                                    </Label>
+                                    <Input
+                                        id="radius"
+                                        type="number"
+                                        step="1"
+                                        placeholder="Input radius"
+                                        {...form.register("radius", {
+                                            valueAsNumber: true,
+                                        })}
+                                    />
+                                    {form.formState.errors.radius && (
+                                        <p className="text-sm text-destructive">
+                                            {
+                                                form.formState.errors.radius
+                                                    .message
+                                            }
+                                        </p>
                                     )}
-
-                                <Textarea
-                                    label="About Your Business (optional)"
-                                    placeholder="Share what makes your business special, your story, services offered..."
-                                    minRows={5}
-                                    autosize
-                                    {...form.getInputProps("description")}
-                                />
-                            </Stack>
-                        </Card>
-
-                        <Card shadow="none" radius="md">
-                            <Stack gap="lg">
-                                <div>
-                                    <Title order={3} size="h4" mb="xs">
-                                        Media Gallery
-                                    </Title>
-                                    <Text size="sm" c="dimmed">
-                                        Upload images and videos to showcase
-                                        your business (optional)
-                                    </Text>
+                                    <p className="text-xs text-muted-foreground">
+                                        Define the maximum distance you can
+                                        operate within.
+                                    </p>
                                 </div>
+                            </div>
 
-                                <FileButton
-                                    onChange={handleMediaSelect}
-                                    accept="image/*,video/*"
-                                    multiple
-                                >
-                                    {(props) => (
-                                        <div
-                                            {...props}
-                                            className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors hover:bg-gray-50"
-                                            style={{
-                                                borderColor:
-                                                    "var(--mantine-color-default-border)",
+                            {watch("location")?.coordinates.length === 2 &&
+                                watch("radius") >= 1 && (
+                                    <div className="h-64 w-full">
+                                        <Map
+                                            {...{
+                                                name: watch("location")?.name,
+                                                lat: watch("location")
+                                                    ?.coordinates[1],
+                                                lng: watch("location")
+                                                    ?.coordinates[0],
+                                                serviceRadius: watch("radius"),
                                             }}
-                                        >
-                                            <Group gap="xs" mb="sm">
-                                                <IconPhoto
-                                                    size={32}
-                                                    style={{
-                                                        color: "var(--mantine-color-dimmed)",
-                                                    }}
-                                                />
-                                                <IconVideo
-                                                    size={32}
-                                                    style={{
-                                                        color: "var(--mantine-color-dimmed)",
-                                                    }}
-                                                />
-                                            </Group>
-                                            <Text fw={500} size="sm">
-                                                Add photos & videos
-                                            </Text>
-                                            <Text size="xs" c="dimmed">
-                                                PNG, JPG, WEBP, MP4, WEBM or MOV
-                                            </Text>
-                                        </div>
-                                    )}
-                                </FileButton>
-
-                                {form.values.media.length > 0 && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        {form.values.media.map(
-                                            (item, index) => (
-                                                <Paper
-                                                    withBorder
-                                                    key={index}
-                                                    className="relative w-full h-32"
-                                                >
-                                                    {item.type === "image" ? (
-                                                        <img
-                                                            src={item.url}
-                                                            alt={`Media ${
-                                                                index + 1
-                                                            }`}
-                                                            className="w-full h-full object-contain rounded-lg"
-                                                        />
-                                                    ) : (
-                                                        <video
-                                                            src={item.url}
-                                                            className="w-full h-full object-contain rounded-lg"
-                                                            controls
-                                                        />
-                                                    )}
-                                                    <ActionIcon
-                                                        color="red"
-                                                        variant="filled"
-                                                        className="!absolute top-2 right-2"
-                                                        onClick={() =>
-                                                            removeMedia(index)
-                                                        }
-                                                    >
-                                                        <IconTrash size={16} />
-                                                    </ActionIcon>
-                                                </Paper>
-                                            )
-                                        )}
+                                        />
                                     </div>
                                 )}
-                            </Stack>
-                        </Card>
 
-                        {submitStatus && (
-                            <Alert
-                                color={
-                                    submitStatus.type === "error"
-                                        ? "red"
-                                        : "green"
+                            <div className="space-y-2">
+                                <Label htmlFor="description">
+                                    About Your Business (optional)
+                                </Label>
+                                <Textarea
+                                    id="description"
+                                    placeholder="Share what makes your business special, your story, services offered..."
+                                    rows={5}
+                                    {...form.register("description")}
+                                />
+                                {form.formState.errors.description && (
+                                    <p className="text-sm text-destructive">
+                                        {
+                                            form.formState.errors.description
+                                                .message
+                                        }
+                                    </p>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="space-y-4">
+                            <div className="space-y-1">
+                                <CardTitle className="text-lg">
+                                    Media Gallery
+                                </CardTitle>
+                                <CardDescription>
+                                    Upload images and videos to showcase your
+                                    business (optional)
+                                </CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <label
+                                htmlFor="media-upload"
+                                className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors hover:bg-muted border-border"
+                            >
+                                <div className="flex gap-2 mb-2">
+                                    <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                                    <Video className="h-8 w-8 text-muted-foreground" />
+                                </div>
+                                <span className="font-medium text-sm">
+                                    Add photos & videos
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    PNG, JPG, WEBP, MP4, WEBM or MOV
+                                </span>
+                            </label>
+                            <input
+                                id="media-upload"
+                                type="file"
+                                accept="image/*,video/*"
+                                multiple
+                                onChange={(e) =>
+                                    handleMediaSelect(
+                                        Array.from(e.target.files || [])
+                                    )
                                 }
-                            >
-                                {submitStatus.message}
-                            </Alert>
-                        )}
+                                className="sr-only"
+                            />
 
-                        <div className="mx-4 pb-2 flex z-20 gap-4 sticky bottom-0">
-                            <Button
-                                type="button"
-                                variant="default"
-                                justify="space-between"
-                                rightSection={<SkipForward size={16} />}
-                                onClick={handleSkip}
-                                className="flex-1"
-                            >
-                                Skip
-                            </Button>
-                            <Button
-                                type="submit"
-                                justify="space-between"
-                                rightSection={<IconSend size={16} />}
-                                className="flex-1"
-                            >
-                                Create Business
-                            </Button>
-                        </div>
-                    </Stack>
+                            {watch("media")?.length > 0 && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                    {watch("media")?.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            className="relative w-full h-32 border border-border rounded-lg overflow-hidden"
+                                        >
+                                            {item.type === "image" ? (
+                                                <img
+                                                    src={item.url}
+                                                    alt={`Media ${index + 1}`}
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            ) : (
+                                                <video
+                                                    src={item.url}
+                                                    className="w-full h-full object-contain"
+                                                    controls
+                                                />
+                                            )}
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="sm"
+                                                className="absolute top-2 right-2"
+                                                onClick={() =>
+                                                    removeMedia(index)
+                                                }
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <div className="sticky bottom-0 z-50 flex gap-4 pb-4 pt-4 bg-background border-t mx-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="flex-1 gap-2"
+                            onClick={handleSkip}
+                        >
+                            <span>Skip</span>
+                            <SkipForward className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="flex-1 gap-2"
+                            disabled={isPending}
+                        >
+                            <span>Create Business</span>
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </form>
-            </Container>
+            </div>
         </div>
     );
 };

@@ -5,12 +5,11 @@ import { actionClient } from "@/shared/action-clients";
 import { v2 as cloudinary } from "cloudinary";
 import { headers } from "next/headers";
 import z from "zod";
-import { env } from "../";
 
 cloudinary.config({
-    cloud_name: env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-    api_secret: env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!,
+    api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!,
+    api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
 export const cloudinarySign = actionClient
@@ -32,7 +31,7 @@ export const cloudinarySign = actionClient
 
         const signature = cloudinary.utils.api_sign_request(
             paramsToSign,
-            env.CLOUDINARY_API_SECRET
+            process.env.CLOUDINARY_API_SECRET!
         );
 
         return signature;

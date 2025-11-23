@@ -1,6 +1,5 @@
 import { cloudinarySign } from "@/shared/actions/cloudinary-sign";
 import imageCompression from "browser-image-compression";
-import { env } from "../";
 
 export const uploadFile = async (
     file: File,
@@ -45,12 +44,12 @@ export const uploadFile = async (
         formData.append("file", compressedFile);
         formData.append("signature", signature);
         formData.append("timestamp", timestamp.toString());
-        formData.append("api_key", env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
+        formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
         formData.append("public_id", id);
         formData.append("folder", uploadPath);
 
         const uploadResponse = await fetch(
-            `https://api.cloudinary.com/v1_1/${env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/${type}/upload`,
+            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/${type}/upload`,
             {
                 method: "POST",
                 body: formData,

@@ -1,5 +1,10 @@
 import { auth } from "@/features/auth/utils/auth";
-import { Avatar, Button } from "@mantine/core";
+import { Button } from "@/shared/components/ui/button";
+import {
+    Avatar,
+    AvatarImage,
+    AvatarFallback,
+} from "@/shared/components/ui/avatar";
 import { headers } from "next/headers";
 import Link from "next/link";
 
@@ -9,20 +14,19 @@ const LoginButton = async () => {
     });
 
     return !session ? (
-        <Link passHref href="/sign-in">
-            <Button variant="default">Login</Button>
+        <Link href="/sign-in">
+            <Button variant="outline">Login</Button>
         </Link>
     ) : session.user.name === "" ? (
-        <Link passHref href="/create-profile">
+        <Link href="/create-profile">
             <Button>Create Profile</Button>
         </Link>
     ) : (
-        <Link passHref href="/profile">
-            <Avatar
-                size="md"
-                src={session.user.image}
-                alt={session.user.name}
-            />
+        <Link href="/profile">
+            <Avatar className="h-10 w-10">
+                <AvatarImage src={session.user.image ?? undefined} alt={session.user.name} />
+                <AvatarFallback>{session.user.name?.charAt(0)}</AvatarFallback>
+            </Avatar>
         </Link>
     );
 };

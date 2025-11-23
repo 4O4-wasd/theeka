@@ -1,4 +1,3 @@
-import { env } from "./src/shared";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({

@@ -4,19 +4,16 @@ import { getProfessional } from "@/features/professional/actions/get-professiona
 import { a } from "@/shared/action-clients/a";
 import {
     Avatar,
-    Badge,
-    Button,
-    Divider,
-    Group,
-    Paper,
-    Stack,
-    Text,
-    Title,
-} from "@mantine/core";
+    AvatarFallback,
+    AvatarImage,
+} from "@/shared/components/ui/avatar";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Separator } from "@/shared/components/ui/separator";
 import { IconEdit, IconPhone, IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
 
-// Types based on your schema
 interface City {
     name: string;
     state: string;
@@ -36,64 +33,70 @@ export default async function ProfilePage() {
     const businesses = (await getAllBusinesses()).data;
     return (
         <div className="max-w-7xl mx-auto p-6 py-12">
-            {/* Profile Section */}
-            <Paper radius="md" withBorder mb="xl">
-                <div className="p-4">
-                    <Group justify="space-between" mb="xl">
-                        <Group>
-                            <Avatar src={user.image} size={120} radius="md" />
-                            <Stack gap="xs">
-                                <Title order={2}>
+            <Card className="mb-8">
+                <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-8">
+                        <div className="flex gap-4">
+                            <Avatar className="h-[120px] w-[120px] rounded-md">
+                                <AvatarImage src={user.image ?? undefined} />
+                                <AvatarFallback className="rounded-md">
+                                    {professional.professionalName?.[0]}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-bold">
                                     {professional.professionalName}
-                                </Title>
-                                <Text c="dimmed">{user.email}</Text>
-                                <Group gap="xs">
+                                </h2>
+                                <p className="text-muted-foreground">
+                                    {user.email}
+                                </p>
+                                <div className="flex gap-2 flex-wrap">
                                     {professional.phoneNumbers?.map(
                                         (phone, idx) => (
                                             <Badge
                                                 key={idx}
-                                                leftSection={
-                                                    <IconPhone size={14} />
-                                                }
-                                                variant="light"
+                                                variant="secondary"
                                             >
+                                                <IconPhone
+                                                    size={14}
+                                                    className="mr-1"
+                                                />
                                                 {phone}
                                             </Badge>
                                         )
                                     )}
-                                </Group>
-                            </Stack>
-                        </Group>
-                        <Button leftSection={<IconEdit size={16} />}>
+                                </div>
+                            </div>
+                        </div>
+                        <Button>
+                            <IconEdit size={16} className="mr-2" />
                             Edit Profile
                         </Button>
-                    </Group>
+                    </div>
 
-                    <Stack gap="md">
+                    <div className="space-y-4">
                         <div>
-                            <Text fw={600} mb="xs">
-                                Bio
-                            </Text>
-                            <Text c="dimmed">
+                            <p className="font-semibold mb-2">Bio</p>
+                            <p className="text-muted-foreground">
                                 {professional.bio || "No bio added yet"}
-                            </Text>
+                            </p>
                         </div>
-                    </Stack>
-                </div>
-            </Paper>
+                    </div>
+                </CardContent>
+            </Card>
 
-            <Divider my="xl" />
+            <Separator className="my-8" />
 
-            {/* Businesses Section */}
             <div>
-                <Group justify="space-between" mb="xl">
-                    <Title order={3}>Your Businesses</Title>
-                    <Link passHref href="/create-new-business">
-                        <Button leftSection={<IconPlus size={16} />}>
+                <div className="flex justify-between items-center mb-8">
+                    <h3 className="text-xl font-bold">Your Businesses</h3>
+                    <Link href="/create-new-business">
+                        <Button>
+                            <IconPlus size={16} className="mr-2" />
                             Add Business
                         </Button>
                     </Link>
-                </Group>
+                </div>
 
                 <div className="space-y-6">
                     {businesses?.map((business) => (
@@ -111,12 +114,14 @@ export default async function ProfilePage() {
 
                 {!businesses ||
                     (businesses.length === 0 && (
-                        <Paper p="xl" ta="center" c="dimmed">
-                            <Text>
-                                No businesses yet. Create your first business to
-                                get started!
-                            </Text>
-                        </Paper>
+                        <Card>
+                            <CardContent className="p-8 text-center">
+                                <p className="text-muted-foreground">
+                                    No businesses yet. Create your first
+                                    business to get started!
+                                </p>
+                            </CardContent>
+                        </Card>
                     ))}
             </div>
         </div>

@@ -1,7 +1,7 @@
 "use server";
 
-import { database } from "@/shared";
 import { professionalActionClient } from "@/shared/action-clients/professional-action-client";
+import { database } from "@/shared/db";
 import { schema } from "@/shared/db/schema";
 import { createBusinessSchema } from "../schema/create-business-schema";
 

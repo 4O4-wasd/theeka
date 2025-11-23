@@ -1,4 +1,3 @@
-import { env } from "@/shared";
 import { database } from "@/shared/db";
 import * as schema from "@/shared/db/schema/auth";
 import { betterAuth } from "better-auth";
@@ -17,12 +16,12 @@ export const auth = betterAuth({
     },
     socialProviders: {
         google: {
-            clientId: env.GOOGLE_CLIENT_ID,
-            clientSecret: env.GOOGLE_SECRET,
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_SECRET!,
         },
         facebook: {
-            clientId: env.FACEBOOK_CLIENT_ID,
-            clientSecret: env.FACEBOOK_SECRET,
+            clientId: process.env.FACEBOOK_CLIENT_ID!,
+            clientSecret: process.env.FACEBOOK_SECRET!,
         },
     },
     plugins: [nextCookies()],

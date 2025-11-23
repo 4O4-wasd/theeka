@@ -69,3 +69,5 @@ export const defaultBusinessSchema = createSelectSchema(schema.business, {
     }),
     radius: z.number("Radius is required").min(1),
 });
+
+export type DefaultBusinessSchemaType = z.infer<typeof defaultBusinessSchema>;

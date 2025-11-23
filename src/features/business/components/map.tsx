@@ -9,11 +9,13 @@ function Map({
     lng,
     name,
     serviceRadius,
+    hideZoomInOut
 }: {
     lat: number;
     lng: number;
     name: string;
-    serviceRadius: string | number;
+        serviceRadius: string | number;
+    hideZoomInOut?: boolean
 }) {
     const mapRef = useRef<HTMLDivElement | null>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
@@ -37,6 +39,7 @@ function Map({
         const map = L.map(mapRef.current, {
             center: [lat, lng],
             zoom: getZoom(radius),
+            zoomControl: !hideZoomInOut
         });
 
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
@@ -91,7 +94,7 @@ function Map({
         };
     }, [lat, lng, serviceRadius, name]);
 
-    return <div ref={mapRef} style={{ width: "100%", height: "100%" }} />;
+    return <div ref={mapRef} className="rounded-md" style={{ width: "100%", height: "100%" }} />;
 }
 
 export { Map };

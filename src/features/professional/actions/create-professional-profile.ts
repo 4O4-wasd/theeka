@@ -1,8 +1,9 @@
 "use server";
 
-import { database, protectedActionClient } from "@/shared";
+import { protectedActionClient } from "@/shared";
 import { schema } from "@/shared/db/schema";
 import { createProfessionalProfileSchema } from "../schema/create-professional";
+import { database } from "@/shared/db";
 
 export const createProfessionalProfile = protectedActionClient
     .inputSchema(createProfessionalProfileSchema)

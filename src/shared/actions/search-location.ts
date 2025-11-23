@@ -33,10 +33,9 @@ export interface City {
     type: string;
     postcode?: string;
     city?: string;
-county?: string;
+    county?: string;
     coordinates: number[];
 }
-
 
 const fetchLocation = async (query: string): Promise<City[]> => {
     const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(
@@ -51,20 +50,30 @@ const fetchLocation = async (query: string): Promise<City[]> => {
 
     const data: PhotonResponse = await response.json();
 
-    return data.features
+    const returnData: City[] = [];
+
+    data.features
         .filter((feature) => feature.properties.country === "India")
-        .map(
-            (feature): City => ({
-                name: feature.properties.name,
-                country: feature.properties.country,
-                state: feature.properties.state,
-                coordinates: feature.geometry.coordinates,
-                postcode: feature.properties.postcode,
-                type: feature.properties.type,
-                city: feature.properties.city,
-                county: feature.properties.county,
-            })
-        );
+        .forEach((feat) => {
+            const doesExistAlready = !!returnData.find(
+                (f) => f.name === feat.properties.name
+            );
+            if (doesExistAlready) {
+                return;
+            }
+            returnData.push({
+                name: feat.properties.name,
+                country: feat.properties.country,
+                state: feat.properties.state,
+                coordinates: feat.geometry.coordinates,
+                postcode: feat.properties.postcode,
+                type: feat.properties.type,
+                city: feat.properties.city,
+                county: feat.properties.county,
+            });
+        });
+
+    return returnData;
 };
 
 export async function searchLocations(city: string): Promise<City[]> {

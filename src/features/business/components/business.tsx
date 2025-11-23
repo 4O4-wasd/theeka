@@ -1,171 +1,148 @@
 "use client";
 
-import { cn } from "@/shared";
-import { Badge, Button, Card, Group, Paper, Text } from "@mantine/core";
-import {
-    IconBrandWhatsapp,
-    IconMapPin,
-    IconPhone,
-    IconStar,
-} from "@tabler/icons-react";
 import Link from "next/link";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
+
+import { cn } from "@/shared";
+
+import { MapPin, Phone, Star } from "lucide-react";
+
+import Text from "@/shared/components/ui/text";
+import { IconBrandWhatsapp } from "@tabler/icons-react";
 import { BusinessSchemaType } from "../schema/business-schema";
 
-type Props = (
-    | {
-          preview: true;
-          href?: string;
-      }
-    | { preview: false }
-) & {
-    business: BusinessSchemaType;
-};
+type Props =
+    | (
+          | {
+                preview: true;
+                href?: string;
+            }
+          | {
+                preview: false;
+            }
+      ) & {
+          business: BusinessSchemaType;
+      };
 
-const Business = ({ business, ...props }: Props) => {
+export function Business({ business, ...props }: Props) {
+    const avgRating =
+        business.totalRating && business.totalReviews
+            ? (business.totalRating / business.totalReviews)
+                  .toFixed(1)
+                  .replace(".0", "")
+            : null;
+
     return (
         <Card
-            key={business.id}
-            padding={0}
-            radius="md"
-            withBorder
-            component={props.preview ? Link : undefined}
-            href={props.preview ? props.href ?? `/b/${business.id}` : ""}
-            className={cn(props.preview && "group")}
+            className={cn(
+                "overflow-hidden transition-all p-0 shadow-none",
+                props.preview && "group cursor-pointer"
+            )}
         >
-            <div className="flex sm:flex-row flex-col gap-4 p-4">
-                <Paper className="sm:flex-[.2] lg:flex-[.15]">
+            <div className="flex flex-col sm:flex-row gap-6 p-3">
+                <div className="relative aspect-video border justify-center items-center flex sm:aspect-auto sm:size-48 flex-shrink-0 overflow-hidden rounded-xl">
                     <img
                         src={business.thumbnail}
                         alt={business.title}
-                        style={{
-                            width: "100%",
-                            height: "200px",
-                            objectFit: "cover",
-                            borderRadius: "8px",
-                        }}
+                        className="object-cover transition-transform"
                     />
-                </Paper>
+                </div>
 
-                <div className="sm:flex-[.8] lg:flex-[.85] flex flex-col">
-                    <Group justify="apart" mb="xs">
-                        <div style={{ flex: 1 }}>
-                            <Text
-                                size="xl"
-                                fw={600}
-                                className={cn(
-                                    props.preview && "group-hover:underline!"
-                                )}
-                            >
-                                {business.title}
-                            </Text>
-
-                            {business.totalRating && business.totalReviews ? (
-                                <Group gap={4} mt={4}>
-                                    <Group gap={4}>
-                                        <IconStar
-                                            size={16}
-                                            fill="gold"
-                                            color="gold"
-                                        />
-                                        <Text size="sm" fw={600}>
-                                            {(
-                                                business.totalRating /
-                                                business.totalReviews
-                                            )
-                                                .toFixed(1)
-                                                .toString()
-                                                .replace(".0", "")}{" "}
-                                            / 5
-                                        </Text>
-                                    </Group>
-                                    <Text size="sm" c="dimmed">
-                                        ({business.totalReviews} Reviews)
+                <div className="flex flex-1 flex-col px-2 pb-2 sm:px-0 sm:pr-2 sm:pb-0 justify-center gap-5">
+                    <Link
+                        href={
+                            props.preview
+                                ? props.href ?? `/b/${business.id}`
+                                : "#"
+                        }
+                        className={props.preview ? "" : "pointer-events-none"}
+                    >
+                        <div className="flex flex-col gap-1.5">
+                            <div className="flex justify-between w-full flex-wrap">
+                                <div className="flex items-start">
+                                    <Text
+                                        noTranslate
+                                        variant="h3"
+                                        className="group-hover:underline line-clamp-1"
+                                    >
+                                        {business.title}
                                     </Text>
-                                </Group>
-                            ) : (
-                                <Group gap="xs" mt={4}>
-                                    <Group gap={4}>
-                                        <IconStar
-                                            size={16}
-                                            fill="gray"
-                                            color="gray"
-                                        />
-                                        <Text size="sm" c="dimmed" fw={600}>
-                                            N / A
-                                        </Text>
-                                    </Group>
-                                </Group>
-                            )}
+                                </div>
+
+                                <div className="flex items-center gap-3 shrink-0">
+                                    {avgRating ? (
+                                        <>
+                                            <div className="flex items-center gap-1">
+                                                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                                                <span className="font-medium">
+                                                    {avgRating}
+                                                </span>
+                                                <span className="text-sm text-muted-foreground">
+                                                    / 5
+                                                </span>
+                                            </div>
+                                            <span className="text-sm text-muted-foreground">
+                                                ({business.totalReviews}{" "}
+                                                reviews)
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-sm text-muted-foreground font-medium">
+                                                N / A
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <p className="text-muted-foreground line-clamp-2">
+                                {business.description ||
+                                    "No description provided"}
+                            </p>
+
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <MapPin className="h-4 w-4" />
+                                <span className="line-clamp-1">
+                                    Based in {business.location.name},{" "}
+                                    {business.location.state} • Service range:{" "}
+                                    {business.radius} km
+                                </span>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                                {business.categoryNames
+                                    .slice(0, 3)
+                                    .map((category, idx) => (
+                                        <Badge key={idx} variant="secondary">
+                                            {category}
+                                        </Badge>
+                                    ))}
+                            </div>
                         </div>
+                    </Link>
 
-                        {/* <Group gap="xs">
-                            <ActionIcon
-                                variant="light"
-                                color="blue"
-                                size="lg"
-                                onClick={() => handleEdit(business)}
-                            >
-                                <IconEdit size={18} />
-                            </ActionIcon>
-                            <ActionIcon
-                                variant="light"
-                                color="red"
-                                size="lg"
-                                onClick={() => {
-                                    setSelectedBusiness(business);
-                                    setDeleteModalOpen(true);
-                                }}
-                            >
-                                <IconTrash size={18} />
-                            </ActionIcon>
-                        </Group> */}
-                    </Group>
-
-                    <Text size="sm" c="dimmed" mb="sm" lineClamp={2}>
-                        {business.description || "No description provided"}
-                    </Text>
-
-                    <Group gap={4} c="dimmed" mb="sm">
-                        <IconMapPin size={14} />
-                        <Text size="sm">
-                            Based in {business.location.name},{" "}
-                            {business.location.state} • Service range:{" "}
-                            {business.radius} km
-                        </Text>
-                    </Group>
-
-                    <Group gap={6} mb="md">
-                        {business.categoryNames
-                            .slice(0, 3)
-                            .map((category, idx) => (
-                                <Badge key={idx} variant="light">
-                                    {category}
-                                </Badge>
-                            ))}
-                    </Group>
-
-                    <Group gap="xs">
+                    <div className="flex gap-3 flex-wrap">
                         <Button
-                            leftSection={<IconPhone size={18} />}
-                            variant="filled"
-                            size="sm"
+                            variant="outline"
+                            onClick={() => console.log("child")}
                         >
+                            <Phone className="size-4 text-foreground" />
                             {business.professional.phoneNumbers}
                         </Button>
                         <Button
-                            leftSection={<IconBrandWhatsapp size={18} />}
-                            color="teal"
-                            variant="filled"
-                            size="sm"
-                            c="white"
+                            variant="outline"
+                            onClick={() => console.log("child")}
                         >
+                            <IconBrandWhatsapp className="size-5 text-teal-500" />
                             WhatsApp
                         </Button>
-                    </Group>
+                    </div>
                 </div>
             </div>
         </Card>
     );
-};
-
-export { Business };
+}

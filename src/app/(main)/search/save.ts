@@ -2,6 +2,7 @@
 
 import { City } from "@/shared";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 export const saveCity = async (city: City) => {
     const cookieStore = await cookies();
@@ -15,10 +16,11 @@ export const saveCity = async (city: City) => {
     console.log("done");
 };
 
-export const getSavedCity = async () => {
+export const getSavedCity = cache(async () => {
     const cookieStore = await cookies();
+    console.log("city")
     const city = cookieStore.get("current-city");
     if (city && city.value) {
         return JSON.parse(city.value) as City;
     }
-};
+});

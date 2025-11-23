@@ -1,26 +1,16 @@
 "use client";
 
 import { TT } from "@/features/translation";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { cn } from "@/shared/utils/cn";
-import {
-    Button,
-    Card,
-    Container,
-    Group,
-    Stack,
-    Text,
-    Title,
-    UnstyledButton,
-} from "@mantine/core";
 import { IconArrowRight, IconTie } from "@tabler/icons-react";
 import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SelectRolePage() {
-    const [selectedRole, setSelectedRole] = useState<
-        "business" | "customer" | null
-    >(null);
+    const [selectedRole, setSelectedRole] = useState<"business" | "customer" | null>(null);
     const router = useRouter();
 
     const handleRoleSelect = (role: "business" | "customer") => {
@@ -36,103 +26,100 @@ export default function SelectRolePage() {
     };
 
     return (
-        <Container size="xs" className="h-dvh flex items-center justify-center">
-            <Card padding="xl" radius="md" className="w-full">
-                <Stack gap="md">
+        <div className="container max-w-md h-dvh flex items-center justify-center">
+            <Card className="w-full">
+                <CardContent className="p-6 space-y-6">
                     <div>
-                        <Title order={1} ta="center" mb="xs">
+                        <h1 className="text-2xl font-bold text-center mb-2">
                             <TT>Choose Your Role</TT>
-                        </Title>
-                        <Text ta="center" c="dimmed" size="sm">
+                        </h1>
+                        <p className="text-center text-muted-foreground text-sm">
                             <TT>Select how you want to use the platform</TT>
-                        </Text>
+                        </p>
                     </div>
 
-                    <Stack gap="md" mt="md">
-                        <UnstyledButton
+                    <div className="space-y-3 mt-6">
+                        <button
                             onClick={() => handleRoleSelect("business")}
-                            unstyled
                             className={cn(
                                 "p-4 border-2 rounded-lg transition w-full",
                                 selectedRole === "business"
-                                    ? "border-(--mantine-color-dark-6)"
-                                    : "border-(--mantine-color-default-border)"
+                                    ? "border-primary"
+                                    : "border-border"
                             )}
                         >
-                            <Group gap="md" wrap="nowrap">
+                            <div className="flex gap-3 items-center">
                                 <div
                                     className={cn(
                                         "p-2 rounded-full flex items-center justify-center",
                                         selectedRole === "business"
-                                            ? "bg-(--mantine-color-dark-6) text-white"
-                                            : "bg-(--mantine-color-gray-1) text-(--mantine-color-gray-6)"
+                                            ? "bg-primary text-primary-foreground"
+                                            : "bg-muted text-muted-foreground"
                                     )}
                                 >
                                     <IconTie size={20} />
                                 </div>
-                                <div style={{ textAlign: "left", flex: 1 }}>
-                                    <Text fw={600} size="sm">
+                                <div className="text-left flex-1">
+                                    <p className="font-semibold text-sm">
                                         <TT>Professional</TT>
-                                    </Text>
-                                    <Text size="xs" c="dimmed" mt={4}>
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
                                         <TT>
                                             Offer your services and find
                                             customers
                                         </TT>
-                                    </Text>
+                                    </p>
                                 </div>
-                            </Group>
-                        </UnstyledButton>
+                            </div>
+                        </button>
 
-                        <UnstyledButton
+                        <button
                             onClick={() => handleRoleSelect("customer")}
-                            unstyled
                             className={cn(
                                 "p-4 border-2 rounded-lg transition w-full",
                                 selectedRole === "customer"
-                                    ? "border-(--mantine-color-dark-6)"
-                                    : "border-(--mantine-color-default-border)"
+                                    ? "border-primary"
+                                    : "border-border"
                             )}
                         >
-                            <Group gap="md" wrap="nowrap">
+                            <div className="flex gap-3 items-center">
                                 <div
                                     className={cn(
                                         "p-2 rounded-full flex items-center justify-center",
                                         selectedRole === "customer"
-                                            ? "bg-(--mantine-color-dark-6) text-white"
-                                            : "bg-(--mantine-color-gray-1) text-(--mantine-color-gray-6)"
+                                            ? "bg-primary text-primary-foreground"
+                                            : "bg-muted text-muted-foreground"
                                     )}
                                 >
                                     <User size={20} />
                                 </div>
-                                <div style={{ textAlign: "left", flex: 1 }}>
-                                    <Text fw={600} size="sm">
+                                <div className="text-left flex-1">
+                                    <p className="font-semibold text-sm">
                                         <TT>Customer</TT>
-                                    </Text>
-                                    <Text size="xs" c="dimmed" mt={4}>
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
                                         <TT>Find and hire Professionals</TT>
-                                    </Text>
+                                    </p>
                                 </div>
-                            </Group>
-                        </UnstyledButton>
+                            </div>
+                        </button>
 
                         <Button
                             onClick={handleContinue}
                             disabled={!selectedRole}
-                            fullWidth
-                            rightSection={<IconArrowRight size={16} />}
-                            justify="space-between"
+                            className="w-full justify-between"
                         >
                             <TT>Continue</TT>
+                            <IconArrowRight size={16} />
                         </Button>
-                        <div className="self-center">
-                            <Text size="xs" c="dimmed" mt={4}>
+                        <div className="flex justify-center">
+                            <p className="text-xs text-muted-foreground mt-1">
                                 <TT>You can change the later</TT>
-                            </Text>
+                            </p>
                         </div>
-                    </Stack>
-                </Stack>
+                    </div>
+                </CardContent>
             </Card>
-        </Container>
+        </div>
     );
 }

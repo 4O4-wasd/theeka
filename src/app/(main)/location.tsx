@@ -1,10 +1,12 @@
 "use client";
 
 import { LocationSearch } from "@/features/business/components/location-search";
-import { City } from "@/shared";
+import { City, cn } from "@/shared";
+import { Button } from "@/shared/components/ui/button";
 import { useGeolocation } from "@uidotdev/usehooks";
-import { Loader2 } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
 import { getSavedCity, saveCity } from "./search/save";
 
 async function reverseGeocode(lat: number, lon: number): Promise<City | null> {
@@ -14,7 +16,7 @@ async function reverseGeocode(lat: number, lon: number): Promise<City | null> {
                 `lat=${lat}&lon=${lon}&format=json&addressdetails=1`,
             {
                 headers: {
-                    "User-Agent": "YourAppName/1.0", // Required by Nominatim
+                    "User-Agent": "Theeka/1.0",
                 },
             }
         );
@@ -25,13 +27,12 @@ async function reverseGeocode(lat: number, lon: number): Promise<City | null> {
 
         const data = await response.json();
 
-        // Transform Nominatim response to your City interface
         const city: City = {
             name: data.display_name || "",
-            country: data.address?.country || "",
-            state: data.address?.state,
-            type: data.type || data.addresstype || "",
-            postcode: data.address?.postcode || "",
+            country: "",
+            state: "",
+            type: "",
+            postcode: "",
             city:
                 data.address?.city ||
                 data.address?.town ||
@@ -64,7 +65,7 @@ const LocationInput = ({ className }: { className?: string }) => {
         })();
     }, []);
 
-    useEffect(() => {
+    const geoLocation = (isUseEffect: boolean = false) => {
         startTransition(async () => {
             if (
                 !isPending &&
@@ -72,37 +73,49 @@ const LocationInput = ({ className }: { className?: string }) => {
                 state.latitude &&
                 state.longitude
             ) {
-                if (!currentCity) {
-                    const res = await reverseGeocode(
-                        state.latitude,
-                        state.longitude
-                    );
-                    if (res) {
-                        setCurrentCity(res);
-
-                        await saveCity(res);
-                    }
+                if (currentCity && isUseEffect) {
+                    return;
                 }
+                const res = await reverseGeocode(
+                    state.latitude,
+                    state.longitude
+                );
+                if (res) {
+                    setCurrentCity(res);
+                    await saveCity(res);
+                }
+            } else if (!isUseEffect) {
+                toast.error("Please enable Location");
             }
         });
+    };
+
+    useEffect(() => {
+        geoLocation(true);
     }, [state]);
 
     return (
-        <LocationSearch
-            onChange={async (c) => {
-                await saveCity(c);
-                setCurrentCity(c);
-            }}
-            defaultSelectedValue={currentCity ?? undefined}
-            label=""
-            className={className}
-            disabled={isPending}
-            rightSection={
-                isPending ? (
-                    <Loader2 className="animate-spin" size={16} />
-                ) : undefined
-            }
-        />
+        <div className={cn("flex", className)}>
+            <LocationSearch
+                onChange={async (c) => {
+                    await saveCity(c);
+                    setCurrentCity(c);
+                }}
+                defaultSelectedValue={currentCity ?? undefined}
+                label=""
+                className="flex-1"
+                buttonClassName="rounded-r-none border-r"
+                disabled={isPending}
+            />
+            <Button
+                variant="outline"
+                size="icon"
+                className="rounded-l-none border-l"
+                onClick={() => geoLocation()}
+            >
+                <MapPin className="size-4" />
+            </Button>
+        </div>
     );
 };
 

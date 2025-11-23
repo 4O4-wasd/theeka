@@ -1,9 +1,10 @@
 "use server";
 
-import { database, protectedActionClient } from "@/shared";
-import z from "zod";
+import { protectedActionClient } from "@/shared";
+import { database } from "@/shared/db";
+import { cache } from "react";
 
-export const getProfessional = protectedActionClient.action(async ({ ctx }) => {
+export const getProfessional = cache(protectedActionClient.action(async ({ ctx }) => {
     const professional = await database.query.professional.findFirst({
         where(fields, { sql }) {
             return sql`${fields.userId} = ${ctx.user.id}`;
@@ -11,4 +12,4 @@ export const getProfessional = protectedActionClient.action(async ({ ctx }) => {
     });
 
     return professional;
-});
+}));

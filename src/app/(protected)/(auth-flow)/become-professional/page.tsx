@@ -1,5 +1,5 @@
 import { auth } from "@/features/auth/utils/auth";
-import { BecomeProfessionalFrom } from "@/features/professional/components/become-professional-from";
+import { BecomeProfessionalForm } from "@/features/professional/components/become-professional-from";
 import { headers } from "next/headers";
 
 const BecomeProfessionalPage = async () => {
@@ -16,7 +16,7 @@ const BecomeProfessionalPage = async () => {
     //     redirect("/");
     // }
 
-    return <BecomeProfessionalFrom user={session.user} />;
+    return <BecomeProfessionalForm user={session.user} />;
 };
 
 export default BecomeProfessionalPage;

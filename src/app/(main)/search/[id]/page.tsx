@@ -1,53 +1,10 @@
+import { searchBusiness } from "@/features/business/actions/search-business";
 import { Business } from "@/features/business/components/business";
-import { database } from "@/shared";
-import { Input, Text } from "@mantine/core";
+import SearchInput from "@/features/explore/components/search-input";
+import { Input } from "@/shared/components/ui/input";
+import Text from "@/shared/components/ui/text";
 import LocationInput from "../../location";
 import { getSavedCity } from "../save";
-import SearchInput from "./search-input";
-
-const preparedQuery = database.query.business
-    .findMany({
-        with: {
-            professional: {
-                columns: {
-                    createdAt: false,
-                },
-            },
-        },
-        where: (
-            { categoryNames, title, description, radius },
-            { sql, and, or }
-        ) =>
-            and(
-                sql`
-                (
-                    6371 * 2 * ASIN(SQRT(
-                        POWER(SIN((RADIANS(${sql.placeholder(
-                            "lat"
-                        )}) - RADIANS(json_extract(location, '$.coordinates[1]'))) / 2), 2) +
-                        COS(RADIANS(json_extract(location, '$.coordinates[1]'))) * COS(RADIANS(${sql.placeholder(
-                            "lat"
-                        )})) *
-                        POWER(SIN((RADIANS(${sql.placeholder(
-                            "lng"
-                        )}) - RADIANS(json_extract(location, '$.coordinates[0]'))) / 2), 2)
-                    )) <= ${radius}
-                )
-            `,
-                sql`
-                (
-                    lower(${title}) LIKE lower(${sql.placeholder("searchTerm")})
-                    OR lower(${description}) LIKE lower(${sql.placeholder(
-                    "searchTerm"
-                )})
-                    OR lower(json_extract(${categoryNames}, '$')) LIKE lower(${sql.placeholder(
-                    "searchTerm"
-                )})
-                )
-            `
-            ),
-    })
-    .prepare();
 
 const SearchIdPage = async ({
     params: p,
@@ -70,9 +27,9 @@ const SearchIdPage = async ({
                     <LocationInput className="flex-[.2]" />
                 </div>
                 <div className="space-y-12 pb-20">
-                    <Text fw={700} size="xl">
+                    <p className="text-xl font-bold">
                         Please select a location
-                    </Text>
+                    </p>
                 </div>
             </div>
         );
@@ -80,21 +37,30 @@ const SearchIdPage = async ({
 
     const [lng, lat] = city.coordinates;
 
-    const businesses = await preparedQuery.execute({
-        lat,
-        lng,
-        searchTerm: `%${searchTerm}%`,
-    });
+    const businesses = (
+        await searchBusiness({
+            searchTerm,
+            limit: 10,
+        })
+    ).data;
 
-    console.log(businesses);
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex gap-2 shrink-0 w-full">
-                <SearchInput defaultValue={searchTerm} />
-                <LocationInput className="flex-[.2]" />
+        <div className="flex flex-col gap-4 md:px-4">
+            <div className="container max-w-7xl py-5">
+                <div className="flex gap-1 mb-3">
+                    <Text variant="h4" noTranslate>
+                        Showing results for "{searchTerm}" in {city.name}
+                    </Text>
+                </div>
+
+                <div className="flex gap-2 shrink-0 flex-col">
+                    <SearchInput defaultValue={searchTerm} />
+                    <LocationInput className="!flex-[0.4]" />
+                </div>
             </div>
+
             <div className="space-y-6 pb-20">
-                {businesses.map((b) => (
+                {businesses?.map((b) => (
                     <Business preview business={b} key={b.id} />
                 ))}
             </div>

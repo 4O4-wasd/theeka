@@ -1,5 +1,5 @@
 import { BusinessViewer } from "@/features/business/components/business-viewer";
-import { database } from "@/shared";
+import { database } from "@/shared/db";
 
 const BusinessPage = async ({
     params: p,

@@ -1,38 +1,45 @@
 "use client";
 
-import { ActionIcon, Menu } from "@mantine/core";
+import { Button } from "@/shared/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 import { Languages } from "lucide-react";
 import { languages } from "../constants/languages";
 import { useLanguage } from "../providers/language-provider";
+import { TT } from "./translate-text";
 
 const LanguageSelect = () => {
-    const { language, setLanguage } = useLanguage();
+    const { setLanguage, language } = useLanguage();
 
     return (
-        <Menu shadow="md" width={200}>
-            <Menu.Target>
-                <ActionIcon variant="default" size="lg">
-                    <Languages size={20} />
-                </ActionIcon>
-            </Menu.Target>
-
-            <Menu.Dropdown>
-                <div className="h-[50vh] overflow-auto">
-                    {Object.keys(languages).map((key) => (
-                        <Menu.Item
-                            onClick={() =>
-                                setLanguage(key as keyof typeof languages)
-                            }
-                            key={key}
-                        >
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <Languages className="size-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 z-101">
+                {Object.keys(languages).map((key) => (
+                    <DropdownMenuCheckboxItem
+                        checked={key === language}
+                        onCheckedChange={() =>
+                            setLanguage(key as keyof typeof languages)
+                        }
+                        key={key}
+                        className="font-medium"
+                    >
+                        <TT to={key as keyof typeof languages}>
                             {languages[key as keyof typeof languages]}
-                        </Menu.Item>
-                    ))}
-                </div>
-            </Menu.Dropdown>
-        </Menu>
+                        </TT>
+                    </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 };
 
 export { LanguageSelect };
-

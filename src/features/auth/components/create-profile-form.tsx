@@ -5,15 +5,15 @@ import { CropArea, cropImage } from "@/features/auth/utils/crop-image";
 import { TT } from "@/features/translation";
 import { defaultUserSchema } from "@/shared/schemas";
 import { uploadFile } from "@/shared/utils";
+import { Button } from "@/shared/components/ui/button";
 import {
-    Button,
-    Modal,
-    Slider,
-    Stack,
-    Text,
-    TextInput,
-    Title,
-} from "@mantine/core";
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/shared/components/ui/dialog";
+import { Input } from "@/shared/components/ui/input";
+import { Slider } from "@/shared/components/ui/slider";
 import { IconArrowRight, IconUser } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
@@ -123,15 +123,15 @@ const CreateProfileForm = ({
         <div className="min-h-screen flex items-center justify-center bg-background">
             <div className="w-full max-w-md">
                 <div className="space-y-1 mb-6">
-                    <Title order={1} className="text-4xl font-bold text-center">
+                    <h1 className="text-4xl font-bold text-center">
                         <TT>Create Profile</TT>
-                    </Title>
-                    <Text className="text-center text-base" c="dimmed">
+                    </h1>
+                    <p className="text-center text-base text-muted-foreground">
                         <TT>Set up your profile to get started</TT>
-                    </Text>
+                    </p>
                 </div>
 
-                <Stack gap="xl">
+                <div className="space-y-6">
                     <div className="flex flex-col items-center space-y-4">
                         <label
                             htmlFor="profile-image"
@@ -158,88 +158,89 @@ const CreateProfileForm = ({
                                 className="hidden"
                             />
                         </label>
-                        <Text size="sm" c="dimmed" ta="center">
+                        <p className="text-sm text-muted-foreground text-center">
                             <TT>Click to upload your profile picture</TT>{" "}
                             <strong>
                                 (<TT>optional</TT>)
                             </strong>
-                        </Text>
+                        </p>
                     </div>
 
-                    <TextInput
-                        disabled={isCreating}
-                        id="name"
-                        placeholder="Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        leftSection={<IconUser size={16} />}
-                    />
-
-                    <Button
-                        onClick={handleSubmit}
-                        fullWidth
-                        disabled={isCreating}
-                        rightSection={<IconArrowRight size={16} />}
-                        justify="space-between"
-                        className="!px-4"
-                    >
-                        Continue
-                    </Button>
-                </Stack>
-            </div>
-
-            <Modal
-                opened={isDialogOpen}
-                onClose={() => setIsDialogOpen(false)}
-                title="Crop Profile Picture"
-                centered
-                size="md"
-            >
-                <Stack gap="md">
-                    <Text size="sm" c="dimmed">
-                        Adjust the image to fit your profile
-                    </Text>
-
-                    <div className="relative h-64 w-full bg-muted rounded-lg overflow-hidden">
-                        {imageSrc && (
-                            <Cropper
-                                image={imageSrc}
-                                crop={crop}
-                                zoom={zoom}
-                                aspect={1}
-                                cropShape="round"
-                                showGrid={false}
-                                onCropChange={setCrop}
-                                onCropComplete={onCropComplete}
-                                onZoomChange={setZoom}
-                            />
-                        )}
-                    </div>
-
-                    <div>
-                        <Text size="sm" fw={500} mb="xs">
-                            Zoom
-                        </Text>
-                        <Slider
-                            value={zoom}
-                            min={1}
-                            max={3}
-                            step={0.1}
-                            onChange={setZoom}
+                    <div className="relative">
+                        <IconUser
+                            size={16}
+                            className="absolute left-3 top-3 text-muted-foreground"
+                        />
+                        <Input
+                            disabled={isCreating}
+                            id="name"
+                            placeholder="Name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="pl-9"
                         />
                     </div>
 
-                    <div className="flex justify-end gap-2">
-                        <Button
-                            variant="default"
-                            onClick={() => setIsDialogOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button onClick={handleCropSave}>Save</Button>
+                    <Button
+                        onClick={handleSubmit}
+                        className="w-full justify-between px-4"
+                        disabled={isCreating}
+                    >
+                        Continue
+                        <IconArrowRight size={16} />
+                    </Button>
+                </div>
+            </div>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Crop Profile Picture</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                            Adjust the image to fit your profile
+                        </p>
+
+                        <div className="relative h-64 w-full bg-muted rounded-lg overflow-hidden">
+                            {imageSrc && (
+                                <Cropper
+                                    image={imageSrc}
+                                    crop={crop}
+                                    zoom={zoom}
+                                    aspect={1}
+                                    cropShape="round"
+                                    showGrid={false}
+                                    onCropChange={setCrop}
+                                    onCropComplete={onCropComplete}
+                                    onZoomChange={setZoom}
+                                />
+                            )}
+                        </div>
+
+                        <div>
+                            <p className="text-sm font-medium mb-2">Zoom</p>
+                            <Slider
+                                value={[zoom]}
+                                min={1}
+                                max={3}
+                                step={0.1}
+                                onValueChange={(value) => setZoom(value[0])}
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsDialogOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button onClick={handleCropSave}>Save</Button>
+                        </div>
                     </div>
-                </Stack>
-            </Modal>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

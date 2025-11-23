@@ -3,14 +3,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-
-input,
-button,
-textarea,
-*:where([data-with-border]) {
-    border-width: 2px !important;
-}
-
 .leaflet-pane,
 .leaflet-top,
 .leaflet-bottom {
@@ -22,6 +14,8 @@ textarea,
 }
 
 @theme inline {
+    --font-sans: "Geist";
+    --font-mono: "Geist Mono";
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
@@ -129,10 +123,10 @@ textarea,
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        @apply bg-background text-foreground;
     }
 }

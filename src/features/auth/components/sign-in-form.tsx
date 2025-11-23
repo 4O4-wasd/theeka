@@ -2,49 +2,44 @@
 
 import { authClient } from "@/features/auth/utils/auth-client";
 import { TS, TT } from "@/features/translation";
-import { database } from "@/shared";
-import {
-    Button,
-    Divider,
-    PasswordInput,
-    Stack,
-    Text,
-    TextInput,
-    Title,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { notifications } from "@mantine/notifications";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Separator } from "@/shared/components/ui/separator";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
     IconArrowRight,
     IconBrandFacebook,
     IconLock,
     IconMail,
 } from "@tabler/icons-react";
-import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-    email: z.email({ message: "Invalid email address" }),
+    email: z.string().email({ message: "Invalid email address" }),
     password: z
         .string()
         .min(8, { message: "Password must be at least 8 characters" }),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const SignInForm = () => {
     const [isLoggingIn, startLoginTransition] = useTransition();
     const router = useRouter();
 
-    const form = useForm({
-        initialValues: {
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
             email: "",
             password: "",
         },
-        validate: zod4Resolver(formSchema),
     });
 
-    const handleEmailSignIn = (values: typeof form.values) => {
+    const handleEmailSignIn = (values: FormValues) => {
         if (isLoggingIn) return;
 
         startLoginTransition(async () => {
@@ -76,21 +71,15 @@ const SignInForm = () => {
                     );
 
                     if (signUpResponse.error) {
-                        notifications.show({
-                            title: "Error",
-                            message:
-                                "There was something wrong when you tried to sign up",
-                            color: "red",
-                        });
+                        toast.error(
+                            "There was something wrong when you tried to sign up"
+                        );
                         return;
                     }
                 } catch (signUpError) {
-                    notifications.show({
-                        title: "Error",
-                        message:
-                            "There was something wrong when you tried to sign up",
-                        color: "red",
-                    });
+                    toast.error(
+                        "There was something wrong when you tried to sign up"
+                    );
                 }
             }
         });
@@ -107,12 +96,9 @@ const SignInForm = () => {
                 });
             });
         } catch {
-            notifications.show({
-                title: "Error",
-                message:
-                    "There was something wrong when you are trying to login",
-                color: "red",
-            });
+            toast.error(
+                "There was something wrong when you are trying to login"
+            );
         }
     };
 
@@ -127,12 +113,9 @@ const SignInForm = () => {
                 });
             });
         } catch {
-            notifications.show({
-                title: "Error",
-                message:
-                    "There was something wrong when you are trying to login",
-                color: "red",
-            });
+            toast.error(
+                "There was something wrong when you are trying to login"
+            );
         }
     };
 
@@ -140,22 +123,20 @@ const SignInForm = () => {
         <div className="min-h-screen flex items-center justify-center bg-background">
             <div className="w-full max-w-md">
                 <div className="space-y-1 mb-6">
-                    <Title order={1} className="text-4xl font-bold text-center">
+                    <h1 className="text-4xl font-bold text-center">
                         <TT>Welcome</TT>
-                    </Title>
-                    <Text className="text-center text-base" c="dimmed">
+                    </h1>
+                    <p className="text-center text-base text-muted-foreground">
                         <TT>Sign in to your account or create a new one</TT>
-                    </Text>
+                    </p>
                 </div>
 
-                <Stack gap="md" className="mb-4">
+                <div className="space-y-3 mb-4">
                     <Button
-                        variant="default"
+                        variant="outline"
                         onClick={handleGoogleAuth}
                         disabled={isLoggingIn}
-                        fullWidth
-                        rightSection={<IconArrowRight size={16} />}
-                        justify="space-between"
+                        className="w-full justify-between"
                     >
                         <svg className="h-4 w-4 mr-2.5" viewBox="0 0 24 24">
                             <path
@@ -176,69 +157,92 @@ const SignInForm = () => {
                             />
                         </svg>
                         <TT>Continue with Google</TT>
+                        <IconArrowRight size={16} />
                     </Button>
 
                     <Button
                         onClick={handleFacebookAuth}
                         disabled={isLoggingIn}
-                        fullWidth
-                        rightSection={<IconArrowRight size={16} />}
-                        justify="space-between"
-                        color="blue"
+                        className="w-full justify-between bg-blue-600 hover:bg-blue-700"
                     >
                         <IconBrandFacebook size={16} className="mr-2.5" />
                         <TT>Continue with Facebook</TT>
+                        <IconArrowRight size={16} />
                     </Button>
-                </Stack>
+                </div>
 
-                <Divider
-                    my="lg"
-                    label={
-                        <Text size="sm" tt="uppercase" fw={500} c="dimmed">
+                <div className="relative my-6">
+                    <Separator />
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2">
+                        <p className="text-sm uppercase font-medium text-muted-foreground">
                             <TT>Or</TT>
-                        </Text>
-                    }
-                    labelPosition="center"
-                />
+                        </p>
+                    </div>
+                </div>
 
-                <form onSubmit={form.onSubmit(handleEmailSignIn)}>
-                    <Stack gap="md">
+                <form onSubmit={form.handleSubmit(handleEmailSignIn)}>
+                    <div className="space-y-3">
                         <TS string="Email">
                             {(placeholder) => (
-                                <TextInput
-                                    id="email"
-                                    placeholder={placeholder}
-                                    disabled={isLoggingIn}
-                                    leftSection={<IconMail size={16} />}
-                                    {...form.getInputProps("email")}
-                                />
+                                <div className="relative">
+                                    <IconMail
+                                        size={16}
+                                        className="absolute left-3 top-3 text-muted-foreground"
+                                    />
+                                    <Input
+                                        id="email"
+                                        placeholder={placeholder}
+                                        disabled={isLoggingIn}
+                                        className="pl-9"
+                                        {...form.register("email")}
+                                    />
+                                    {form.formState.errors.email && (
+                                        <p className="text-sm text-destructive mt-1">
+                                            {
+                                                form.formState.errors.email
+                                                    .message
+                                            }
+                                        </p>
+                                    )}
+                                </div>
                             )}
                         </TS>
                         <TS string="Password">
                             {(placeholder) => (
-                                <PasswordInput
-                                    id="password"
-                                    placeholder={placeholder}
-                                    disabled={isLoggingIn}
-                                    styles={{
-                                        input: { borderWidth: 2 },
-                                    }}
-                                    leftSection={<IconLock size={16} />}
-                                    {...form.getInputProps("password")}
-                                />
+                                <div className="relative">
+                                    <IconLock
+                                        size={16}
+                                        className="absolute left-3 top-3 text-muted-foreground"
+                                    />
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        placeholder={placeholder}
+                                        disabled={isLoggingIn}
+                                        className="pl-9"
+                                        {...form.register("password")}
+                                    />
+                                    {form.formState.errors.password && (
+                                        <p className="text-sm text-destructive mt-1">
+                                            {
+                                                form.formState.errors.password
+                                                    .message
+                                            }
+                                        </p>
+                                    )}
+                                </div>
                             )}
                         </TS>
 
                         <Button
                             type="submit"
                             disabled={isLoggingIn}
-                            fullWidth
-                            rightSection={<IconArrowRight size={16} />}
-                            justify="space-between"
+                            className="w-full justify-between"
                         >
                             <TT>Continue with Email & Password</TT>
+                            <IconArrowRight size={16} />
                         </Button>
-                    </Stack>
+                    </div>
                 </form>
             </div>
         </div>

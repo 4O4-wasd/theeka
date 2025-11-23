@@ -1,25 +1,16 @@
 "use client";
 
+import SearchInput from "@/features/explore/components/search-input";
 import { TT } from "@/features/translation";
+import { cn } from "@/shared";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import Text, { textVariants } from "@/shared/components/ui/text";
 import contractorCategories from "@/shared/constants/contractors";
-import {
-    Badge,
-    Box,
-    Button,
-    Card,
-    Container,
-    Flex,
-    Grid,
-    Group,
-    Stack,
-    Text,
-    TextInput,
-    Title,
-} from "@mantine/core";
-import { IconChevronRight, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import LocationInput from "./location";
 
 export default function ContractorExploreContent() {
@@ -41,183 +32,162 @@ export default function ContractorExploreContent() {
         ? allContractors.filter((c) => c.category === selectedCategory)
         : allContractors;
 
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+
     const router = useRouter();
 
     return (
         <>
-            {/* Hero Section */}
-            <Box>
-                <Container size="xl" py={48}>
-                    <Stack gap="md" mb="xl">
-                        <Title order={1}>
-                            <TT>Find the Right Contractor</TT>
-                        </Title>
-                        <Text size="lg" c="dimmed">
-                            Connect with skilled professionals for your home and
-                            business needs
-                        </Text>
-                    </Stack>
+            <div>
+                <div className="container max-w-7xl py-12 px-4">
+                    <div className="flex flex-col gap-4 mb-6">
+                        <Text variant="h1">Search for the Right Business</Text>
+                    </div>
 
                     <div className="flex gap-2 shrink-0 flex-col">
-                        <TextInput
-                            placeholder="Search for electricians, plumbers, carpenters..."
-                            leftSection={<IconSearch size={16} />}
-                            className="!flex-[0.6]"
-                            size="lg"
-                            onKeyDown={(e) => {
-                                if (e.key === "enter") {
-                                    router.push(
-                                        `/search/${e.currentTarget.value}`
-                                    );
-                                }
-                            }}
-                        />
+                        <SearchInput />
                         <LocationInput className="!flex-[0.4]" />
                     </div>
-                </Container>
-            </Box>
+                </div>
+            </div>
 
-            <Container size="xl">
-                <Group justify="space-between" mb="xl">
-                    <Title order={2}>Browse by Category</Title>
+            <div className="container max-w-7xl px-4">
+                <div className="flex items-center justify-between mb-5">
+                    <Text variant="h2">Browse by Category</Text>
                     {selectedCategory && (
                         <Button
-                            variant="subtle"
+                            variant="ghost"
                             onClick={() => setSelectedCategory(null)}
                         >
                             Clear filter
                         </Button>
                     )}
-                </Group>
-                <Grid gutter="md" mb={48}>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
                     {Object.entries(contractorCategories).map(
                         ([categoryName, category]) => {
                             const Icon = category.icon;
                             const isSelected =
                                 selectedCategory === categoryName;
                             return (
-                                <Grid.Col
+                                <Button
                                     key={categoryName}
-                                    span={{ base: 6, sm: 4, md: 3 }}
+                                    className={cn(
+                                        "rounded-xl h-auto flex justify-start items-center gap-3.5 p-2"
+                                    )}
+                                    variant={
+                                        isSelected ? "secondary" : "outline"
+                                    }
+                                    onClick={() => {
+                                        if (isSelected) {
+                                            setSelectedCategory(null);
+                                            return;
+                                        }
+                                        setSelectedCategory(categoryName);
+                                        scrollRef.current?.scrollIntoView({
+                                            behavior: "smooth",
+                                        });
+                                    }}
                                 >
-                                    <Card
-                                        withBorder
-                                        shadow="xs"
-                                        padding="lg"
-                                        style={{
-                                            cursor: "pointer",
-                                            border: isSelected
-                                                ? "2px solid var(--mantine-color-blue-6)"
-                                                : undefined,
-                                        }}
-                                        onClick={() => {
-                                            setSelectedCategory(categoryName);
-                                        }}
-                                    >
-                                        <Flex
-                                            w={48}
-                                            h={48}
-                                            bg="indigo.1"
-                                            style={{ borderRadius: "50%" }}
-                                            align="center"
-                                            justify="center"
-                                            mb="sm"
-                                        >
-                                            <Icon
-                                                size={24}
-                                                color="var(--mantine-color-indigo-9)"
-                                            />
-                                        </Flex>
-                                        <Text fw={600} size="sm">
+                                    <div className="flex size-13 border-2 rounded-full items-center justify-center shrink-0">
+                                        <Icon className="text-foreground size-5" />
+                                    </div>
+                                    <div className="flex flex-col gap-1 items-start justify-center mb-2">
+                                        <Text className="font-semibold mt-1.5 line-clamp-2">
                                             {categoryName}
                                         </Text>
-                                        <Text size="xs" c="dimmed" mt={4}>
+                                        <p
+                                            className={cn(
+                                                textVariants({
+                                                    variant: "muted",
+                                                }),
+                                                "text-xs"
+                                            )}
+                                        >
                                             {category.contractors.length}{" "}
-                                            services
-                                        </Text>
-                                    </Card>
-                                </Grid.Col>
+                                            {category.contractors.length ===
+                                            1 ? (
+                                                <TT>service</TT>
+                                            ) : (
+                                                <TT>services</TT>
+                                            )}
+                                        </p>
+                                    </div>
+                                </Button>
                             );
                         }
                     )}
-                </Grid>
-                {/* Results Section */}
-                <Stack gap="xl" pb={200}>
-                    <Group justify="space-between">
-                        <Title order={2}>
+                </div>
+                <div className="flex flex-col gap-12 pb-48" ref={scrollRef}>
+                    <div className="flex justify-center sm:items-center sm:justify-between flex-col sm:flex-row">
+                        <Text variant="h2">
                             {selectedCategory
                                 ? selectedCategory
                                 : "All Services"}
-                        </Title>
-                        <Text size="sm" c="dimmed">
+                        </Text>
+                        <Text variant="muted">
                             {filteredContractors.length} services available
                         </Text>
-                    </Group>
+                    </div>
 
-                    <Grid gutter="md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredContractors.map((contractor, idx) => (
-                            <Grid.Col
+                            <Link
                                 key={idx}
-                                span={{ base: 12, sm: 6, md: 4 }}
+                                prefetch={false}
+                                href={`/search/${contractor.name}`}
+                                className="rounded-xl transition-all"
                             >
-                                <Card
-                                    padding="lg"
-                                    withBorder
-                                    className="h-full cursor-pointer"
-                                    component={Link}
-                                    prefetch={false}
-                                    href={`/search/${contractor.name}`}
-                                >
-                                    <Group
-                                        align="flex-start"
-                                        justify="space-between"
-                                        wrap="nowrap"
-                                    >
-                                        <Group align="flex-start" gap="md">
-                                            <Text size="2rem">
-                                                {contractor.icon}
-                                            </Text>
-                                            <Stack gap="xs" style={{ flex: 1 }}>
-                                                <Text fw={600}>
-                                                    <TT>{contractor.name}</TT>
-                                                </Text>
-                                                <Badge
-                                                    variant="default"
-                                                    size="sm"
-                                                >
-                                                    <TT>
-                                                        {contractor.category}
-                                                    </TT>
-                                                </Badge>
-                                                <Text size="sm" c="dimmed">
-                                                    <TT>
+                                <Card className="h-full cursor-pointer p-0">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex items-start gap-3">
+                                                <span className="text-3xl">
+                                                    {contractor.icon}
+                                                </span>
+                                                <div className="flex flex-col gap-2 flex-1">
+                                                    <Text className="font-semibold">
+                                                        {contractor.name}
+                                                    </Text>
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="w-fit"
+                                                    >
+                                                        <Text>
+                                                            {
+                                                                contractor.category
+                                                            }
+                                                        </Text>
+                                                    </Badge>
+                                                    <Text
+                                                        variant="muted"
+                                                        className="text-sm"
+                                                    >
                                                         {contractor.description}
-                                                    </TT>
-                                                </Text>
-                                            </Stack>
-                                        </Group>
-                                        <IconChevronRight
-                                            size={20}
-                                            style={{ flexShrink: 0 }}
-                                        />
-                                    </Group>
+                                                    </Text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </CardContent>
                                 </Card>
-                            </Grid.Col>
+                            </Link>
                         ))}
-                    </Grid>
+                    </div>
 
                     {filteredContractors.length === 0 && (
-                        <Stack align="center" py={64}>
-                            <Text size="4rem">🔍</Text>
-                            <Title order={3}>No contractors found</Title>
-                            <Text c="dimmed">
+                        <div className="flex flex-col items-center py-16">
+                            <span className="text-6xl">🔍</span>
+                            <h3 className="text-2xl font-bold mt-4">
+                                No contractors found
+                            </h3>
+                            <p className="text-muted-foreground mt-2">
                                 Try adjusting your search or browse all
                                 categories
-                            </Text>
-                        </Stack>
+                            </p>
+                        </div>
                     )}
-                </Stack>
-            </Container>
+                </div>
+            </div>
         </>
     );
 }

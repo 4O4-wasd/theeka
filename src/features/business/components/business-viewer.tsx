@@ -1,33 +1,31 @@
 "use client";
 
+import { TT } from "@/features/translation";
+import ExpandableImage from "@/shared/components/expandable-image";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import {
-    ActionIcon,
-    Anchor,
-    Avatar,
-    Badge,
-    Box,
-    Button,
-    Card,
-    Divider,
-    Grid,
-    Group,
-    Paper,
-    Stack,
-    Text,
-    Title,
-} from "@mantine/core";
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/shared/components/ui/carousel";
+import { Separator } from "@/shared/components/ui/separator";
+import Text from "@/shared/components/ui/text";
+import contractorCategories from "@/shared/constants/contractors";
 import {
     IconBrandWhatsapp,
     IconClock,
     IconMapPin,
     IconPhone,
     IconShare,
-    IconStar,
-    IconStarFilled,
 } from "@tabler/icons-react";
+import { Phone, Star } from "lucide-react";
 import { BusinessSchemaType } from "../schema/business-schema";
-
-import "@mantine/carousel/styles.css";
+import { Map } from "./map";
 
 const BusinessViewer = ({ business }: { business: BusinessSchemaType }) => {
     const reviews = [
@@ -111,327 +109,321 @@ const BusinessViewer = ({ business }: { business: BusinessSchemaType }) => {
         }
     };
 
+    const avgRating =
+        business.totalRating && business.totalReviews
+            ? (business.totalRating / business.totalReviews)
+                  .toFixed(1)
+                  .replace(".0", "")
+            : null;
+
+    const services = Object.entries(contractorCategories)
+        .flatMap(([categoryName, category]) =>
+            category.contractors.map((contractor) =>
+                business.categoryNames.includes(contractor.name)
+                    ? {
+                          ...contractor,
+                          category: categoryName,
+                          categoryColor: category.color,
+                          categoryBgColor: category.bgColor,
+                      }
+                    : undefined
+            )
+        )
+        .filter((i) => !!i);
+
+    console.log(services);
+
     return (
-        <div className="max-w-7xl mx-auto px-4">
-            {/* Header/Image Gallery */}
+        <div className="max-w-7xl mx-auto flex flex-col">
+            <Carousel className="w-full relative">
+                <div className="overflow-hidden">
+                    <CarouselContent>
+                        {[...Array(business.media.length + 1).keys()].map(
+                            (i) => {
+                                const media =
+                                    i === 0 ? null : business.media[i];
 
-            <div className="pb-10 pt-4 w-full grid md:grid-cols-2 gap-4">
-                <img
-                    src={business.thumbnail}
-                    alt="Thumbnail"
-                    className="aspect-video object-cover rounded-xl"
-                />
-                <div className="grid grid-cols-2 gap-2">
-                    {business.media.slice(0, 3).map((media, idx) => (
-                        <button
-                            key={idx}
-                            className="[all:unset] rounded-xl relative!"
-                        >
-                            {idx}
-                            {media.type === "video" ? (
-                                <video src={media.url} className="rounded-xl" />
-                            ) : (
-                                <img
-                                    src={media.url}
-                                    className="rounded-xl"
-                                    alt={`${business.title} ${idx + 1}`}
-                                />
-                            )}
-                        </button>
-                    ))}
-                    <img
-                        src={business.thumbnail}
-                        alt="Thumbnail"
-                        className="aspect-video object-cover rounded-xl"
-                    />
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div>
-                <Grid gutter="xl">
-                    {/* Left Column - Main Info */}
-                    <Grid.Col span={{ base: 12, md: 8 }}>
-                        <Stack gap="lg">
-                            {/* Title and Rating */}
-                            <Card padding="lg" radius="md" withBorder>
-                                <Group justify="space-between" mb="md">
-                                    <div>
-                                        <Title order={1} mb="xs">
-                                            {business.title}
-                                        </Title>
-                                        <Group gap="md">
-                                            <Group gap={4}>
-                                                <IconStar
-                                                    size={20}
-                                                    fill="gold"
-                                                    color="gold"
+                                return (
+                                    <CarouselItem className="aspect-video md:basis-1/2 pl-0 relative">
+                                        {!media ? (
+                                            <>
+                                                <ExpandableImage
+                                                    src={business.thumbnail}
+                                                    className="object-cover bg-background w-full h-full z-10"
                                                 />
-                                                <Text size="lg" fw={600}>
-                                                    {rating}
-                                                </Text>
-                                                <Text c="dimmed">/ 5</Text>
-                                            </Group>
-                                            {business.totalReviews && (
-                                                <Text c="dimmed">
+                                            </>
+                                        ) : media.type === "image" ? (
+                                            <>
+                                                <ExpandableImage
+                                                    src={media.url}
+                                                    className="object-cover bg-background w-full h-full z-10"
+                                                />
+                                            </>
+                                        ) : (
+                                            <video
+                                                controls
+                                                src={media.url}
+                                                className="w-full h-full"
+                                            />
+                                        )}
+                                    </CarouselItem>
+                                );
+                            }
+                        )}
+                    </CarouselContent>
+                </div>
+                <CarouselPrevious className="absolute top-0 bottom-0 my-auto left-7" />
+                <CarouselNext className="absolute top-0 bottom-0 my-auto right-7" />
+            </Carousel>
+
+            <div className="border-t-2" />
+            <div className="px-4">
+                <div className="grid grid-cols-1 md:grid-cols-12">
+                    <div className="md:col-span-8 space-y-6 md:border-r md:pr-3 pt-3.5 md:pb-20">
+                        <div className="gap-2 flex flex-col">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-start">
+                                    <Text
+                                        noTranslate
+                                        variant="h3"
+                                        className="group-hover:underline line-clamp-1"
+                                    >
+                                        {business.title}
+                                    </Text>
+                                </div>
+
+                                <div className="flex gap-2 items-center">
+                                    <div className="flex items-center gap-3 shrink-0">
+                                        {avgRating ? (
+                                            <>
+                                                <div className="flex items-center gap-1">
+                                                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                                                    <span className="font-medium">
+                                                        {avgRating}
+                                                    </span>
+                                                    <span className="text-sm text-muted-foreground">
+                                                        / 5
+                                                    </span>
+                                                </div>
+                                                <span className="text-sm text-muted-foreground">
                                                     ({business.totalReviews}{" "}
-                                                    Reviews)
-                                                </Text>
-                                            )}
-                                        </Group>
+                                                    reviews)
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-sm text-muted-foreground font-medium">
+                                                    N / A
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <ActionIcon
-                                        variant="light"
-                                        size="lg"
-                                        radius="md"
+
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
                                         onClick={handleShare}
                                     >
                                         <IconShare size={20} />
-                                    </ActionIcon>
-                                </Group>
+                                    </Button>
+                                </div>
+                            </div>
 
-                                {/* Categories */}
-                                <Group gap="xs" mb="md">
-                                    {business.categoryNames.map(
-                                        (category, idx) => (
-                                            <Badge
-                                                key={idx}
-                                                variant="light"
-                                                size="lg"
-                                            >
-                                                {category}
-                                            </Badge>
-                                        )
-                                    )}
-                                </Group>
+                            <p className="text-muted-foreground">
+                                {business.description ||
+                                    "No description provided"}
+                            </p>
 
-                                {/* Location */}
-                                <Group gap="xs" align="flex-start">
-                                    <IconMapPin
-                                        size={20}
-                                        style={{ marginTop: 2 }}
-                                    />
-                                    <div>
-                                        <Text fw={500}>
-                                            {business.location.name},{" "}
-                                            {business.location.city},{" "}
-                                            {business.location.state}{" "}
-                                            {business.location.postcode}
-                                        </Text>
-                                        <Text size="sm" c="dimmed">
-                                            Service radius: {business.radius} km
-                                        </Text>
-                                    </div>
-                                </Group>
-                            </Card>
+                            <div className="border-t pt-3 mt-1 flex gap-1.5 items-center">
+                                <IconMapPin
+                                    size={16}
+                                    className="flex-shrink-0"
+                                />
+                                <div>
+                                    <p className="font-medium text-sm">
+                                        {business.location.name},{" "}
+                                        {business.location.city},{" "}
+                                        {business.location.state}{" "}
+                                        {business.location.postcode}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                            {/* Description */}
-                            <Card padding="lg" radius="md" withBorder>
-                                <Title order={2} size="h3" mb="md">
-                                    About
-                                </Title>
-                                <Text c="dimmed">
-                                    {business.description ||
-                                        "No description provided"}
-                                </Text>
-                            </Card>
+                        <div>
+                            <h2 className="text-xl font-bold mb-4">Services</h2>
+                            <div className="grid grid-col sm:grid-cols-2 gap-4">
+                                {services.map((contractor, idx) => (
+                                    <Card
+                                        className="h-full p-0 shadow-none"
+                                        key={idx}
+                                    >
+                                        <CardContent className="p-4">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-start gap-3">
+                                                    <span className="text-3xl">
+                                                        {contractor.icon}
+                                                    </span>
+                                                    <div className="flex flex-col gap-2 flex-1">
+                                                        <Text className="font-semibold">
+                                                            {contractor.name}
+                                                        </Text>
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="w-fit"
+                                                        >
+                                                            <Text>
+                                                                {
+                                                                    contractor.category
+                                                                }
+                                                            </Text>
+                                                        </Badge>
+                                                        <Text
+                                                            variant="muted"
+                                                            className="text-sm"
+                                                        >
+                                                            {
+                                                                contractor.description
+                                                            }
+                                                        </Text>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
 
-                            {/* Professional Info */}
-                            <Card padding="lg" radius="md" withBorder>
-                                <Title order={2} size="h3" mb="md">
-                                    Professional
-                                </Title>
-                                <Group gap="md" align="flex-start">
-                                    <Avatar size="lg" radius="xl" color="blue">
+                        <div>
+                            <Text variant="h4" className="mb-4">
+                                Professional
+                            </Text>
+                            <div className="flex gap-4 items-start">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarFallback>
                                         {business.professional.professionalName.charAt(
                                             0
                                         )}
-                                    </Avatar>
-                                    <div style={{ flex: 1 }}>
-                                        <Text fw={600} size="lg">
-                                            {
-                                                business.professional
-                                                    .professionalName
-                                            }
-                                        </Text>
-                                        <Text c="dimmed" mt={4}>
-                                            {business.professional.bio ||
-                                                "Professional service provider"}
-                                        </Text>
-                                        <Group gap="xs" mt="sm">
-                                            {business.professional.phoneNumbers.map(
-                                                (phone, idx) => (
-                                                    <Badge
-                                                        key={idx}
-                                                        variant="light"
-                                                        color="gray"
-                                                        size="lg"
-                                                        leftSection={
-                                                            <IconPhone
-                                                                size={14}
-                                                            />
-                                                        }
-                                                    >
-                                                        {phone}
-                                                    </Badge>
-                                                )
-                                            )}
-                                        </Group>
-                                    </div>
-                                </Group>
-                            </Card>
-
-                            {/* Reviews Section */}
-                            <Card padding="lg" radius="md" withBorder>
-                                <Title order={2} size="h3" mb="md">
-                                    Customer Reviews
-                                </Title>
-
-                                {/* Rating Overview */}
-                                <Paper
-                                    withBorder
-                                    p="lg"
-                                    radius="md"
-                                    mb="lg"
-                                    bg="gray.0"
-                                >
-                                    <Grid>
-                                        <Grid.Col span={{ base: 12, sm: 4 }}>
-                                            <Stack align="center" gap="xs">
-                                                <Text size="3rem" fw={700}>
-                                                    {rating}
-                                                </Text>
-                                                <Group gap={4}>
-                                                    {[1, 2, 3, 4, 5].map(
-                                                        (star) => (
-                                                            <IconStarFilled
-                                                                key={star}
-                                                                size={20}
-                                                                color={
-                                                                    star <=
-                                                                    parseFloat(
-                                                                        rating
-                                                                    )
-                                                                        ? "gold"
-                                                                        : "var(--mantine-color-gray-3)"
-                                                                }
-                                                            />
-                                                        )
-                                                    )}
-                                                </Group>
-                                                <Text size="sm" c="dimmed">
-                                                    Based on{" "}
-                                                    {business.totalReviews}{" "}
-                                                    reviews
-                                                </Text>
-                                            </Stack>
-                                        </Grid.Col>
-                                        <Grid.Col span={{ base: 12, sm: 8 }}>
-                                            <Stack gap="xs">
-                                                {ratingDistribution.map(
-                                                    ({
-                                                        rating: r,
-                                                        count,
-                                                        percentage,
-                                                    }) => (
-                                                        <Group
-                                                            key={r}
-                                                            gap="sm"
-                                                            wrap="nowrap"
-                                                        >
-                                                            <Group
-                                                                gap={4}
-                                                                style={{
-                                                                    minWidth: 60,
-                                                                }}
-                                                            >
-                                                                <Text
-                                                                    size="sm"
-                                                                    fw={500}
-                                                                >
-                                                                    {r}
-                                                                </Text>
-                                                                <IconStarFilled
-                                                                    size={14}
-                                                                    color="gold"
-                                                                />
-                                                            </Group>
-                                                            <Box
-                                                                style={{
-                                                                    flex: 1,
-                                                                    position:
-                                                                        "relative",
-                                                                    height: 8,
-                                                                    backgroundColor:
-                                                                        "var(--mantine-color-gray-2)",
-                                                                    borderRadius: 4,
-                                                                }}
-                                                            >
-                                                                <Box
-                                                                    style={{
-                                                                        position:
-                                                                            "absolute",
-                                                                        left: 0,
-                                                                        top: 0,
-                                                                        height: "100%",
-                                                                        width: `${percentage}%`,
-                                                                        backgroundColor:
-                                                                            "var(--mantine-color-blue-6)",
-                                                                        borderRadius: 4,
-                                                                        transition:
-                                                                            "width 0.3s ease",
-                                                                    }}
-                                                                />
-                                                            </Box>
-                                                            <Text
-                                                                size="sm"
-                                                                c="dimmed"
-                                                                style={{
-                                                                    minWidth: 40,
-                                                                }}
-                                                            >
-                                                                {count}
-                                                            </Text>
-                                                        </Group>
-                                                    )
-                                                )}
-                                            </Stack>
-                                        </Grid.Col>
-                                    </Grid>
-                                </Paper>
-
-                                {/* Individual Reviews */}
-                                <Stack gap="md">
-                                    {reviews.map((review) => (
-                                        <Paper
-                                            key={review.id}
-                                            withBorder
-                                            p="md"
-                                            radius="md"
-                                        >
-                                            <Group align="flex-start" gap="md">
-                                                <Avatar
-                                                    size="md"
-                                                    radius="xl"
-                                                    color="blue"
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-lg">
+                                        {business.professional.professionalName}
+                                    </p>
+                                    <p className="text-muted-foreground text-sm mt-1">
+                                        {business.professional.bio || (
+                                            <TT>No bio provided</TT>
+                                        )}
+                                    </p>
+                                    <div className="flex gap-2 flex-wrap mt-3">
+                                        {business.professional.phoneNumbers.map(
+                                            (phone, idx) => (
+                                                <Badge
+                                                    key={idx}
+                                                    variant="secondary"
+                                                    className="text-sm"
                                                 >
-                                                    {review.avatar}
+                                                    <IconPhone
+                                                        size={14}
+                                                        className="mr-1"
+                                                    />
+                                                    {phone}
+                                                </Badge>
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* <div className="shadow-none p-0 border-0">
+                            <h2 className="text-xl font-bold mb-4">
+                                Customer Reviews
+                            </h2>
+
+                            <div className="bg-muted/50 mb-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
+                                    <div className="sm:col-span-4 flex flex-col items-center gap-2">
+                                        <p className="text-5xl font-bold">
+                                            {rating}
+                                        </p>
+                                        <div className="flex gap-1">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <IconStarFilled
+                                                    key={star}
+                                                    size={20}
+                                                    color={
+                                                        star <=
+                                                        parseFloat(rating)
+                                                            ? "gold"
+                                                            : "hsl(var(--muted-foreground))"
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">
+                                            Based on {business.totalReviews}{" "}
+                                            reviews
+                                        </p>
+                                    </div>
+                                    <div className="sm:col-span-8 space-y-2">
+                                        {ratingDistribution.map(
+                                            ({
+                                                rating: r,
+                                                count,
+                                                percentage,
+                                            }) => (
+                                                <div
+                                                    key={r}
+                                                    className="flex items-center gap-3"
+                                                >
+                                                    <div className="flex items-center gap-1 min-w-[60px]">
+                                                        <span className="text-sm font-medium">
+                                                            {r}
+                                                        </span>
+                                                        <IconStarFilled
+                                                            size={14}
+                                                            color="gold"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1 relative h-2 bg-muted rounded-full overflow-hidden">
+                                                        <div
+                                                            className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all"
+                                                            style={{
+                                                                width: `${percentage}%`,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-sm text-muted-foreground min-w-[40px] text-right">
+                                                        {count}
+                                                    </span>
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {reviews.map((review) => (
+                                    <Card key={review.id}>
+                                        <CardContent className="p-4">
+                                            <div className="flex gap-4 items-start">
+                                                <Avatar>
+                                                    <AvatarFallback>
+                                                        {review.avatar}
+                                                    </AvatarFallback>
                                                 </Avatar>
-                                                <div style={{ flex: 1 }}>
-                                                    <Group
-                                                        justify="space-between"
-                                                        mb="xs"
-                                                    >
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-start mb-2">
                                                         <div>
-                                                            <Text fw={600}>
+                                                            <p className="font-semibold">
                                                                 {
                                                                     review.userName
                                                                 }
-                                                            </Text>
-                                                            <Group
-                                                                gap={4}
-                                                                mt={2}
-                                                            >
+                                                            </p>
+                                                            <div className="flex gap-1 mt-1">
                                                                 {[
                                                                     1, 2, 3, 4,
                                                                     5,
@@ -448,17 +440,14 @@ const BusinessViewer = ({ business }: { business: BusinessSchemaType }) => {
                                                                                 star <=
                                                                                 review.rating
                                                                                     ? "gold"
-                                                                                    : "var(--mantine-color-gray-3)"
+                                                                                    : "hsl(var(--muted-foreground))"
                                                                             }
                                                                         />
                                                                     )
                                                                 )}
-                                                            </Group>
+                                                            </div>
                                                         </div>
-                                                        <Text
-                                                            size="xs"
-                                                            c="dimmed"
-                                                        >
+                                                        <p className="text-xs text-muted-foreground">
                                                             {review.date.toLocaleDateString(
                                                                 "en-US",
                                                                 {
@@ -467,155 +456,127 @@ const BusinessViewer = ({ business }: { business: BusinessSchemaType }) => {
                                                                     year: "numeric",
                                                                 }
                                                             )}
-                                                        </Text>
-                                                    </Group>
-                                                    <Text size="sm" c="dimmed">
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">
                                                         {review.comment}
-                                                    </Text>
+                                                    </p>
                                                 </div>
-                                            </Group>
-                                        </Paper>
-                                    ))}
-                                </Stack>
-                            </Card>
-                        </Stack>
-                    </Grid.Col>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div> */}
+                    </div>
 
-                    {/* Right Column - Contact Card */}
-                    <Grid.Col span={{ base: 12, md: 4 }}>
-                        <Stack gap="lg">
-                            <Card padding="lg" radius="md" withBorder>
-                                <Title order={3} mb="md">
-                                    Get in Touch
-                                </Title>
+                    <div className="md:col-span-4 space-y-6 md:border-l md:pl-3 pt-3.5">
+                        <div>
+                            <Text variant="h4" className="mb-4">
+                                Get in Touch
+                            </Text>
 
-                                <Stack gap="xs">
-                                    <Button
-                                        leftSection={<IconPhone size={20} />}
-                                        variant="filled"
-                                        size="md"
-                                        fullWidth
-                                        onClick={handleCall}
-                                    >
-                                        Call Now
-                                    </Button>
-
-                                    <Button
-                                        leftSection={
-                                            <IconBrandWhatsapp
-                                                size={22}
-                                                className="translate-x-0.5"
-                                            />
-                                        }
-                                        color="teal"
-                                        variant="filled"
-                                        size="md"
-                                        fullWidth
-                                        onClick={handleWhatsApp}
-                                        c="white"
-                                    >
-                                        WhatsApp
-                                    </Button>
-                                </Stack>
-
-                                <Divider my="lg" />
-
-                                <div>
-                                    <Text fw={600} mb="sm">
-                                        Contact Numbers
-                                    </Text>
-                                    <Stack gap="xs">
-                                        {business.professional.phoneNumbers.map(
-                                            (phone, idx) => (
-                                                <Group key={idx} gap="xs">
-                                                    <IconPhone size={16} />
-                                                    <Anchor
-                                                        href={`tel:+91${phone}`}
-                                                        c="dimmed"
-                                                    >
-                                                        +91 {phone}
-                                                    </Anchor>
-                                                </Group>
-                                            )
-                                        )}
-                                    </Stack>
-                                </div>
-
-                                <Divider my="lg" />
-
-                                <div>
-                                    <Text fw={600} mb="sm">
-                                        Business Hours
-                                    </Text>
-                                    <Group gap="xs" align="flex-start">
-                                        <IconClock
-                                            size={16}
-                                            style={{ marginTop: 2 }}
-                                        />
-                                        <div>
-                                            <Text size="sm">
-                                                Available 24/7
-                                            </Text>
-                                            <Text size="xs" c="dimmed">
-                                                Emergency services available
-                                            </Text>
-                                        </div>
-                                    </Group>
-                                </div>
-
-                                <Divider my="lg" />
-
-                                <Text size="xs" c="dimmed" ta="center">
-                                    Member since{" "}
-                                    {new Date(
-                                        business.createdAt
-                                    ).toLocaleDateString("en-US", {
-                                        month: "long",
-                                        year: "numeric",
-                                    })}
-                                </Text>
-                            </Card>
-
-                            {/* Service Area Card */}
-                            <Card padding="lg" radius="md" withBorder>
-                                <Title order={3} size="h4" mb="md">
-                                    Service Area
-                                </Title>
-                                <Paper
-                                    withBorder
-                                    p="md"
-                                    radius="md"
-                                    bg="gray.1"
+                            <div className="gap-2 flex flex-col">
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    className="text-base font-medium"
+                                    onClick={() => console.log("child")}
                                 >
-                                    <Box
-                                        h={200}
-                                        bg="gray.2"
-                                        style={{
-                                            borderRadius:
-                                                "var(--mantine-radius-md)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
+                                    <Phone className="size-5 text-foreground" />
+                                    {business.professional.phoneNumbers
+                                        .length === 1
+                                        ? business.professional.phoneNumbers[0]
+                                        : "Call number"}
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    className="text-base font-medium"
+                                    onClick={() => console.log("child")}
+                                >
+                                    <IconBrandWhatsapp className="size-6 text-teal-500" />
+                                    WhatsApp
+                                </Button>
+                            </div>
+
+                            <Separator className="my-6" />
+
+                            <div>
+                                <Text className="font-semibold mb-3">
+                                    Contact Numbers
+                                </Text>
+                                <div className="space-y-2">
+                                    {business.professional.phoneNumbers.map(
+                                        (phone, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <IconPhone size={16} />
+
+                                                <a
+                                                    href={`tel:+91${phone}`}
+                                                    className="text-muted-foreground hover:underline"
+                                                >
+                                                    +91 {phone}
+                                                </a>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+
+                            <Separator className="my-6" />
+
+                            <div>
+                                <Text className="font-semibold mb-3">
+                                    Business Hours
+                                </Text>
+                                <div className="flex gap-2 items-start">
+                                    <IconClock size={16} className="mt-0.5" />
+                                    <div>
+                                        <Text variant="small">
+                                            Available 24/7
+                                        </Text>
+                                        <Text
+                                            variant="muted"
+                                            className="text-xs"
+                                        >
+                                            Emergency services available
+                                        </Text>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <Text variant="h4" className="mb-4">
+                                Service Area
+                            </Text>
+                            <div>
+                                <div className="h-[200px] bg-muted-foreground/10 rounded-md flex items-center justify-center">
+                                    <Map
+                                        hideZoomInOut
+                                        {...{
+                                            lat: business.location
+                                                .coordinates[1],
+                                            lng: business.location
+                                                .coordinates[0],
+                                            serviceRadius: business.radius,
+                                            name: business.location.name,
                                         }}
-                                    >
-                                        <Group gap="xs">
-                                            <IconMapPin
-                                                size={36}
-                                                color="var(--mantine-color-gray-5)"
-                                            />
-                                            <Text c="dimmed">Map</Text>
-                                        </Group>
-                                    </Box>
-                                    <Text size="sm" c="dimmed" mt="md">
-                                        Serving {business.location.city} and
-                                        surrounding areas within{" "}
-                                        {business.radius} km radius
-                                    </Text>
-                                </Paper>
-                            </Card>
-                        </Stack>
-                    </Grid.Col>
-                </Grid>
+                                    />
+                                </div>
+                                <p className="text-xs text-muted-foreground px-1 pt-2">
+                                    Serving {business.location.name} and
+                                    surrounding areas within {business.radius}{" "}
+                                    km radius
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
