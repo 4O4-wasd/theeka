@@ -5,7 +5,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/shared/components/ui/dialog";
+import { X } from "lucide-react";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 const ExpandableImage = ({
     src,
@@ -21,17 +23,20 @@ const ExpandableImage = ({
                 <img src={src} className={className} />
             </DialogTrigger>
             <DialogContent
-                className="border-0 p-0 rounded-none max-w-screen! h-screen"
+                className="border-0 p-0 rounded-none max-w-screen! z-[9999] h-screen"
                 showCloseButton={false}
             >
                 <DialogHeader className="sr-only">
                     <DialogTitle>Image preview</DialogTitle>
                 </DialogHeader>
                 <img src={src} className="object-contain z-10 h-full m-auto" />
-                <img
-                    src={src}
-                    className="h-full w-full mx-auto object-cover absolute left-0 right-0 brightness-[.4]"
-                />
+                <Button
+                    className="absolute top-4 right-4 rounded-full"
+                    variant="outline"
+                    size="icon-lg"
+                >
+                    <X className="size-5" />
+                </Button>
             </DialogContent>
         </Dialog>
     );
