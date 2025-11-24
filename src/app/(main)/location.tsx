@@ -111,6 +111,7 @@ const LocationInput = ({ className }: { className?: string }) => {
                     }
                     await saveCity(c);
                     setCurrentCity(c);
+                    sessionStorage.clear()
                 }}
                 defaultSelectedValue={currentCity ?? undefined}
                 label=""
