@@ -152,6 +152,10 @@ const SearchInput = ({
                     maxWidth: triggerWidth,
                 }}
                 side="bottom"
+                align="center"
+                sticky="always"
+                avoidCollisions={false}
+                collisionPadding={0}
                 className={cn(
                     "p-0 data-[state=closed]:fade-out-0 border-2",
                     !value && "shadow-none border-0"
@@ -257,7 +261,7 @@ const SearchInput = ({
                                                                 {business.title}
                                                             </p>
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                                                             <span>
                                                                 {
                                                                     business
@@ -273,7 +277,7 @@ const SearchInput = ({
                                                             </span>
                                                         </div>
 
-                                                        <div className="flex gap-2 mt-2">
+                                                        <div className="flex mt-2 flex-col sm:flex-row gap-1">
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"

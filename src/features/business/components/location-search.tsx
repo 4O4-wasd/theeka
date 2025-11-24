@@ -149,6 +149,9 @@ export function LocationSearch({
                 <PopoverContent
                     className="p-0"
                     style={{ width: triggerWidth }}
+                    avoidCollisions={false}
+                    collisionPadding={0}
+                    sticky="always"
                     side="bottom"
                 >
                     <Command shouldFilter={false} loop>
