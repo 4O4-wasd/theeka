@@ -151,6 +151,7 @@ const SearchInput = ({
                     width: triggerWidth,
                     maxWidth: triggerWidth,
                 }}
+                side="bottom"
                 className={cn(
                     "p-0 data-[state=closed]:fade-out-0 border-2",
                     !value && "shadow-none border-0"

@@ -73,7 +73,9 @@ export function LocationSearch({
         if (properties.postcode)
             parts[parts.length - 1] += ` ${properties.postcode}`;
         parts.push(properties.country);
-        const setParts = [...(new Set(([...new Set(parts)].join(", ")).split(", ")))];
+        const setParts = [
+            ...new Set([...new Set(parts)].join(", ").split(", ")),
+        ];
         console.log(setParts);
         return setParts.join(", ").replace(/,(?=[^,]*$)/, "");
     };
@@ -144,7 +146,11 @@ export function LocationSearch({
                         {address ?? placeholder}
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0" style={{ width: triggerWidth }}>
+                <PopoverContent
+                    className="p-0"
+                    style={{ width: triggerWidth }}
+                    side="bottom"
+                >
                     <Command shouldFilter={false} loop>
                         <CommandInput
                             placeholder={placeholder}

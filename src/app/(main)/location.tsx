@@ -95,26 +95,29 @@ const LocationInput = ({ className }: { className?: string }) => {
     }, [state]);
 
     return (
-        <div className={cn("flex", className)}>
+        <div className={cn("w-full relative", className)}>
+            <Button
+                variant="outline"
+                size="icon"
+                className="rounded-r-none absolute top-0 left-0"
+                onClick={() => geoLocation()}
+            >
+                <MapPin className="size-4" />
+            </Button>
             <LocationSearch
                 onChange={async (c) => {
+                    if (JSON.stringify(c) === JSON.stringify(currentCity)) {
+                        return;
+                    }
                     await saveCity(c);
                     setCurrentCity(c);
                 }}
                 defaultSelectedValue={currentCity ?? undefined}
                 label=""
                 className="flex-1"
-                buttonClassName="rounded-r-none border-r"
+                buttonClassName="pl-11"
                 disabled={isPending}
             />
-            <Button
-                variant="outline"
-                size="icon"
-                className="rounded-l-none border-l"
-                onClick={() => geoLocation()}
-            >
-                <MapPin className="size-4" />
-            </Button>
         </div>
     );
 };
