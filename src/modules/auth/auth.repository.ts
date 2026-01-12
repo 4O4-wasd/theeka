@@ -7,9 +7,9 @@ import {
     type UserSchemaType,
 } from "@/db/schema";
 import type {
-    CreateAccountSchemaType,
-    CreateSessionSchemaType,
-    CreateUserSchemaType,
+    CreateAccountInputSchemaType,
+    CreateSessionInputSchemaType,
+    CreateUserInputSchemaType,
 } from "./auth.schema";
 import { generateBase64Token } from "./auth.utils";
 
@@ -50,19 +50,19 @@ export class AuthRepository {
         });
 
         const account = session?.account;
-        const user = session?.account.user ?? undefined;
 
-        if (!account || !user) {
+        if (!account || !account.user) {
             return;
         }
 
+        const { user, ...accountWithoutUser } = account;
         return {
-            account,
+            account: accountWithoutUser,
             user,
         };
     }
 
-    async createAccount(data: CreateAccountSchemaType) {
+    async createAccount(data: CreateAccountInputSchemaType) {
         const accountId = crypto.randomUUID();
         const sessionToken = generateBase64Token();
 
@@ -83,7 +83,7 @@ export class AuthRepository {
         return sessionToken;
     }
 
-    async createSession(data: CreateSessionSchemaType) {
+    async createSession(data: CreateSessionInputSchemaType) {
         const sessionToken = generateBase64Token();
 
         await db.insert(sessions).values({
@@ -96,16 +96,8 @@ export class AuthRepository {
         return sessionToken;
     }
 
-    async createUser(data: CreateUserSchemaType): Promise<UserSchemaType> {
-        const id = crypto.randomUUID();
-        await db.insert(users).values({
-            id,
-            ...data,
-        });
-
-        return {
-            id,
-            ...data,
-        };
+    async createUser(data: CreateUserInputSchemaType): Promise<UserSchemaType> {
+        const [user] = await db.insert(users).values(data).returning();
+        return user;
     }
 }

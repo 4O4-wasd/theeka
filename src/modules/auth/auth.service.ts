@@ -1,5 +1,8 @@
 import { AuthRepository } from "./auth.repository";
-import type { CreateUserSchemaType, LogInSchemaType } from "./auth.schema";
+import type {
+    CreateUserInputSchemaType,
+    LogInInputSchemaType,
+} from "./auth.schema";
 
 export class AuthService {
     private repository: AuthRepository;
@@ -23,7 +26,7 @@ export class AuthService {
         return user;
     }
 
-    async logIn(data: LogInSchemaType) {
+    async logIn(data: LogInInputSchemaType) {
         const account = await this.findAccountByPhone(data.phone);
 
         if (account) {
@@ -39,7 +42,7 @@ export class AuthService {
         return token;
     }
 
-    async createUser(data: CreateUserSchemaType) {
+    async createUser(data: CreateUserInputSchemaType) {
         const user = await this.repository.createUser(data);
         return user;
     }

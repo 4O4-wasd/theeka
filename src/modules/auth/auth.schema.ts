@@ -1,7 +1,7 @@
 import { accountSchema, sessionSchema, userSchema } from "@/db/schema";
 import { z } from "zod";
 
-export const logInSchema = z.object({
+export const logInInputSchema = z.object({
     ...accountSchema.pick({
         password: true,
         phone: true,
@@ -12,7 +12,7 @@ export const logInSchema = z.object({
     }).shape,
 });
 
-export const logInInputSchema = logInSchema.pick({
+export const logInJsonSchema = logInInputSchema.pick({
     phone: true,
     password: true,
 });
@@ -21,31 +21,40 @@ export const logInOutputSchema = sessionSchema.pick({
     token: true,
 });
 
-export const createAccountSchema = logInSchema;
+export const createAccountInputSchema = logInInputSchema;
 
-export const createSessionSchema = z.object({
-    ...logInSchema.pick({
+export const createSessionInputSchema = z.object({
+    ...logInInputSchema.pick({
         ipAddress: true,
         userAgent: true,
     }).shape,
     accountId: z.uuidv4(),
 });
 
-export type LogInSchemaType = z.infer<typeof logInSchema>;
 export type LogInInputSchemaType = z.infer<typeof logInInputSchema>;
+export type LogInJsonSchemaType = z.infer<typeof logInJsonSchema>;
 export type LogInOutputSchemaType = z.infer<typeof logInOutputSchema>;
-export type CreateAccountSchemaType = z.infer<typeof createAccountSchema>;
-export type CreateSessionSchemaType = z.infer<typeof createSessionSchema>;
+export type CreateAccountInputSchemaType = z.infer<
+    typeof createAccountInputSchema
+>;
+export type CreateSessionInputSchemaType = z.infer<
+    typeof createSessionInputSchema
+>;
 
-export const createUserSchema = userSchema.pick({
+////////////
+
+export const createUserInputSchema = userSchema.pick({
     name: true,
     avatar: true,
     accountId: true,
 });
 
-export const createUserInputSchema = createUserSchema;
+export const createUserJsonSchema = createUserInputSchema.omit({
+    accountId: true,
+});
+
 export const createUserOutputSchema = userSchema;
 
-export type CreateUserSchemaType = z.infer<typeof createUserSchema>;
 export type CreateUserInputSchemaType = z.infer<typeof createUserInputSchema>;
+export type CreateUserJsonSchemaType = z.infer<typeof createUserJsonSchema>;
 export type CreateUserOutputSchemaType = z.infer<typeof createUserOutputSchema>;

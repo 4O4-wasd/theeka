@@ -17,20 +17,20 @@ export type ProtectedUserContext = ProtectedAccountContext & {
 
 const authService = new AuthService();
 
-export const protectedMiddleware = <T extends "user" | "account">({
+type MiddlewareContextType = {
+    user: ProtectedUserContext;
+    account: ProtectedAccountContext;
+};
+export const protectedMiddleware = <T extends keyof MiddlewareContextType>({
     type,
 }: {
     type: T;
 }) =>
     createMiddleware<{
-        Variables: T extends "user"
-            ? ProtectedUserContext
-            : T extends "account"
-            ? ProtectedAccountContext
-            : undefined;
+        Variables: MiddlewareContextType[T];
     }>(async (c, next) => {
         const token = c.req.header("Authorization");
-        if (token && (type === "account" || type === "user")) {
+        if (token) {
             if (type === "account") {
                 const account = await authService.findAccount(token);
                 if (!account) {
@@ -52,9 +52,10 @@ export const protectedMiddleware = <T extends "user" | "account">({
                     });
                 }
 
-                c.set("user", userAndAccount.user);
+                c.set("user" as any, userAndAccount.user);
                 c.set("account", userAndAccount.account);
             }
+
             c.set("sessionToken", token);
 
             await next();
