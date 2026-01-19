@@ -1,59 +1,72 @@
 import db from "@/db";
-import { userAddresses, type UserAddressSchemaType } from "@/db/schema";
+import { userAddresses } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import type {
-    CreateAddressInputSchemaType,
-    CreateAddressSchemaType,
-    FindAddressResponseSchemaType,
-    UpdateAddressOutputSchemaType,
-    UpdateAddressSchemaType,
-} from "./address.schema";
+import type { AddressRepositorySchemaType } from "./address.schema";
 
-export class AddressRepository {
+export const addressRepository = {
     async find(
-        id: string,
-        userId: string
-    ): Promise<FindAddressResponseSchemaType | undefined> {
+        input: AddressRepositorySchemaType["find"]["input"],
+    ): Promise<AddressRepositorySchemaType["find"]["output"]> {
         const address = await db.query.userAddresses.findFirst({
-            where: (t, { eq, and }) => and(eq(t.id, id), eq(t.userId, userId)),
+            where: (t, { eq, and }) =>
+                and(eq(t.id, input.id), eq(t.userId, input.userId)),
+            columns: {
+                userId: false,
+            },
         });
 
         return address;
-    }
+    },
 
-    async findAll(userId: string): Promise<UserAddressSchemaType[]> {
+    async findAll(
+        input: AddressRepositorySchemaType["findAll"]["input"],
+    ): Promise<AddressRepositorySchemaType["findAll"]["output"]> {
         const addresses = await db.query.userAddresses.findMany({
-            where: (t, { eq }) => eq(t.userId, userId),
+            where: (t, { eq }) => eq(t.userId, input.userId),
+            columns: {
+                userId: false,
+            },
         });
 
         return addresses;
-    }
+    },
 
     async create(
-        data: CreateAddressSchemaType
-    ): Promise<CreateAddressInputSchemaType> {
+        input: AddressRepositorySchemaType["create"]["input"],
+    ): Promise<AddressRepositorySchemaType["create"]["output"]> {
         const [address] = await db
             .insert(userAddresses)
-            .values(data)
-            .returning();
+            .values(input)
+            .returning({
+                id: userAddresses.id,
+                name: userAddresses.name,
+                addressLine1: userAddresses.addressLine1,
+                addressLine2: userAddresses.addressLine2,
+                landmark: userAddresses.landmark,
+                city: userAddresses.city,
+                state: userAddresses.state,
+                pincode: userAddresses.pincode,
+                latitude: userAddresses.latitude,
+                longitude: userAddresses.longitude,
+            });
         return address;
-    }
+    },
 
     async update({
-        id,
         userId,
-        ...data
-    }: UpdateAddressSchemaType): Promise<UpdateAddressOutputSchemaType> {
+        id,
+        ...input
+    }: AddressRepositorySchemaType["update"]["input"]): Promise<
+        AddressRepositorySchemaType["update"]["output"]
+    > {
         const [address] = await db
             .update(userAddresses)
-            .set({
-                ...data,
-            })
+            .set(input)
             .where(
-                and(eq(userAddresses.id, id), eq(userAddresses.userId, userId))
+                and(eq(userAddresses.id, id), eq(userAddresses.userId, userId)),
             )
             .returning();
 
         return address;
-    }
-}
+    },
+};

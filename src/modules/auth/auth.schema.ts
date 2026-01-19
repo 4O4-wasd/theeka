@@ -1,60 +1,159 @@
 import { accountSchema, sessionSchema, userSchema } from "@/db/schema";
+import { HTTP_STATUS } from "@/status-codes";
+import type { InferSchema } from "@/utils";
 import { z } from "zod";
 
-export const logInInputSchema = z.object({
-    ...accountSchema.pick({
-        password: true,
-        phone: true,
-    }).shape,
-    ...sessionSchema.pick({
-        ipAddress: true,
-        userAgent: true,
-    }).shape,
-});
+export const authSchema = {
+    repository() {
+        return {
+            createAccount: {
+                input: z.object({
+                    password: accountSchema.shape.password,
+                    phone: accountSchema.shape.phone,
+                    ipAddress: sessionSchema.shape.ipAddress,
+                    userAgent: sessionSchema.shape.userAgent,
+                }),
 
-export const logInJsonSchema = logInInputSchema.pick({
-    phone: true,
-    password: true,
-});
+                output: sessionSchema.pick({
+                    token: true,
+                }),
+            },
 
-export const logInOutputSchema = sessionSchema.pick({
-    token: true,
-});
+            createSession: {
+                input: z.object({
+                    ipAddress: sessionSchema.shape.ipAddress,
+                    userAgent: sessionSchema.shape.userAgent,
+                    accountId: accountSchema.shape.id,
+                }),
 
-export const createAccountInputSchema = logInInputSchema;
+                output: sessionSchema.pick({
+                    token: true,
+                }),
+            },
 
-export const createSessionInputSchema = z.object({
-    ...logInInputSchema.pick({
-        ipAddress: true,
-        userAgent: true,
-    }).shape,
-    accountId: z.uuidv4(),
-});
+            findAccount: {
+                input: sessionSchema.pick({
+                    token: true,
+                }),
 
-export type LogInInputSchemaType = z.infer<typeof logInInputSchema>;
-export type LogInJsonSchemaType = z.infer<typeof logInJsonSchema>;
-export type LogInOutputSchemaType = z.infer<typeof logInOutputSchema>;
-export type CreateAccountInputSchemaType = z.infer<
-    typeof createAccountInputSchema
->;
-export type CreateSessionInputSchemaType = z.infer<
-    typeof createSessionInputSchema
->;
+                output: accountSchema
+                    .omit({
+                        password: true,
+                    })
+                    .optional(),
+            },
 
-////////////
+            findAccountByPhone: {
+                input: accountSchema.pick({
+                    phone: true,
+                }),
 
-export const createUserInputSchema = userSchema.pick({
-    name: true,
-    avatar: true,
-    accountId: true,
-});
+                output: accountSchema.optional(),
+            },
 
-export const createUserJsonSchema = createUserInputSchema.omit({
-    accountId: true,
-});
+            findUser: {
+                input: sessionSchema.pick({
+                    token: true,
+                }),
 
-export const createUserOutputSchema = userSchema;
+                output: userSchema
+                    .omit({
+                        accountId: true,
+                    })
+                    .optional(),
+            },
 
-export type CreateUserInputSchemaType = z.infer<typeof createUserInputSchema>;
-export type CreateUserJsonSchemaType = z.infer<typeof createUserJsonSchema>;
-export type CreateUserOutputSchemaType = z.infer<typeof createUserOutputSchema>;
+            createUser: {
+                input: userSchema.omit({
+                    id: true,
+                }),
+
+                output: userSchema.omit({
+                    accountId: true,
+                }),
+            },
+
+            findAllSessions: {
+                input: z.object({
+                    accountId: accountSchema.shape.id,
+                }),
+                output: z.array(
+                    sessionSchema.omit({
+                        accountId: true,
+                    }),
+                ),
+            },
+
+            deleteSession: {
+                input: z.object({
+                    accountId: accountSchema.shape.id,
+                    token: sessionSchema.shape.token,
+                }),
+            },
+
+            logout: {
+                input: sessionSchema.pick({
+                    token: true,
+                }),
+            },
+        };
+    },
+
+    service() {
+        return {
+            login: this.repository().createAccount,
+            findAccount: this.repository().findAccount,
+            findAccountByPhone: this.repository().findAccountByPhone,
+            findUser: this.repository().findUser,
+            createUser: this.repository().createUser,
+            findAllSessions: this.repository().findAllSessions,
+            deleteSession: this.repository().deleteSession,
+            logout: this.repository().logout,
+        };
+    },
+
+    route() {
+        return {
+            login: {
+                json: this.service().login.input.pick({
+                    phone: true,
+                    password: true,
+                }),
+
+                [HTTP_STATUS["OK"]]: this.service().login.output,
+            },
+
+            findAccount: {
+                [HTTP_STATUS["OK"]]: this.service().findAccount.output,
+            },
+
+            findUser: {
+                [HTTP_STATUS["OK"]]: this.service().findUser.output,
+            },
+
+            createUser: {
+                json: this.service().createUser.input.omit({ accountId: true }),
+
+                [HTTP_STATUS["Created"]]: this.service().createUser.output,
+            },
+
+            findAllSessions: {
+                [HTTP_STATUS["OK"]]: this.service().findAllSessions.output,
+            },
+
+            deleteSession: {
+                json: this.service().deleteSession.input.pick({
+                    token: true,
+                }),
+            },
+        };
+    },
+};
+
+export const authRouteSchema = authSchema.route();
+
+export type AuthSchemaType = InferSchema<typeof authSchema>;
+export type AuthRepositorySchemaType = InferSchema<
+    typeof authSchema
+>["repository"];
+export type AuthServiceSchemaType = InferSchema<typeof authSchema>["service"];

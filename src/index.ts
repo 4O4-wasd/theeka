@@ -1,10 +1,13 @@
 import env from "@env";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { compress } from "hono/compress";
 import { addressRoutes } from "./modules/address/address.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
 
 const app = new Hono();
+
+app.use(compress());
 
 app.route("/auth", authRoutes);
 app.route("/address", addressRoutes);
@@ -17,7 +20,7 @@ if (env.NODE_ENV === "dev") {
         },
         (info) => {
             console.log(`Server is running on http://localhost:${info.port}`);
-        }
+        },
     );
 }
 

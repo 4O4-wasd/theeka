@@ -1,30 +1,28 @@
-import { AddressRepository } from "./address.repository";
-import type {
-    CreateAddressSchemaType,
-    FindAddressSchemaType,
-    UpdateAddressSchemaType,
-} from "./address.schema";
+import { addressRepository } from "./address.repository";
+import type { AddressServiceSchemaType } from "./address.schema";
 
-export class AddressService {
-    private repository: AddressRepository;
+export const addressService = {
+    async findAll(
+        input: AddressServiceSchemaType["findAll"]["input"],
+    ): Promise<AddressServiceSchemaType["findAll"]["output"]> {
+        return await addressRepository.findAll(input);
+    },
 
-    constructor() {
-        this.repository = new AddressRepository();
-    }
+    async find(
+        input: AddressServiceSchemaType["find"]["input"],
+    ): Promise<AddressServiceSchemaType["find"]["output"]> {
+        return await addressRepository.find(input);
+    },
 
-    async findAll(userId: string) {
-        return await this.repository.findAll(userId);
-    }
+    async create(
+        input: AddressServiceSchemaType["create"]["input"],
+    ): Promise<AddressServiceSchemaType["create"]["output"]> {
+        return await addressRepository.create(input);
+    },
 
-    async find(data: FindAddressSchemaType) {
-        return await this.repository.find(data.id, data.userId);
-    }
-
-    async create(data: CreateAddressSchemaType) {
-        return await this.repository.create(data);
-    }
-
-    async update(data: UpdateAddressSchemaType) {
-        return await this.repository.update(data);
-    }
-}
+    async update(
+        input: AddressServiceSchemaType["update"]["input"],
+    ): Promise<AddressServiceSchemaType["update"]["output"]> {
+        return await addressRepository.update(input);
+    },
+};

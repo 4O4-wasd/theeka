@@ -1,27 +1,21 @@
 import { protectedMiddleware } from "@/middlewares/protected";
 import { sValidator } from "@hono/standard-validator";
 import { Hono } from "hono";
-import {
-    createAddressInputSchema,
-    findAddressParamSchema,
-    updateAddressInputSchema,
-    updateAddressParamSchema,
-} from "./address.schema";
-import { AddressService } from "./address.service";
+import { addressRouteSchema, addressSchema } from "./address.schema";
+import { addressService } from "./address.service";
 
 export const addressRoutes = new Hono().use(
     protectedMiddleware({ type: "user" })
 );
-const addressService = new AddressService();
 
 addressRoutes.get("/", async (c) => {
-    const address = await addressService.findAll(c.get("user").id);
+    const address = await addressService.findAll({ userId: c.get("user").id });
     return c.json(address);
 });
 
 addressRoutes.post(
     "/",
-    sValidator("json", createAddressInputSchema),
+    sValidator("json", addressRouteSchema.create.json),
     async (c) => {
         const data = c.req.valid("json");
         const address = await addressService.create({
@@ -34,7 +28,7 @@ addressRoutes.post(
 
 addressRoutes.get(
     "/:id",
-    sValidator("param", findAddressParamSchema),
+    sValidator("param", addressRouteSchema.find.param),
     async (c) => {
         const { id } = c.req.valid("param");
         const address = await addressService.find({
@@ -42,13 +36,13 @@ addressRoutes.get(
             userId: c.get("user").id,
         });
         return c.json(address);
-    }
+    },
 );
 
 addressRoutes.patch(
     "/:id",
-    sValidator("param", updateAddressParamSchema),
-    sValidator("json", updateAddressInputSchema),
+    sValidator("param", addressRouteSchema.update.param),
+    sValidator("json", addressRouteSchema.update.json),
     async (c) => {
         const { id } = c.req.valid("param");
         const data = c.req.valid("json");
@@ -57,6 +51,7 @@ addressRoutes.patch(
             id,
             userId: c.get("user").id,
         });
+        
         return c.json(address);
     }
 );

@@ -1,68 +1,128 @@
 import { userAddressSchema } from "@/db/schema";
-import type z from "zod";
+import { HTTP_STATUS } from "@/status-codes";
+import type { InferSchema } from "@/utils";
+import { z } from "zod";
 
-export const createAddressSchema = userAddressSchema.omit({
-    id: true,
-});
+export const addressSchema = {
+    repository() {
+        return {
+            create: {
+                input: userAddressSchema.omit({
+                    id: true,
+                }),
 
-export const createAddressInputSchema = createAddressSchema.omit({
-    userId: true,
-});
+                output: userAddressSchema.omit({
+                    userId: true,
+                }),
+            },
 
-export const createAddressOutputSchema = userAddressSchema;
+            find: {
+                input: userAddressSchema.pick({
+                    id: true,
+                    userId: true,
+                }),
 
-export type CreateAddressSchemaType = z.infer<typeof createAddressSchema>;
-export type CreateAddressInputSchemaType = z.infer<
-    typeof createAddressInputSchema
->;
-export type CreateAddressOutputSchemaType = z.infer<
-    typeof createAddressOutputSchema
->;
+                output: userAddressSchema
+                    .omit({
+                        userId: true,
+                    })
+                    .optional(),
+            },
 
-///////////////////////////////////
+            update: {
+                input: userAddressSchema.partial().required({
+                    userId: true,
+                    id: true,
+                }),
 
-export const findAddressSchema = userAddressSchema.pick({
-    id: true,
-    userId: true
-})
+                output: userAddressSchema.omit({
+                    userId: true,
+                }),
+            },
 
-export const findAddressParamSchema = findAddressSchema.pick({
-    id: true,
-});
+            delete: {
+                input: userAddressSchema.pick({
+                    id: true,
+                    userId: true,
+                }),
+            },
 
-export const findAddressResponseSchema = userAddressSchema;
+            findAll: {
+                input: userAddressSchema.pick({
+                    userId: true,
+                }),
 
-export type FindAddressSchemaType = z.infer<typeof findAddressSchema>;
-export type FindAddressParamSchemaType = z.infer<typeof findAddressParamSchema>;
-export type FindAddressResponseSchemaType = z.infer<
-    typeof findAddressResponseSchema
->;
+                output: z.array(
+                    userAddressSchema.omit({
+                        userId: true,
+                    }),
+                ),
+            },
+        };
+    },
 
-///////////////////////////////////
+    service() {
+        return {
+            create: this.repository().create,
+            find: this.repository().find,
+            update: this.repository().update,
+            delete: this.repository().delete,
+            findAll: this.repository().findAll,
+        };
+    },
 
-export const updateAddressSchema = userAddressSchema.partial().required({
-    userId: true,
-    id: true,
-});
+    route() {
+        return {
+            create: {
+                json: this.service().create.input.omit({
+                    userId: true,
+                }),
 
-export const updateAddressInputSchema = updateAddressSchema.omit({
-    userId: true,
-    id: true,
-});
+                [HTTP_STATUS["Created"]]: this.service().create.output,
+            },
 
-export const updateAddressParamSchema = userAddressSchema.pick({
-    id: true,
-});
+            find: {
+                param: this.service().find.input.pick({
+                    id: true,
+                }),
 
-export const updateAddressOutputSchema = userAddressSchema;
+                [HTTP_STATUS["OK"]]: this.service().find.output,
+            },
 
-export type UpdateAddressSchemaType = z.infer<typeof updateAddressSchema>;
-export type UpdateAddressInputSchemaType = z.infer<
-    typeof updateAddressInputSchema
->;
-export type UpdateAddressParamSchemaType = z.infer<
-    typeof updateAddressParamSchema
->;
-export type UpdateAddressOutputSchemaType = z.infer<
-    typeof updateAddressOutputSchema
->;
+            update: {
+                param: this.service().update.input.pick({
+                    id: true,
+                }),
+
+                json: this.service().update.input.omit({
+                    userId: true,
+                    id: true,
+                }),
+
+                [HTTP_STATUS["OK"]]: this.service().update.output,
+            },
+
+            delete: {
+                params: this.service().delete.input.pick({
+                    id: true,
+                }),
+
+                [HTTP_STATUS["No Content"]]: z.void(),
+            },
+
+            findAll: {
+                [HTTP_STATUS["OK"]]: this.service().findAll.output,
+            },
+        };
+    },
+};
+
+export const addressRouteSchema = addressSchema.route();
+
+export type AddressSchemaType = InferSchema<typeof addressSchema>;
+export type AddressRepositorySchemaType = InferSchema<
+    typeof addressSchema
+>["repository"];
+export type AddressServiceSchemaType = InferSchema<
+    typeof addressSchema
+>["service"];

@@ -1,68 +1,62 @@
 import db from "@/db";
-import {
-    accounts,
-    sessions,
-    users,
-    type AccountSchemaType,
-    type UserSchemaType,
-} from "@/db/schema";
-import type {
-    CreateAccountInputSchemaType,
-    CreateSessionInputSchemaType,
-    CreateUserInputSchemaType,
-} from "./auth.schema";
+import { accounts, sessions, users } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import type { AuthRepositorySchemaType } from "./auth.schema";
 import { generateBase64Token } from "./auth.utils";
 
-export class AuthRepository {
+export const authRepository = {
     async findAccountByPhone(
-        phone: number
-    ): Promise<AccountSchemaType | undefined> {
+        input: AuthRepositorySchemaType["findAccountByPhone"]["input"],
+    ): Promise<AuthRepositorySchemaType["findAccountByPhone"]["output"]> {
         const account = await db.query.accounts.findFirst({
-            where: (t, { eq }) => eq(t.phone, phone),
+            where: (t, { eq }) => eq(t.phone, input.phone),
         });
+
         return account;
-    }
+    },
 
-    async findAccount(token: string): Promise<AccountSchemaType | undefined> {
+    async findAccount(
+        input: AuthRepositorySchemaType["findAccount"]["input"],
+    ): Promise<AuthRepositorySchemaType["findAccount"]["output"]> {
         const session = await db.query.sessions.findFirst({
-            where: (t, { eq }) => eq(t.token, token),
-            with: {
-                account: true,
-            },
-        });
-        return session?.account;
-    }
-
-    async findUser(
-        token: string
-    ): Promise<
-        { user: UserSchemaType; account: AccountSchemaType } | undefined
-    > {
-        const session = await db.query.sessions.findFirst({
-            where: (t, { eq }) => eq(t.token, token),
+            where: (t, { eq }) => eq(t.token, input.token),
+            columns: {},
             with: {
                 account: {
+                    columns: { password: false },
+                },
+            },
+        });
+
+        return session?.account;
+    },
+
+    async findUser(
+        input: AuthRepositorySchemaType["findUser"]["input"],
+    ): Promise<AuthRepositorySchemaType["findUser"]["output"]> {
+        const session = await db.query.sessions.findFirst({
+            where: (t, { eq }) => eq(t.token, input.token),
+            columns: {},
+            with: {
+                account: {
+                    columns: {},
                     with: {
-                        user: true,
+                        user: {
+                            columns: {
+                                accountId: false,
+                            },
+                        },
                     },
                 },
             },
         });
 
-        const account = session?.account;
+        return session?.account.user ?? undefined;
+    },
 
-        if (!account || !account.user) {
-            return;
-        }
-
-        const { user, ...accountWithoutUser } = account;
-        return {
-            account: accountWithoutUser,
-            user,
-        };
-    }
-
-    async createAccount(data: CreateAccountInputSchemaType) {
+    async createAccount(
+        data: AuthRepositorySchemaType["createAccount"]["input"],
+    ): Promise<AuthRepositorySchemaType["createAccount"]["output"]> {
         const accountId = crypto.randomUUID();
         const sessionToken = generateBase64Token();
 
@@ -80,10 +74,14 @@ export class AuthRepository {
             }),
         ]);
 
-        return sessionToken;
-    }
+        return {
+            token: sessionToken,
+        };
+    },
 
-    async createSession(data: CreateSessionInputSchemaType) {
+    async createSession(
+        data: AuthRepositorySchemaType["createSession"]["input"],
+    ): Promise<AuthRepositorySchemaType["createSession"]["output"]> {
         const sessionToken = generateBase64Token();
 
         await db.insert(sessions).values({
@@ -93,11 +91,50 @@ export class AuthRepository {
             userAgent: data.userAgent,
         });
 
-        return sessionToken;
-    }
+        return {
+            token: sessionToken,
+        };
+    },
 
-    async createUser(data: CreateUserInputSchemaType): Promise<UserSchemaType> {
-        const [user] = await db.insert(users).values(data).returning();
+    async createUser(
+        input: AuthRepositorySchemaType["createUser"]["input"],
+    ): Promise<AuthRepositorySchemaType["createUser"]["output"]> {
+        const [user] = await db.insert(users).values(input).returning({
+            id: users.id,
+            name: users.name,
+            avatar: users.avatar,
+        });
+
         return user;
-    }
-}
+    },
+
+    async findAllSessions(
+        input: AuthRepositorySchemaType["findAllSessions"]["input"],
+    ): Promise<AuthRepositorySchemaType["findAllSessions"]["output"]> {
+        const sessions = await db.query.sessions.findMany({
+            where: (t, { eq }) => eq(t.accountId, input.accountId),
+            columns: {
+                accountId: false,
+            },
+        });
+
+        return sessions;
+    },
+
+    async deleteSession(
+        input: AuthRepositorySchemaType["deleteSession"]["input"],
+    ) {
+        await db
+            .delete(sessions)
+            .where(
+                and(
+                    eq(sessions.accountId, input.accountId),
+                    eq(sessions.token, input.token),
+                ),
+            );
+    },
+
+    async logout(input: AuthRepositorySchemaType["logout"]["input"]) {
+        await db.delete(sessions).where(eq(sessions.token, input.token));
+    },
+};
