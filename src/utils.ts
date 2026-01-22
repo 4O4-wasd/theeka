@@ -19,3 +19,11 @@ export type InferSchema<T> = Prettify<{
         Prettify<InferSchemaLevel<ReturnType<T[K]>>>
     :   Prettify<InferSchemaLevel<T[K]>>;
 }>;
+
+export type ToFunctions<T> = {
+    [K in keyof T]: T[K] extends { input: infer I; output: infer O } ?
+        (input: I) => Promise<O>
+    : T[K] extends { output: infer O } ? () => Promise<O>
+    : T[K] extends { input: infer I } ? (input: I) => Promise<void>
+    : () => Promise<void>;
+};

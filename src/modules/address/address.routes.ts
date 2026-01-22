@@ -1,11 +1,11 @@
 import { protectedMiddleware } from "@/middlewares/protected";
 import { sValidator } from "@hono/standard-validator";
 import { Hono } from "hono";
-import { addressRouteSchema, addressSchema } from "./address.schema";
+import { addressRouteSchema } from "./address.schema";
 import { addressService } from "./address.service";
 
 export const addressRoutes = new Hono().use(
-    protectedMiddleware({ type: "user" })
+    protectedMiddleware({ type: "user" }),
 );
 
 addressRoutes.get("/", async (c) => {
@@ -23,7 +23,7 @@ addressRoutes.post(
             userId: c.get("user").id,
         });
         return c.json(address);
-    }
+    },
 );
 
 addressRoutes.get(
@@ -51,7 +51,7 @@ addressRoutes.patch(
             id,
             userId: c.get("user").id,
         });
-        
+
         return c.json(address);
-    }
+    },
 );

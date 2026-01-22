@@ -3,7 +3,7 @@ import { HTTP_STATUS } from "@/status-codes";
 import type { InferSchema } from "@/utils";
 import { z } from "zod";
 
-export const authSchema = {
+const authSchema = {
     repository() {
         return {
             createAccount: {
@@ -152,8 +152,7 @@ export const authSchema = {
 
 export const authRouteSchema = authSchema.route();
 
-export type AuthSchemaType = InferSchema<typeof authSchema>;
-export type AuthRepositorySchemaType = InferSchema<
-    typeof authSchema
->["repository"];
-export type AuthServiceSchemaType = InferSchema<typeof authSchema>["service"];
+type AuthSchemaType = InferSchema<typeof authSchema>;
+
+export type AuthRepositorySchemaType = AuthSchemaType["repository"];
+export type AuthServiceSchemaType = AuthSchemaType["service"];

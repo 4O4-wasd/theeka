@@ -1,12 +1,11 @@
 import db from "@/db";
 import { userAddresses } from "@/db/schema";
+import type { ToFunctions } from "@/utils";
 import { and, eq } from "drizzle-orm";
 import type { AddressRepositorySchemaType } from "./address.schema";
 
 export const addressRepository = {
-    async find(
-        input: AddressRepositorySchemaType["find"]["input"],
-    ): Promise<AddressRepositorySchemaType["find"]["output"]> {
+    async find(input) {
         const address = await db.query.userAddresses.findFirst({
             where: (t, { eq, and }) =>
                 and(eq(t.id, input.id), eq(t.userId, input.userId)),
@@ -18,9 +17,7 @@ export const addressRepository = {
         return address;
     },
 
-    async findAll(
-        input: AddressRepositorySchemaType["findAll"]["input"],
-    ): Promise<AddressRepositorySchemaType["findAll"]["output"]> {
+    async findAll(input) {
         const addresses = await db.query.userAddresses.findMany({
             where: (t, { eq }) => eq(t.userId, input.userId),
             columns: {
@@ -31,9 +28,7 @@ export const addressRepository = {
         return addresses;
     },
 
-    async create(
-        input: AddressRepositorySchemaType["create"]["input"],
-    ): Promise<AddressRepositorySchemaType["create"]["output"]> {
+    async create(input) {
         const [address] = await db
             .insert(userAddresses)
             .values(input)
@@ -52,13 +47,7 @@ export const addressRepository = {
         return address;
     },
 
-    async update({
-        userId,
-        id,
-        ...input
-    }: AddressRepositorySchemaType["update"]["input"]): Promise<
-        AddressRepositorySchemaType["update"]["output"]
-    > {
+    async update({ userId, id, ...input }) {
         const [address] = await db
             .update(userAddresses)
             .set(input)
@@ -69,4 +58,15 @@ export const addressRepository = {
 
         return address;
     },
-};
+
+    async delete(input) {
+        await db
+            .delete(userAddresses)
+            .where(
+                and(
+                    eq(userAddresses.id, input.id),
+                    eq(userAddresses.userId, input.userId),
+                ),
+            );
+    },
+} satisfies ToFunctions<AddressRepositorySchemaType>;

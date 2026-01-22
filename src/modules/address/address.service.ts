@@ -1,28 +1,25 @@
+import type { ToFunctions } from "@/utils";
 import { addressRepository } from "./address.repository";
 import type { AddressServiceSchemaType } from "./address.schema";
 
 export const addressService = {
-    async findAll(
-        input: AddressServiceSchemaType["findAll"]["input"],
-    ): Promise<AddressServiceSchemaType["findAll"]["output"]> {
+    async findAll(input) {
         return await addressRepository.findAll(input);
     },
 
-    async find(
-        input: AddressServiceSchemaType["find"]["input"],
-    ): Promise<AddressServiceSchemaType["find"]["output"]> {
+    async find(input) {
         return await addressRepository.find(input);
     },
 
-    async create(
-        input: AddressServiceSchemaType["create"]["input"],
-    ): Promise<AddressServiceSchemaType["create"]["output"]> {
+    async create(input) {
         return await addressRepository.create(input);
     },
 
-    async update(
-        input: AddressServiceSchemaType["update"]["input"],
-    ): Promise<AddressServiceSchemaType["update"]["output"]> {
+    async update(input) {
         return await addressRepository.update(input);
     },
-};
+
+    async delete(input) {
+        await addressRepository.delete(input);
+    },
+} satisfies ToFunctions<AddressServiceSchemaType>;

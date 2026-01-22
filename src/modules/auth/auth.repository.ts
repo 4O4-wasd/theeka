@@ -1,13 +1,12 @@
 import db from "@/db";
 import { accounts, sessions, users } from "@/db/schema";
+import type { ToFunctions } from "@/utils";
 import { and, eq } from "drizzle-orm";
 import type { AuthRepositorySchemaType } from "./auth.schema";
 import { generateBase64Token } from "./auth.utils";
 
 export const authRepository = {
-    async findAccountByPhone(
-        input: AuthRepositorySchemaType["findAccountByPhone"]["input"],
-    ): Promise<AuthRepositorySchemaType["findAccountByPhone"]["output"]> {
+    async findAccountByPhone(input) {
         const account = await db.query.accounts.findFirst({
             where: (t, { eq }) => eq(t.phone, input.phone),
         });
@@ -15,9 +14,7 @@ export const authRepository = {
         return account;
     },
 
-    async findAccount(
-        input: AuthRepositorySchemaType["findAccount"]["input"],
-    ): Promise<AuthRepositorySchemaType["findAccount"]["output"]> {
+    async findAccount(input) {
         const session = await db.query.sessions.findFirst({
             where: (t, { eq }) => eq(t.token, input.token),
             columns: {},
@@ -31,9 +28,7 @@ export const authRepository = {
         return session?.account;
     },
 
-    async findUser(
-        input: AuthRepositorySchemaType["findUser"]["input"],
-    ): Promise<AuthRepositorySchemaType["findUser"]["output"]> {
+    async findUser(input) {
         const session = await db.query.sessions.findFirst({
             where: (t, { eq }) => eq(t.token, input.token),
             columns: {},
@@ -54,9 +49,7 @@ export const authRepository = {
         return session?.account.user ?? undefined;
     },
 
-    async createAccount(
-        data: AuthRepositorySchemaType["createAccount"]["input"],
-    ): Promise<AuthRepositorySchemaType["createAccount"]["output"]> {
+    async createAccount(data) {
         const accountId = crypto.randomUUID();
         const sessionToken = generateBase64Token();
 
@@ -79,16 +72,14 @@ export const authRepository = {
         };
     },
 
-    async createSession(
-        data: AuthRepositorySchemaType["createSession"]["input"],
-    ): Promise<AuthRepositorySchemaType["createSession"]["output"]> {
+    async createSession(input) {
         const sessionToken = generateBase64Token();
 
         await db.insert(sessions).values({
-            accountId: data.accountId,
-            ipAddress: data.ipAddress,
+            accountId: input.accountId,
+            ipAddress: input.ipAddress,
             token: sessionToken,
-            userAgent: data.userAgent,
+            userAgent: input.userAgent,
         });
 
         return {
@@ -96,9 +87,7 @@ export const authRepository = {
         };
     },
 
-    async createUser(
-        input: AuthRepositorySchemaType["createUser"]["input"],
-    ): Promise<AuthRepositorySchemaType["createUser"]["output"]> {
+    async createUser(input) {
         const [user] = await db.insert(users).values(input).returning({
             id: users.id,
             name: users.name,
@@ -108,9 +97,7 @@ export const authRepository = {
         return user;
     },
 
-    async findAllSessions(
-        input: AuthRepositorySchemaType["findAllSessions"]["input"],
-    ): Promise<AuthRepositorySchemaType["findAllSessions"]["output"]> {
+    async findAllSessions(input) {
         const sessions = await db.query.sessions.findMany({
             where: (t, { eq }) => eq(t.accountId, input.accountId),
             columns: {
@@ -121,9 +108,7 @@ export const authRepository = {
         return sessions;
     },
 
-    async deleteSession(
-        input: AuthRepositorySchemaType["deleteSession"]["input"],
-    ) {
+    async deleteSession(input) {
         await db
             .delete(sessions)
             .where(
@@ -134,7 +119,7 @@ export const authRepository = {
             );
     },
 
-    async logout(input: AuthRepositorySchemaType["logout"]["input"]) {
+    async logout(input) {
         await db.delete(sessions).where(eq(sessions.token, input.token));
     },
-};
+} satisfies ToFunctions<AuthRepositorySchemaType>;

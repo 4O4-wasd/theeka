@@ -3,7 +3,7 @@ import { HTTP_STATUS } from "@/status-codes";
 import type { InferSchema } from "@/utils";
 import { z } from "zod";
 
-export const addressSchema = {
+const addressSchema = {
     repository() {
         return {
             create: {
@@ -119,10 +119,7 @@ export const addressSchema = {
 
 export const addressRouteSchema = addressSchema.route();
 
-export type AddressSchemaType = InferSchema<typeof addressSchema>;
-export type AddressRepositorySchemaType = InferSchema<
-    typeof addressSchema
->["repository"];
-export type AddressServiceSchemaType = InferSchema<
-    typeof addressSchema
->["service"];
+type AddressSchemaType = InferSchema<typeof addressSchema>;
+
+export type AddressRepositorySchemaType = AddressSchemaType["repository"];
+export type AddressServiceSchemaType = AddressSchemaType["service"];

@@ -61,7 +61,7 @@ ${moduleName}Routes.get('/', async (c) => {
 const schemaTemplate = /*ts*/ `import { z } from 'zod';
 import { HTTP_STATUS } from "@/status-codes";
 
-export const ${moduleName}Schema = {
+const ${moduleName}Schema = {
   repository() {
     return {
       findAll: {}
@@ -79,7 +79,11 @@ export const ${moduleName}Schema = {
       [HTTP_STATUS["OK"]]: this.service().findAll
     }
   }
-}`;
+}
+
+export const ${moduleName}RepoSchema = ${moduleName}Schema.route();
+
+`;
 
 const repositoryTemplate = /*ts*/ `import db from '@/db';
 
