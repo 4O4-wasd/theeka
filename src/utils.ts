@@ -1,4 +1,7 @@
-import type z from "zod";
+import type { ValidationTargets } from "hono";
+import { resolver } from "hono-openapi";
+import z from "zod";
+import { HTTP_STATUS } from "./status-codes";
 
 export type Prettify<T> = {
     [K in keyof T]: T[K];
@@ -26,4 +29,44 @@ export type ToFunctions<T> = {
     : T[K] extends { output: infer O } ? () => Promise<O>
     : T[K] extends { input: infer I } ? (input: I) => Promise<void>
     : () => Promise<void>;
+};
+
+export namespace DefaultSchemaType {
+    export type Repository = Record<
+        string,
+        {
+            input?: z.ZodType;
+            output?: z.ZodType;
+        }
+    >;
+
+    export type Service = Repository;
+
+    export type Route = Record<
+        string,
+        {
+            request?: Partial<Record<keyof ValidationTargets, z.ZodType>>;
+            response?: Partial<Record<keyof typeof HTTP_STATUS, z.ZodType>>;
+        }
+    >;
+}
+
+export const generateOpenApiResponseFromSchema = <
+    T extends Partial<Record<keyof typeof HTTP_STATUS, z.ZodType>>,
+>(
+    responseSchema: T,
+) => {
+    return Object.fromEntries(
+        Object.entries(responseSchema).map(([key, schema]) => [
+            HTTP_STATUS[key as keyof typeof HTTP_STATUS],
+            {
+                description: key,
+                content: {
+                    "application/json": {
+                        schema: resolver(schema),
+                    },
+                },
+            },
+        ]),
+    );
 };

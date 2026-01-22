@@ -1,6 +1,5 @@
 import { userAddressSchema } from "@/db/schema";
-import { HTTP_STATUS } from "@/status-codes";
-import type { InferSchema } from "@/utils";
+import type { DefaultSchemaType, InferSchema } from "@/utils";
 import { z } from "zod";
 
 const addressSchema = {
@@ -58,7 +57,7 @@ const addressSchema = {
                     }),
                 ),
             },
-        };
+        } satisfies DefaultSchemaType.Repository;
     },
 
     service() {
@@ -68,52 +67,72 @@ const addressSchema = {
             update: this.repository().update,
             delete: this.repository().delete,
             findAll: this.repository().findAll,
-        };
+        } satisfies DefaultSchemaType.Service;
     },
 
     route() {
         return {
             create: {
-                json: this.service().create.input.omit({
-                    userId: true,
-                }),
+                request: {
+                    json: this.service().create.input.omit({
+                        userId: true,
+                    }),
+                },
 
-                [HTTP_STATUS["Created"]]: this.service().create.output,
+                response: {
+                    Created: this.service().create.output,
+                },
             },
 
             find: {
-                param: this.service().find.input.pick({
-                    id: true,
-                }),
+                request: {
+                    param: this.service().find.input.pick({
+                        id: true,
+                    }),
+                },
 
-                [HTTP_STATUS["OK"]]: this.service().find.output,
+                response: {
+                    OK: this.service().find.output,
+                },
             },
 
             update: {
-                param: this.service().update.input.pick({
-                    id: true,
-                }),
+                request: {
+                    param: this.service().update.input.pick({
+                        id: true,
+                    }),
 
-                json: this.service().update.input.omit({
-                    userId: true,
-                    id: true,
-                }),
+                    json: this.service().update.input.omit({
+                        userId: true,
+                        id: true,
+                    }),
+                },
 
-                [HTTP_STATUS["OK"]]: this.service().update.output,
+                response: {
+                    OK: this.service().update.output,
+                },
             },
 
             delete: {
-                params: this.service().delete.input.pick({
-                    id: true,
-                }),
+                request: {
+                    param: this.service().delete.input.pick({
+                        id: true,
+                    }),
+                },
 
-                [HTTP_STATUS["No Content"]]: z.void(),
+                response: {
+                    OK: z.object({
+                        success: z.boolean().default(true),
+                    }),
+                },
             },
 
             findAll: {
-                [HTTP_STATUS["OK"]]: this.service().findAll.output,
+                response: {
+                    OK: this.service().findAll.output,
+                },
             },
-        };
+        } satisfies DefaultSchemaType.Route;
     },
 };
 

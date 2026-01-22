@@ -27,7 +27,7 @@ export const sessionSchema = z.object({
     userAgent: z.string(),
     ipAddress: z.ipv4(),
     accountId: z.uuid(),
-    createdAt: z.date(),
+    createdAt: z.iso.datetime(),
 });
 
 export type SessionSchemaType = z.infer<typeof sessionSchema>;

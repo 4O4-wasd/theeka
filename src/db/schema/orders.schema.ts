@@ -99,7 +99,7 @@ export const orderSchema = z.object({
     businessId: z.uuid(),
     listingId: z.uuid(),
     deliveryEmployeeId: z.uuid(),
-    createdAt: z.date(),
+    createdAt: z.iso.datetime(),
 });
 
 export type OrderSchemaType = z.infer<typeof orderSchema>;

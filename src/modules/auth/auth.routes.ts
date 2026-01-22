@@ -3,8 +3,9 @@ import {
     protectedMiddleware,
 } from "@/middlewares/protected";
 import { HTTP_STATUS } from "@/status-codes";
-import { sValidator } from "@hono/standard-validator";
+import { generateOpenApiResponseFromSchema } from "@/utils";
 import { Hono } from "hono";
+import { describeRoute, validator } from "hono-openapi";
 import { HTTPException } from "hono/http-exception";
 import { authRouteSchema } from "./auth.schema";
 import { authService } from "./auth.service";
@@ -13,14 +14,20 @@ export const authRoutes = new Hono();
 
 authRoutes.post(
     "/login",
-    sValidator("json", authRouteSchema.login.json),
+    describeRoute({
+        description: "Login",
+        responses: generateOpenApiResponseFromSchema(
+            authRouteSchema.login.response,
+        ),
+    }),
+    validator("json", authRouteSchema.login.request.json),
     invertedProtectedMiddleware({ type: "account" }),
     async (c) => {
         const body = c.req.valid("json");
         const token = await authService.login({
             ...body,
             ipAddress: "127.0.0.1",
-            userAgent: "abc",
+            userAgent: "no useragent",
         });
 
         return c.json(token, HTTP_STATUS["OK"]);
@@ -29,7 +36,13 @@ authRoutes.post(
 
 authRoutes.post(
     "/user",
-    sValidator("json", authRouteSchema.createUser.json),
+    describeRoute({
+        description: "Create User",
+        responses: generateOpenApiResponseFromSchema(
+            authRouteSchema.createUser.response,
+        ),
+    }),
+    validator("json", authRouteSchema.createUser.request.json),
     invertedProtectedMiddleware({ type: "user" }),
     protectedMiddleware({ type: "account" }),
     async (c) => {
@@ -43,12 +56,28 @@ authRoutes.post(
     },
 );
 
-authRoutes.get("/user", protectedMiddleware({ type: "user" }), async (c) => {
-    return c.json(c.get("user"), HTTP_STATUS["OK"]);
-});
+authRoutes.get(
+    "/user",
+    describeRoute({
+        description: "Find User",
+        responses: generateOpenApiResponseFromSchema(
+            authRouteSchema.findUser.response,
+        ),
+    }),
+    protectedMiddleware({ type: "user" }),
+    async (c) => {
+        return c.json(c.get("user"), HTTP_STATUS["OK"]);
+    },
+);
 
 authRoutes.get(
     "/account",
+    describeRoute({
+        description: "Find Account",
+        responses: generateOpenApiResponseFromSchema(
+            authRouteSchema.findAccount.response,
+        ),
+    }),
     protectedMiddleware({ type: "account" }),
     async (c) => {
         return c.json(c.get("account"), HTTP_STATUS["OK"]);
@@ -57,6 +86,12 @@ authRoutes.get(
 
 authRoutes.get(
     "/sessions",
+    describeRoute({
+        description: "Find All Sessions",
+        responses: generateOpenApiResponseFromSchema(
+            authRouteSchema.findAllSessions.response,
+        ),
+    }),
     protectedMiddleware({ type: "account" }),
     async (c) => {
         const sessions = await authService.findAllSessions({
@@ -68,7 +103,13 @@ authRoutes.get(
 
 authRoutes.delete(
     "/session",
-    sValidator("json", authRouteSchema.deleteSession.json),
+    describeRoute({
+        description: "Delete Session",
+        responses: generateOpenApiResponseFromSchema(
+            authRouteSchema.deleteSession.response,
+        ),
+    }),
+    validator("json", authRouteSchema.deleteSession.request.json),
     protectedMiddleware({ type: "account" }),
     async (c) => {
         const token = c.req.valid("json").token;
@@ -83,6 +124,7 @@ authRoutes.delete(
             token,
             accountId: c.get("account").id,
         });
+
         return c.json(
             {
                 success: true,
@@ -94,6 +136,12 @@ authRoutes.delete(
 
 authRoutes.get(
     "/logout",
+    describeRoute({
+        description: "Logout",
+        responses: generateOpenApiResponseFromSchema(
+            authRouteSchema.logout.response,
+        ),
+    }),
     protectedMiddleware({ type: "account" }),
     async (c) => {
         await authService.logout({

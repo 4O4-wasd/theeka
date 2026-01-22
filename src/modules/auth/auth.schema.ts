@@ -1,6 +1,5 @@
 import { accountSchema, sessionSchema, userSchema } from "@/db/schema";
-import { HTTP_STATUS } from "@/status-codes";
-import type { InferSchema } from "@/utils";
+import type { DefaultSchemaType, InferSchema } from "@/utils";
 import { z } from "zod";
 
 const authSchema = {
@@ -96,7 +95,7 @@ const authSchema = {
                     token: true,
                 }),
             },
-        };
+        } satisfies DefaultSchemaType.Repository;
     },
 
     service() {
@@ -109,44 +108,76 @@ const authSchema = {
             findAllSessions: this.repository().findAllSessions,
             deleteSession: this.repository().deleteSession,
             logout: this.repository().logout,
-        };
+        } satisfies DefaultSchemaType.Service;
     },
 
     route() {
         return {
             login: {
-                json: this.service().login.input.pick({
-                    phone: true,
-                    password: true,
-                }),
+                request: {
+                    json: this.service().login.input.pick({
+                        phone: true,
+                        password: true,
+                    }),
+                },
 
-                [HTTP_STATUS["OK"]]: this.service().login.output,
+                response: {
+                    OK: this.service().login.output,
+                },
             },
 
             findAccount: {
-                [HTTP_STATUS["OK"]]: this.service().findAccount.output,
+                response: {
+                    OK: this.service().findAccount.output,
+                },
             },
 
             findUser: {
-                [HTTP_STATUS["OK"]]: this.service().findUser.output,
+                response: {
+                    OK: this.service().findUser.output,
+                },
             },
 
             createUser: {
-                json: this.service().createUser.input.omit({ accountId: true }),
+                request: {
+                    json: this.service().createUser.input.omit({
+                        accountId: true,
+                    }),
+                },
 
-                [HTTP_STATUS["Created"]]: this.service().createUser.output,
+                response: {
+                    Created: this.service().createUser.output,
+                },
             },
 
             findAllSessions: {
-                [HTTP_STATUS["OK"]]: this.service().findAllSessions.output,
+                response: {
+                    OK: this.service().findAllSessions.output,
+                },
             },
 
             deleteSession: {
-                json: this.service().deleteSession.input.pick({
-                    token: true,
-                }),
+                request: {
+                    json: this.service().deleteSession.input.pick({
+                        token: true,
+                    }),
+                },
+
+                response: {
+                    OK: z.object({
+                        success: z.boolean().default(true),
+                    }),
+                },
             },
-        };
+
+            logout: {
+                response: {
+                    OK: z.object({
+                        success: z.boolean().default(true),
+                    }),
+                },
+            },
+        } satisfies DefaultSchemaType.Route;
     },
 };
 

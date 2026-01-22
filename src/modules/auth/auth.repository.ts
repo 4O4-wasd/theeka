@@ -49,15 +49,15 @@ export const authRepository = {
         return session?.account.user ?? undefined;
     },
 
-    async createAccount(data) {
+    async createAccount(input) {
         const accountId = crypto.randomUUID();
         const sessionToken = generateBase64Token();
 
         await db.batch([
             db.insert(accounts).values({
                 id: accountId,
-                phone: data.phone,
-                password: data.password,
+                phone: input.phone,
+                password: input.password,
             }),
             db.insert(sessions).values({
                 accountId,

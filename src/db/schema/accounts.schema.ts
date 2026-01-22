@@ -27,7 +27,7 @@ export const accountSchema = z.object({
         .min(1000000000, "phone is not valid")
         .max(9999999999, "phone is not valid"),
     password: z.string().min(6).max(128),
-    createdAt: z.date(),
+    createdAt: z.iso.datetime(),
 });
 
 export type AccountSchemaType = z.infer<typeof accountSchema>;
