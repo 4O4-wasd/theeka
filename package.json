@@ -6,7 +6,7 @@
         "db:push": "drizzle-kit push",
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",
-        "gm": "node scripts/generate-module.js"
+        "gm": "node scripts/generate-module/index.js"
     },
     "dependencies": {
         "@hono/node-server": "^1.19.6",
