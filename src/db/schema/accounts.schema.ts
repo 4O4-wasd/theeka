@@ -10,9 +10,9 @@ export const accounts = sqliteTable("accounts", {
         .$default(() => crypto.randomUUID()),
     phone: integer("phone").notNull().unique(),
     password: text("password").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(
-        () => new Date()
-    ),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
 });
 
 export const accountsRelations = relations(accounts, ({ many, one }) => ({
@@ -20,12 +20,14 @@ export const accountsRelations = relations(accounts, ({ many, one }) => ({
     user: one(users),
 }));
 
+export const phoneNumberSchema = z
+    .number()
+    .min(1000000000, "phone is not valid")
+    .max(9999999999, "phone is not valid");
+
 export const accountSchema = z.object({
     id: z.uuid(),
-    phone: z
-        .number()
-        .min(1000000000, "phone is not valid")
-        .max(9999999999, "phone is not valid"),
+    phone: phoneNumberSchema,
     password: z.string().min(6).max(128),
     createdAt: z.iso.datetime(),
 });

@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import z from "zod";
-import { accounts } from "./accounts.schema";
+import { accounts, accountSchema } from "./accounts.schema";
 
 export const sessions = sqliteTable("sessions", {
     token: text("token").primaryKey(),
@@ -26,7 +26,7 @@ export const sessionSchema = z.object({
     token: z.base64(),
     userAgent: z.string(),
     ipAddress: z.ipv4(),
-    accountId: z.uuid(),
+    accountId: accountSchema.shape.id,
     createdAt: z.iso.datetime(),
 });
 
