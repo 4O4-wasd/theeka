@@ -1,5 +1,6 @@
 import env from "@env";
 import { serve } from "@hono/node-server";
+import { handle } from "@hono/node-server/vercel";
 import { Hono } from "hono";
 import { openAPIRouteHandler } from "hono-openapi";
 import { compress } from "hono/compress";
@@ -41,4 +42,4 @@ if (env.NODE_ENV === "dev") {
     );
 }
 
-export default app;
+export default handle(app);
