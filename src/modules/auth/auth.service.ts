@@ -1,5 +1,5 @@
 import { HTTP_STATUS } from "@/status-codes";
-import type { ToFunctions } from "@/utils";
+import type { ToFunctions } from "@/utils/types";
 import argon2 from "argon2";
 import { HTTPException } from "hono/http-exception";
 import { authRepository } from "./auth.repository";

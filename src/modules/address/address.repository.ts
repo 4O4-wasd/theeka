@@ -1,6 +1,6 @@
 import db from "@/db";
 import { userAddresses } from "@/db/schema";
-import type { ToFunctions } from "@/utils";
+import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
 import type { AddressRepositorySchemaType } from "./address.schema";
 
@@ -35,9 +35,7 @@ export const addressRepository = {
             .returning({
                 id: userAddresses.id,
                 name: userAddresses.name,
-                addressLine1: userAddresses.addressLine1,
-                addressLine2: userAddresses.addressLine2,
-                landmark: userAddresses.landmark,
+                completeAddress: userAddresses.completeAddress,
                 city: userAddresses.city,
                 state: userAddresses.state,
                 pincode: userAddresses.pincode,

@@ -1,8 +1,9 @@
 import { relations } from "drizzle-orm";
 import { real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { orders } from "./orders.schema";
-import { users, userSchema } from "./users.schema";
+import { users } from "./users.schema";
 
 export const userAddresses = sqliteTable("user_addresses", {
     id: text("id")
@@ -34,13 +35,13 @@ export const userAddressesRelations = relations(
     }),
 );
 
-export const userAddressSchema = z.object({
+export const userAddressSchema = createSelectSchema(userAddresses, {
     id: z.uuid(),
     name: z.string(),
     userId: z.uuid(),
-    addressLine1: z.string(),
-    addressLine2: z.string().nullable(),
-    landmark: z.string().nullable(),
+
+    completeAddress: z.string(),
+
     city: z.string(),
     state: z.string(),
     pincode: z.string(),

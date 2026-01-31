@@ -1,6 +1,6 @@
 import db from "@/db";
 import { accounts, sessions, users } from "@/db/schema";
-import type { ToFunctions } from "@/utils";
+import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
 import type { AuthRepositorySchemaType } from "./auth.schema";
 import { generateBase64Token } from "./auth.utils";

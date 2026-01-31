@@ -16,9 +16,10 @@ build({
     treeShaking: true,
     minify: true,
     sourcemap: false,
-    packages: 'external', 
+    packages: 'external',
     alias: {
         '@': path.resolve(__dirname, 'src'),
+        "@env": path.resolve(__dirname, "./env.config.ts")
     },
     external: ['node:*'],
 }).then(() => {

@@ -1,12 +1,12 @@
-import { BusinessSchema } from "@/db/schema";
-import type { DefaultSchemaType, InferSchema } from "@/utils";
+import { businessSchema as BSchema } from "@/db/schema";
+import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import z from "zod";
 
 const businessSchema = {
     repository() {
         return {
             create: {
-                input: BusinessSchema.omit({})
+                input: BSchema,
             },
             findAll: {
                 input: z.object(),

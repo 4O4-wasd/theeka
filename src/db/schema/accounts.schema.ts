@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { sessions } from "./sessions.schema";
 import { users } from "./users.schema";
@@ -20,14 +21,14 @@ export const accountsRelations = relations(accounts, ({ many, one }) => ({
     user: one(users),
 }));
 
-export const accountSchema = z.object({
+export const accountSchema = createSelectSchema(accounts, {
     id: z.uuid(),
     phone: z
         .number()
         .min(1000000000, "phone is not valid")
         .max(9999999999, "phone is not valid"),
     password: z.string().min(6).max(128),
-    createdAt: z.iso.datetime(),
+    createdAt: z.date(),
 });
 
 export type AccountSchemaType = z.infer<typeof accountSchema>;

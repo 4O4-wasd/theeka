@@ -1,4 +1,4 @@
-import type { ToFunctions } from "@/utils";
+import type { ToFunctions } from "@/utils/types";
 import { businessRepository } from "./business.repository";
 import type { BusinessServiceSchemaType } from "./business.schema";
 

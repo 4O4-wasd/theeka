@@ -1,4 +1,4 @@
-import { generateOpenApiResponseFromSchema } from "@/utils";
+import { generateOpenApiResponseFromSchema } from "@/utils/generateOpenApiResponseFromSchema";
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import { moduleRouteSchema } from "./module.schema";

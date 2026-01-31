@@ -1,4 +1,4 @@
-import type { ToFunctions } from "@/utils";
+import type { ToFunctions } from "@/utils/types";
 import { moduleRepository } from "./module.repository";
 import type { ModuleServiceSchemaType } from "./module.schema";
 

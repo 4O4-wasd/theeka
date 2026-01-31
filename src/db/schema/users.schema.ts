@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { accounts } from "./accounts.schema";
 import { businesses } from "./businesses.schema";
@@ -32,7 +33,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     reviews: many(reviews),
 }));
 
-export const userSchema = z.object({
+export const userSchema = createSelectSchema(users, {
     id: z.uuid(),
     name: z.string().min(2),
     avatar: z.url().optional().nullable(),

@@ -1,5 +1,5 @@
 import { userAddressSchema } from "@/db/schema";
-import type { DefaultSchemaType, InferSchema } from "@/utils";
+import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import { z } from "zod";
 
 const addressSchema = {

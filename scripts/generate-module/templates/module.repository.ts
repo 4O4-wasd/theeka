@@ -1,4 +1,4 @@
-import type { ToFunctions } from "@/utils";
+import type { ToFunctions } from "@/utils/types";
 import type { ModuleRepositorySchemaType } from "./module.schema";
 
 export const moduleRepository = {

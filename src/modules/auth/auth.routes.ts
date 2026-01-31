@@ -3,7 +3,7 @@ import {
     protectedMiddleware,
 } from "@/middlewares/protected";
 import { HTTP_STATUS } from "@/status-codes";
-import { generateOpenApiResponseFromSchema } from "@/utils";
+import { generateOpenApiResponseFromSchema } from "@/utils/generateOpenApiResponseFromSchema";
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import { HTTPException } from "hono/http-exception";

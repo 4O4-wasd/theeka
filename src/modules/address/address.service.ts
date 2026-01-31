@@ -1,7 +1,6 @@
-import type { ToFunctions } from "@/utils";
+import type { ToFunctions } from "@/utils/types";
 import { addressRepository } from "./address.repository";
 import type { AddressServiceSchemaType } from "./address.schema";
-
 
 export const addressService = {
     async findAll(input) {

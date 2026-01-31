@@ -1,5 +1,5 @@
 import { protectedMiddleware } from "@/middlewares/protected";
-import { generateOpenApiResponseFromSchema } from "@/utils";
+import { generateOpenApiResponseFromSchema } from "@/utils/generateOpenApiResponseFromSchema";
 import { sValidator } from "@hono/standard-validator";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";

@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { businessAddresses } from "./business-addresses.schema";
 import { employees } from "./employees.schema";
@@ -7,7 +8,7 @@ import { orders } from "./orders.schema";
 import { reviews } from "./reviews.schema";
 import { users } from "./users.schema";
 
-type BusinessHoursType = z.infer<typeof BusinessHoursSchema>;
+type BusinessHoursType = z.infer<typeof businessHoursSchema>;
 
 export const businesses = sqliteTable("businesses", {
     id: text("id")
@@ -54,7 +55,7 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
     reviews: many(reviews),
 }));
 
-const BusinessHoursSchema = z.record(
+const businessHoursSchema = z.record(
     z.enum([
         "monday",
         "tuesday",
@@ -71,23 +72,23 @@ const BusinessHoursSchema = z.record(
     ]),
 );
 
-const BusinessMediaSchema = z.object({
+const businessMediaSchema = z.object({
     type: z.enum(["image", "video"]),
     url: z.url(),
 });
 
-export const BusinessSchema = z.object({
+export const businessSchema = createSelectSchema(businesses, {
     id: z.uuid(),
     ownerId: z.uuid(),
     phoneNumber: z
         .number()
         .min(1000000000, "phone is not valid")
         .max(9999999999, "phone is not valid"),
-    businessHours: BusinessHoursSchema,
-    media: z.array(BusinessMediaSchema).optional(),
+    businessHours: businessHoursSchema,
+    media: z.array(businessMediaSchema).optional(),
     isClosed: z.boolean(),
     title: z.string().min(2).max(50),
     logo: z.url().optional(),
     description: z.string().optional(),
-    createdAt: z.iso.datetime(),
+    createdAt: z.date(),
 });
