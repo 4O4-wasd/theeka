@@ -1,8 +1,11 @@
 {
-    "routes": [
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "buildCommand": "bun run build",
+    "installCommand": "bun i",
+    "rewrites": [
         {
-            "src": "/(.*)",
-            "dest": "/api/index"
+            "source": "/(.*)",
+            "destination": "/api/index"
         }
     ]
 }
