@@ -7,16 +7,19 @@ export const businessAddresses = sqliteTable("business_addresses", {
         .primaryKey()
         .references(() => businesses.id, { onDelete: "cascade" })
         .notNull(),
-    addressLine1: text("address_line1").notNull(),
-    addressLine2: text("address_line2"),
-    landmark: text("landmark"),
+
+    completeAddress: text("complete_address").notNull(),
+
     city: text("city").notNull(),
     state: text("state").notNull(),
     pincode: text("pincode").notNull(),
+
     latitude: real("latitude").notNull(),
     longitude: real("longitude").notNull(),
+
     minLatitude: real("min_latitude").notNull(),
     maxLatitude: real("max_latitude").notNull(),
+
     minLongitude: real("min_longitude").notNull(),
     maxLongitude: real("max_longitude").notNull(),
 });
@@ -28,5 +31,5 @@ export const businessListingAddressRelations = relations(
             fields: [businessAddresses.businessId],
             references: [businesses.id],
         }),
-    })
+    }),
 );

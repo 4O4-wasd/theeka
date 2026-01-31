@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { accounts } from "./accounts.schema";
 
@@ -22,7 +23,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
     }),
 }));
 
-export const sessionSchema = z.object({
+export const sessionSchema = createSelectSchema(sessions, {
     token: z.base64(),
     userAgent: z.string(),
     ipAddress: z.ipv4(),

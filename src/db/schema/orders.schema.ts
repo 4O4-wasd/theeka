@@ -1,11 +1,12 @@
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
+import z from "zod";
 import { businessListings } from "./business-listings.schema";
 import { businesses } from "./businesses.schema";
 import { employees } from "./employees.schema";
-import { userAddresses, userAddressSchema } from "./user-addresses.schema";
-import { users, userSchema } from "./users.schema";
-import z from "zod";
+import { userAddresses } from "./user-addresses.schema";
+import { users } from "./users.schema";
 
 export const orders = sqliteTable("orders", {
     id: text("id")
@@ -75,7 +76,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     }),
 }));
 
-export const orderSchema = z.object({
+export const orderSchema = createSelectSchema(orders, {
     id: z.uuid(),
     customerPhone: z.number(),
     status: z

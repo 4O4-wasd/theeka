@@ -1,8 +1,9 @@
 import { relations } from "drizzle-orm";
 import { real, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { orders, orderSchema } from "./orders.schema";
-import { users, userSchema } from "./users.schema";
+import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
+import { orders } from "./orders.schema";
+import { users } from "./users.schema";
 
 export const userAddresses = sqliteTable("user_addresses", {
     id: text("id")
@@ -12,12 +13,13 @@ export const userAddresses = sqliteTable("user_addresses", {
     userId: text("user_id")
         .references(() => users.id, { onDelete: "cascade" })
         .notNull(),
-    addressLine1: text("address_line1").notNull(),
-    addressLine2: text("address_line2"),
-    landmark: text("landmark"),
+
+    completeAddress: text("complete_address").notNull(),
+
     city: text("city").notNull(),
     state: text("state").notNull(),
     pincode: text("pincode").notNull(),
+
     latitude: real("latitude"),
     longitude: real("longitude"),
 });
@@ -30,16 +32,16 @@ export const userAddressesRelations = relations(
             references: [users.id],
         }),
         orders: many(orders),
-    })
+    }),
 );
 
-export const userAddressSchema = z.object({
+export const userAddressSchema = createSelectSchema(userAddresses, {
     id: z.uuid(),
     name: z.string(),
     userId: z.uuid(),
-    addressLine1: z.string(),
-    addressLine2: z.string().nullable(),
-    landmark: z.string().nullable(),
+
+    completeAddress: z.string(),
+
     city: z.string(),
     state: z.string(),
     pincode: z.string(),
