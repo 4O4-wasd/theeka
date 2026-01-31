@@ -3,6 +3,11 @@
     "buildCommand": "bun run build",
     "installCommand": "bun i",
     "framework": null,
+    "functions": {
+        "api/index.js": {
+            "runtime": "nodejs20.x"
+        }
+    },
     "rewrites": [
         {
             "source": "/(.*)",
