@@ -26,7 +26,7 @@ export const sessionSchema = z.object({
     token: z.base64(),
     userAgent: z.string(),
     ipAddress: z.ipv4(),
-    accountId: accountSchema.shape.id,
+    accountId: z.uuid(),
     createdAt: z.iso.datetime(),
 });
 

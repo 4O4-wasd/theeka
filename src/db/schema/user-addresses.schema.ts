@@ -37,7 +37,7 @@ export const userAddressesRelations = relations(
 export const userAddressSchema = z.object({
     id: z.uuid(),
     name: z.string(),
-    userId: userSchema.shape.id,
+    userId: z.uuid(),
     addressLine1: z.string(),
     addressLine2: z.string().nullable(),
     landmark: z.string().nullable(),

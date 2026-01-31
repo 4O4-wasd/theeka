@@ -1,12 +1,11 @@
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import z from "zod";
-import { phoneNumberSchema } from "./accounts.schema";
 import { businessAddresses } from "./business-addresses.schema";
 import { employees } from "./employees.schema";
 import { orders } from "./orders.schema";
 import { reviews } from "./reviews.schema";
-import { users, userSchema } from "./users.schema";
+import { users } from "./users.schema";
 
 type BusinessHoursType = z.infer<typeof BusinessHoursSchema>;
 
@@ -79,8 +78,11 @@ const BusinessMediaSchema = z.object({
 
 export const BusinessSchema = z.object({
     id: z.uuid(),
-    ownerId: userSchema.shape.id,
-    phoneNumber: phoneNumberSchema,
+    ownerId: z.uuid(),
+    phoneNumber: z
+        .number()
+        .min(1000000000, "phone is not valid")
+        .max(9999999999, "phone is not valid"),
     businessHours: BusinessHoursSchema,
     media: z.array(BusinessMediaSchema).optional(),
     isClosed: z.boolean(),
