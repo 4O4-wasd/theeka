@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 build({
     entryPoints: ['src/index.ts'],
     bundle: true,
-    outfile: 'api/index.js',
+    outfile: 'build/index.js',
     platform: 'node',
     format: 'esm',
     target: 'esnext',

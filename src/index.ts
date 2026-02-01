@@ -42,4 +42,4 @@ if (env.NODE_ENV === "dev") {
     );
 }
 
-export default app.fetch;
+export default app;
