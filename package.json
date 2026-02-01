@@ -2,12 +2,12 @@
     "name": "api",
     "type": "module",
     "scripts": {
-        "dev": "tsx watch src/index.ts",
+        "dev": "npm run openapi && tsx watch src/index.ts",
         "build": "tsc --noEmit && npm run openapi && node build.config.mjs",
         "db:push": "drizzle-kit push",
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",
-        "gm": "tsx src/scripts/generate-module/index.ts",
+        "gm": "tsx src/scripts/generate-module/index.ts && npm run openapi",
         "openapi": "tsx src/scripts/generate-openapi.ts"
     },
     "dependencies": {
