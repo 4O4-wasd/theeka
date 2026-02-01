@@ -1,6 +1,6 @@
 import type { ValidationTargets } from "hono";
 import z from "zod";
-import { HTTP_STATUS } from "../status-codes";
+import { HTTP_STATUS } from "./status-codes";
 
 export type Prettify<T> = {
     [K in keyof T]: T[K];

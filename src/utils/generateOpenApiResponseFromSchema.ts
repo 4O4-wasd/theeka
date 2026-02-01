@@ -1,8 +1,7 @@
-import type { ValidationTargets } from "hono";
 import { resolver } from "hono-openapi";
 import z from "zod";
-import { HTTP_STATUS } from "../status-codes";
 import { convertDateToISODateTime } from "./convertDateToTime";
+import { HTTP_STATUS } from "./status-codes";
 
 export const generateOpenApiResponseFromSchema = <
     T extends Partial<Record<keyof typeof HTTP_STATUS, z.ZodType>>,

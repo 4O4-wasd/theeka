@@ -3,11 +3,12 @@
     "type": "module",
     "scripts": {
         "dev": "tsx watch src/index.ts",
-        "build": "tsc --noEmit && node build.config.mjs",
+        "build": "tsc --noEmit && npm run openapi && node build.config.mjs",
         "db:push": "drizzle-kit push",
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",
-        "gm": "tsx src/scripts/generate-module/index.js"
+        "gm": "tsx src/scripts/generate-module/index.ts",
+        "openapi": "tsx src/scripts/generate-openapi.ts"
     },
     "dependencies": {
         "@hono/node-server": "^1.19.9",

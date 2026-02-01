@@ -1,6 +1,6 @@
 import type { AuthServiceSchemaType } from "@/modules/auth/auth.schema";
 import { authService } from "@/modules/auth/auth.service";
-import { HTTP_STATUS } from "@/status-codes";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 
@@ -75,7 +75,7 @@ export const invertedProtectedMiddleware = ({
         const token = c.req.header("Authorization");
 
         if (!token) {
-            await next()
+            await next();
             return;
         }
 

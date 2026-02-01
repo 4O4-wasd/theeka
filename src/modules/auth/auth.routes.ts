@@ -2,8 +2,8 @@ import {
     invertedProtectedMiddleware,
     protectedMiddleware,
 } from "@/middlewares/protected";
-import { HTTP_STATUS } from "@/status-codes";
 import { generateOpenApiResponseFromSchema } from "@/utils/generateOpenApiResponseFromSchema";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import { HTTPException } from "hono/http-exception";

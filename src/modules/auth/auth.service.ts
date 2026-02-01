@@ -1,4 +1,4 @@
-import { HTTP_STATUS } from "@/status-codes";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
 import argon2 from "argon2";
 import { HTTPException } from "hono/http-exception";
