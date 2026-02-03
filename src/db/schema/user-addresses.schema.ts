@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { orders } from "./orders.schema";
@@ -18,10 +18,10 @@ export const userAddresses = sqliteTable("user_addresses", {
 
     city: text("city").notNull(),
     state: text("state").notNull(),
-    pincode: text("pincode").notNull(),
+    pincode: integer("pincode").notNull(),
 
-    latitude: real("latitude"),
-    longitude: real("longitude"),
+    latitude: real("latitude").notNull(),
+    longitude: real("longitude").notNull(),
 });
 
 export const userAddressesRelations = relations(
@@ -44,9 +44,9 @@ export const userAddressSchema = createSelectSchema(userAddresses, {
 
     city: z.string(),
     state: z.string(),
-    pincode: z.string(),
-    latitude: z.number().nullable(),
-    longitude: z.number().nullable(),
+    pincode: z.number().min(111111).max(999999),
+    latitude: z.number(),
+    longitude: z.number(),
 });
 
 export type UserAddressSchemaType = z.infer<typeof userAddressSchema>;

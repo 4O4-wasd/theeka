@@ -1,3 +1,5 @@
+import type { StatusCode } from "hono/utils/http-status";
+
 export const HTTP_STATUS = {
     Continue: 100,
     "Switching Protocols": 101,
@@ -65,4 +67,4 @@ export const HTTP_STATUS = {
     "Loop Detected": 508,
     "Not Extended": 510,
     "Network Authentication Required": 511,
-} as const satisfies Record<string, number>;
+} as const satisfies Record<string, StatusCode>;

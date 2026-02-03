@@ -21,11 +21,9 @@ const addressSchema = {
                     userId: true,
                 }),
 
-                output: userAddressSchema
-                    .omit({
-                        userId: true,
-                    })
-                    .optional(),
+                output: userAddressSchema.omit({
+                    userId: true,
+                }),
             },
 
             update: {
@@ -103,7 +101,6 @@ const addressSchema = {
                     }),
 
                     json: this.service().update.input.omit({
-                        userId: true,
                         id: true,
                     }),
                 },

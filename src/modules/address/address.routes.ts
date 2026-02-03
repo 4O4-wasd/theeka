@@ -1,5 +1,6 @@
 import { protectedMiddleware } from "@/middlewares/protected";
-import { generateOpenApiResponseFromSchema } from "@/utils/generateOpenApiResponseFromSchema";
+import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import { sValidator } from "@hono/standard-validator";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
@@ -22,14 +23,14 @@ addressRoutes.get(
         const addresses = await addressService.findAll({
             userId: c.get("user").id,
         });
-        return c.json(addresses);
+        return c.json(addresses, HTTP_STATUS["OK"]);
     },
 );
 
 addressRoutes.post(
     "/",
     describeRoute({
-        description: "Create Addresses",
+        description: "Create An Addresses",
         responses: generateOpenApiResponseFromSchema(
             addressRouteSchema.create.response,
         ),
@@ -41,14 +42,14 @@ addressRoutes.post(
             ...data,
             userId: c.get("user").id,
         });
-        return c.json(address);
+        return c.json(address, HTTP_STATUS["Created"]);
     },
 );
 
 addressRoutes.get(
     "/:id",
     describeRoute({
-        description: "Find Address",
+        description: "Find An Address",
         responses: generateOpenApiResponseFromSchema(
             addressRouteSchema.find.response,
         ),
@@ -60,14 +61,14 @@ addressRoutes.get(
             id,
             userId: c.get("user").id,
         });
-        return c.json(address);
+        return c.json(address, HTTP_STATUS["OK"]);
     },
 );
 
 addressRoutes.patch(
     "/:id",
     describeRoute({
-        description: "Update Address",
+        description: "Update An Address",
         responses: generateOpenApiResponseFromSchema(
             addressRouteSchema.update.response,
         ),
@@ -83,6 +84,31 @@ addressRoutes.patch(
             userId: c.get("user").id,
         });
 
-        return c.json(address);
+        return c.json(address, HTTP_STATUS["OK"]);
+    },
+);
+
+addressRoutes.delete(
+    "/:id",
+    describeRoute({
+        description: "Delete An Address",
+        responses: generateOpenApiResponseFromSchema(
+            addressRouteSchema.delete.response,
+        ),
+    }),
+    sValidator("param", addressRouteSchema.delete.request.param),
+    async (c) => {
+        const { id } = c.req.valid("param");
+        await addressService.delete({
+            id,
+            userId: c.get("user").id,
+        });
+
+        return c.json(
+            {
+                success: true,
+            },
+            HTTP_STATUS["OK"],
+        );
     },
 );

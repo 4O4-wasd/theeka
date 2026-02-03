@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { compress } from "hono/compress";
 import { addressRoutes } from "./modules/address/address.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
+import { businessRoutes } from "./modules/business/business.route";
 
 const app = new Hono();
 
@@ -11,6 +12,7 @@ app.use(compress());
 
 app.route("/auth", authRoutes);
 app.route("/address", addressRoutes);
+app.route("/business", businessRoutes)
 
 if (env.NODE_ENV === "dev") {
     serve(

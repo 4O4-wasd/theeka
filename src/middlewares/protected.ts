@@ -83,7 +83,7 @@ export const invertedProtectedMiddleware = ({
             const account = await authService.findAccount({ token });
 
             if (account) {
-                throw new HTTPException(HTTP_STATUS["Unauthorized"], {
+                throw new HTTPException(HTTP_STATUS["Forbidden"], {
                     message: "You already have an account",
                 });
             }
@@ -93,7 +93,7 @@ export const invertedProtectedMiddleware = ({
             const user = await authService.findUser({ token });
 
             if (user) {
-                throw new HTTPException(HTTP_STATUS["Unauthorized"], {
+                throw new HTTPException(HTTP_STATUS["Forbidden"], {
                     message: "Your already have a user",
                 });
             }

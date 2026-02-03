@@ -1,23 +1,118 @@
-import { generateOpenApiResponseFromSchema } from "@/utils/generateOpenApiResponseFromSchema";
+import { protectedMiddleware } from "@/middlewares/protected";
+import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import { businessRouteSchema } from "./business.schema";
 import { businessService } from "./business.service";
 
-export const businessRoutes = new Hono();
+export const businessRoutes = new Hono().use(
+    protectedMiddleware({ type: "user" }),
+);
 
 businessRoutes.get(
     "/",
     describeRoute({
-        description: "Find All",
+        description: "Find All Businesses",
         responses: generateOpenApiResponseFromSchema(
             businessRouteSchema.findAll.response,
         ),
     }),
-    validator("json", businessRouteSchema.findAll.request.json),
     async (c) => {
-        const input = c.req.valid("json");
+        const userId = c.get("user").id;
+        const businesses = await businessService.findAll({ ownerId: userId });
+        return c.json(businesses, HTTP_STATUS["OK"]);
+    },
+);
 
-        return c.json(await businessService.findAll(input));
+businessRoutes.post(
+    "/",
+    describeRoute({
+        description: "Create a Business",
+        responses: generateOpenApiResponseFromSchema(
+            businessRouteSchema.create.response,
+        ),
+    }),
+    validator("json", businessRouteSchema.create.request.json),
+    async (c) => {
+        const json = c.req.valid("json");
+        const userId = c.get("user").id;
+        const business = await businessService.create({
+            ...json,
+            ownerId: userId,
+        });
+
+        return c.json(business, HTTP_STATUS["Created"]);
+    },
+);
+
+businessRoutes.get(
+    "/:id",
+    describeRoute({
+        description: "Find A Business",
+        responses: generateOpenApiResponseFromSchema(
+            businessRouteSchema.find.response,
+        ),
+    }),
+    validator("param", businessRouteSchema.find.request.param),
+    async (c) => {
+        const { id } = c.req.valid("param");
+        const userId = c.get("user").id;
+        const business = await businessService.find({
+            id,
+            ownerId: userId,
+        });
+
+        return c.json(business, HTTP_STATUS["OK"]);
+    },
+);
+
+businessRoutes.patch(
+    "/:id",
+    describeRoute({
+        description: "Update A Business",
+        responses: generateOpenApiResponseFromSchema(
+            businessRouteSchema.update.response,
+        ),
+    }),
+    validator("param", businessRouteSchema.update.request.param),
+    validator("json", businessRouteSchema.update.request.json),
+    async (c) => {
+        const { id } = c.req.valid("param");
+        const json = c.req.valid("json");
+        const userId = c.get("user").id;
+        const business = await businessService.update({
+            id,
+            ownerId: userId,
+            ...json,
+        });
+
+        return c.json(business, HTTP_STATUS["OK"]);
+    },
+);
+
+businessRoutes.delete(
+    "/:id",
+    describeRoute({
+        description: "Delete A Business",
+        responses: generateOpenApiResponseFromSchema(
+            businessRouteSchema.delete.response,
+        ),
+    }),
+    validator("param", businessRouteSchema.delete.request.param),
+    async (c) => {
+        const { id } = c.req.valid("param");
+        const userId = c.get("user").id;
+        await businessService.delete({
+            id,
+            ownerId: userId,
+        });
+
+        return c.json(
+            {
+                success: true,
+            },
+            HTTP_STATUS["OK"],
+        );
     },
 );

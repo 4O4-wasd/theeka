@@ -85,10 +85,10 @@ export const businessSchema = createSelectSchema(businesses, {
         .min(1000000000, "phone is not valid")
         .max(9999999999, "phone is not valid"),
     businessHours: businessHoursSchema,
-    media: z.array(businessMediaSchema).optional(),
+    media: z.array(businessMediaSchema).optional().nullable(),
     isClosed: z.boolean(),
     title: z.string().min(2).max(50),
-    logo: z.url().optional(),
-    description: z.string().optional(),
+    logo: z.url().optional().nullable(),
+    description: z.string().optional().nullable(),
     createdAt: z.date(),
 });

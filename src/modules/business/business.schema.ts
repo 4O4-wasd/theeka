@@ -1,43 +1,144 @@
-import { businessSchema as BSchema } from "@/db/schema";
+import { businessSchema } from "@/db/schema";
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import z from "zod";
 
-const businessSchema = {
+const schema = {
     repository() {
         return {
             create: {
-                input: BSchema,
+                input: businessSchema.omit({
+                    id: true,
+                    createdAt: true,
+                    isClosed: true,
+                }),
+
+                output: businessSchema.omit({
+                    ownerId: true,
+                }),
             },
+
+            find: {
+                input: businessSchema.pick({ id: true, ownerId: true }),
+
+                output: businessSchema.omit({
+                    ownerId: true,
+                }),
+            },
+
             findAll: {
-                input: z.object(),
-                output: z.array(z.object()),
+                input: businessSchema.pick({ ownerId: true }),
+
+                output: z.array(
+                    businessSchema.omit({
+                        ownerId: true,
+                    }),
+                ),
+            },
+
+            update: {
+                input: businessSchema
+                    .omit({
+                        createdAt: true,
+                    })
+                    .partial()
+                    .required({
+                        ownerId: true,
+                        id: true,
+                    }),
+
+                output: businessSchema.omit({
+                    ownerId: true,
+                }),
+            },
+
+            delete: {
+                input: businessSchema.pick({
+                    id: true,
+                    ownerId: true,
+                }),
             },
         } satisfies DefaultSchemaType.Repository;
     },
 
     service() {
         return {
+            create: this.repository().create,
+            find: this.repository().find,
             findAll: this.repository().findAll,
+            update: this.repository().update,
+            delete: this.repository().delete,
         } satisfies DefaultSchemaType.Service;
     },
 
     route() {
         return {
-            findAll: {
+            create: {
                 request: {
-                    json: this.service().findAll.input,
+                    json: this.service().create.input.omit({
+                        ownerId: true,
+                    }),
                 },
+
+                response: {
+                    Created: this.service().create.output,
+                },
+            },
+
+            find: {
+                request: {
+                    param: this.service().find.input.pick({
+                        id: true,
+                    }),
+                },
+
+                response: {
+                    OK: this.service().find.output,
+                },
+            },
+
+            findAll: {
                 response: {
                     OK: this.service().findAll.output,
+                },
+            },
+
+            update: {
+                request: {
+                    param: this.service().update.input.pick({
+                        id: true,
+                    }),
+
+                    json: this.service().update.input.omit({
+                        id: true,
+                        ownerId: true,
+                    }),
+                },
+
+                response: {
+                    OK: this.service().update.output,
+                },
+            },
+
+            delete: {
+                request: {
+                    param: this.service().delete.input.pick({
+                        id: true,
+                    }),
+                },
+
+                response: {
+                    OK: z.object({
+                        success: z.boolean().default(true),
+                    }),
                 },
             },
         } satisfies DefaultSchemaType.Route;
     },
 };
 
-export const businessRouteSchema = businessSchema.route();
+export const businessRouteSchema = schema.route();
 
-type BusinessSchemaType = InferSchema<typeof businessSchema>;
+type BusinessSchemaType = InferSchema<typeof schema>;
 
 export type BusinessRepositorySchemaType = BusinessSchemaType["repository"];
 export type BusinessServiceSchemaType = BusinessSchemaType["service"];

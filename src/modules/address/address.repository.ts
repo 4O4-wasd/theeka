@@ -1,7 +1,9 @@
 import db from "@/db";
 import { userAddresses } from "@/db/schema";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import type { AddressRepositorySchemaType } from "./address.schema";
 
 export const addressRepository = {
@@ -13,6 +15,12 @@ export const addressRepository = {
                 userId: false,
             },
         });
+
+        if (!address) {
+            throw new HTTPException(HTTP_STATUS["Not Found"], {
+                message: "Address not found",
+            });
+        }
 
         return address;
     },

@@ -2,7 +2,7 @@ import {
     invertedProtectedMiddleware,
     protectedMiddleware,
 } from "@/middlewares/protected";
-import { generateOpenApiResponseFromSchema } from "@/utils/generateOpenApiResponseFromSchema";
+import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
