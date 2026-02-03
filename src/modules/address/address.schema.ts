@@ -84,8 +84,8 @@ const addressSchema = {
 
             find: {
                 request: {
-                    param: this.service().find.input.pick({
-                        id: true,
+                    param: z.object({
+                        addressId: z.uuid(),
                     }),
                 },
 
@@ -96,8 +96,8 @@ const addressSchema = {
 
             update: {
                 request: {
-                    param: this.service().update.input.pick({
-                        id: true,
+                    param: z.object({
+                        addressId: z.uuid(),
                     }),
 
                     json: this.service().update.input.omit({
@@ -112,8 +112,8 @@ const addressSchema = {
 
             delete: {
                 request: {
-                    param: this.service().delete.input.pick({
-                        id: true,
+                    param: z.object({
+                        addressId: z.uuid(),
                     }),
                 },
 

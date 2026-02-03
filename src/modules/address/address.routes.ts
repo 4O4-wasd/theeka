@@ -47,7 +47,7 @@ addressRoutes.post(
 );
 
 addressRoutes.get(
-    "/:id",
+    "/:addressId",
     describeRoute({
         description: "Find An Address",
         responses: generateOpenApiResponseFromSchema(
@@ -56,9 +56,9 @@ addressRoutes.get(
     }),
     sValidator("param", addressRouteSchema.find.request.param),
     async (c) => {
-        const { id } = c.req.valid("param");
+        const { addressId } = c.req.valid("param");
         const address = await addressService.find({
-            id,
+            id: addressId,
             userId: c.get("user").id,
         });
         return c.json(address, HTTP_STATUS["OK"]);
@@ -66,7 +66,7 @@ addressRoutes.get(
 );
 
 addressRoutes.patch(
-    "/:id",
+    "/:addressId",
     describeRoute({
         description: "Update An Address",
         responses: generateOpenApiResponseFromSchema(
@@ -76,11 +76,11 @@ addressRoutes.patch(
     sValidator("param", addressRouteSchema.update.request.param),
     sValidator("json", addressRouteSchema.update.request.json),
     async (c) => {
-        const { id } = c.req.valid("param");
+        const { addressId } = c.req.valid("param");
         const data = c.req.valid("json");
         const address = await addressService.update({
             ...data,
-            id,
+            id: addressId,
             userId: c.get("user").id,
         });
 
@@ -89,7 +89,7 @@ addressRoutes.patch(
 );
 
 addressRoutes.delete(
-    "/:id",
+    "/:addressId",
     describeRoute({
         description: "Delete An Address",
         responses: generateOpenApiResponseFromSchema(
@@ -98,9 +98,9 @@ addressRoutes.delete(
     }),
     sValidator("param", addressRouteSchema.delete.request.param),
     async (c) => {
-        const { id } = c.req.valid("param");
+        const { addressId } = c.req.valid("param");
         await addressService.delete({
-            id,
+            id: addressId,
             userId: c.get("user").id,
         });
 

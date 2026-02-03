@@ -454,9 +454,9 @@
         }
       }
     },
-    "/address/{id}": {
+    "/address/{addressId}": {
       "get": {
-        "operationId": "getAddress:id",
+        "operationId": "getAddress:addressId",
         "description": "Find An Address",
         "responses": {
           "200": {
@@ -516,13 +516,13 @@
               "type": "string"
             },
             "in": "path",
-            "name": "id",
+            "name": "addressId",
             "required": true
           }
         ]
       },
       "patch": {
-        "operationId": "patchAddress:id",
+        "operationId": "patchAddress:addressId",
         "description": "Update An Address",
         "responses": {
           "200": {
@@ -582,13 +582,13 @@
               "type": "string"
             },
             "in": "path",
-            "name": "id",
+            "name": "addressId",
             "required": true
           }
         ]
       },
       "delete": {
-        "operationId": "deleteAddress:id",
+        "operationId": "deleteAddress:addressId",
         "description": "Delete An Address",
         "responses": {
           "200": {
@@ -614,7 +614,7 @@
               "type": "string"
             },
             "in": "path",
-            "name": "id",
+            "name": "addressId",
             "required": true
           }
         ]
@@ -1022,9 +1022,9 @@
         }
       }
     },
-    "/business/{id}": {
+    "/business/{businessId}": {
       "get": {
-        "operationId": "getBusiness:id",
+        "operationId": "getBusiness:businessId",
         "description": "Find A Business",
         "responses": {
           "200": {
@@ -1165,7 +1165,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id",
+            "name": "businessId",
             "schema": {
               "type": "string",
               "format": "uuid",
@@ -1176,7 +1176,7 @@
         ]
       },
       "patch": {
-        "operationId": "patchBusiness:id",
+        "operationId": "patchBusiness:businessId",
         "description": "Update A Business",
         "responses": {
           "200": {
@@ -1186,6 +1186,11 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
                     "phoneNumber": {
                       "type": "number",
                       "minimum": 1000000000,
@@ -1297,6 +1302,7 @@
                     }
                   },
                   "required": [
+                    "id",
                     "phoneNumber",
                     "businessHours",
                     "isClosed",
@@ -1311,7 +1317,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id",
+            "name": "businessId",
             "schema": {
               "type": "string",
               "format": "uuid",
@@ -1437,7 +1443,7 @@
         }
       },
       "delete": {
-        "operationId": "deleteBusiness:id",
+        "operationId": "deleteBusiness:businessId",
         "description": "Delete A Business",
         "responses": {
           "200": {
@@ -1460,7 +1466,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id",
+            "name": "businessId",
             "schema": {
               "type": "string",
               "format": "uuid",

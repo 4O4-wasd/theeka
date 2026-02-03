@@ -47,7 +47,7 @@ businessRoutes.post(
 );
 
 businessRoutes.get(
-    "/:id",
+    "/:businessId",
     describeRoute({
         description: "Find A Business",
         responses: generateOpenApiResponseFromSchema(
@@ -56,10 +56,10 @@ businessRoutes.get(
     }),
     validator("param", businessRouteSchema.find.request.param),
     async (c) => {
-        const { id } = c.req.valid("param");
+        const { businessId } = c.req.valid("param");
         const userId = c.get("user").id;
         const business = await businessService.find({
-            id,
+            id: businessId,
             ownerId: userId,
         });
 
@@ -68,7 +68,7 @@ businessRoutes.get(
 );
 
 businessRoutes.patch(
-    "/:id",
+    "/:businessId",
     describeRoute({
         description: "Update A Business",
         responses: generateOpenApiResponseFromSchema(
@@ -78,11 +78,11 @@ businessRoutes.patch(
     validator("param", businessRouteSchema.update.request.param),
     validator("json", businessRouteSchema.update.request.json),
     async (c) => {
-        const { id } = c.req.valid("param");
+        const { businessId } = c.req.valid("param");
         const json = c.req.valid("json");
         const userId = c.get("user").id;
         const business = await businessService.update({
-            id,
+            id: businessId,
             ownerId: userId,
             ...json,
         });
@@ -92,7 +92,7 @@ businessRoutes.patch(
 );
 
 businessRoutes.delete(
-    "/:id",
+    "/:businessId",
     describeRoute({
         description: "Delete A Business",
         responses: generateOpenApiResponseFromSchema(
@@ -101,10 +101,10 @@ businessRoutes.delete(
     }),
     validator("param", businessRouteSchema.delete.request.param),
     async (c) => {
-        const { id } = c.req.valid("param");
+        const { businessId } = c.req.valid("param");
         const userId = c.get("user").id;
         await businessService.delete({
-            id,
+            id: businessId,
             ownerId: userId,
         });
 
