@@ -2,7 +2,7 @@ import { userAddressSchema } from "@/db/schema";
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import { z } from "zod";
 
-const addressesSchema = {
+const schema = {
     repository() {
         return {
             create: {
@@ -133,9 +133,9 @@ const addressesSchema = {
     },
 };
 
-export const addressesRouteSchema = addressesSchema.route();
+export const addressesRouteSchema = schema.route();
 
-type AddressesSchemaType = InferSchema<typeof addressesSchema>;
+type AddressesSchemaType = InferSchema<typeof schema>;
 
 export type AddressesRepositorySchemaType = AddressesSchemaType["repository"];
 export type AddressesServiceSchemaType = AddressesSchemaType["service"];

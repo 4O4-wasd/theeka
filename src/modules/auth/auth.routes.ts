@@ -102,9 +102,9 @@ authRoutes.get(
 );
 
 authRoutes.delete(
-    "/session",
+    "/sessions",
     describeRoute({
-        description: "Delete Session",
+        description: "Delete A Session",
         responses: generateOpenApiResponseFromSchema(
             authRouteSchema.deleteSession.response,
         ),

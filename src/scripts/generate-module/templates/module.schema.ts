@@ -1,7 +1,7 @@
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import z from "zod";
 
-const moduleSchema = {
+const schema = {
     repository() {
         return {
             findAll: {
@@ -31,9 +31,9 @@ const moduleSchema = {
     },
 };
 
-export const moduleRouteSchema = moduleSchema.route();
+export const moduleRouteSchema = schema.route();
 
-type ModuleSchemaType = InferSchema<typeof moduleSchema>;
+type ModuleSchemaType = InferSchema<typeof schema>;
 
 export type ModuleRepositorySchemaType = ModuleSchemaType["repository"];
 export type ModuleServiceSchemaType = ModuleSchemaType["service"];

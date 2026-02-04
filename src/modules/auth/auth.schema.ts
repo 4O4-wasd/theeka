@@ -2,7 +2,7 @@ import { accountSchema, sessionSchema, userSchema } from "@/db/schema";
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import { z } from "zod";
 
-const authSchema = {
+const schema = {
     repository() {
         return {
             createAccount: {
@@ -181,9 +181,9 @@ const authSchema = {
     },
 };
 
-export const authRouteSchema = authSchema.route();
+export const authRouteSchema = schema.route();
 
-type AuthSchemaType = InferSchema<typeof authSchema>;
+type AuthSchemaType = InferSchema<typeof schema>;
 
 export type AuthRepositorySchemaType = AuthSchemaType["repository"];
 export type AuthServiceSchemaType = AuthSchemaType["service"];

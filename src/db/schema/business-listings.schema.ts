@@ -3,6 +3,8 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { businesses } from "./businesses.schema";
 import { orders } from "./orders.schema";
 import { reviews } from "./reviews.schema";
+import { createSelectSchema } from "drizzle-zod";
+import z from "zod";
 
 export const businessListings = sqliteTable("business_listings", {
     id: text("id")
@@ -33,12 +35,7 @@ export const businessListings = sqliteTable("business_listings", {
     }).notNull(),
     media: text("media", {
         mode: "json",
-    }).$type<
-        {
-            type: "image" | "video";
-            url: string;
-        }[]
-    >(),
+    }).$type<z.infer<typeof businessListingsMediaSchema>[]>(),
     stock: integer("stock"),
     available: integer("available", { mode: "boolean" }),
     createdAt: integer("created_at", { mode: "timestamp" })
@@ -57,3 +54,28 @@ export const businessListingRelations = relations(
         reviews: many(reviews)
     })
 );
+
+export const businessListingsMediaSchema = z.object({
+    type: z.enum(["image", "video"]),
+    url: z.string(),
+});
+
+export const businessListingsSchema = createSelectSchema(businessListings, {
+    id: z.uuid(),
+    businessId: z.string(),
+    title: z.string(),
+    description: z.string().nullable().optional(),
+    productSpecs: z
+        .record(z.string(), z.record(z.string(), z.string()))
+        .nullable()
+        .optional(),
+    logo: z.string().nullable().optional(),
+    price: z.string(),
+    categories: z.array(z.string()),
+    tags: z.array(z.string()),
+    type: z.enum(["product", "service"]),
+    media: z.array(businessListingsMediaSchema).nullable().optional(),
+    stock: z.number().int().nullable().optional(),
+    available: z.boolean().nullable().optional(),
+    createdAt: z.date(),
+});
