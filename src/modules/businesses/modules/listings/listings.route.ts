@@ -1,7 +1,7 @@
 import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
-import type { BusinessContext } from "../../business.utils";
+import type { BusinessContext } from "../../businesses.utils";
 import { listingsRouteSchema } from "./listings.schema";
 
 export const listingsRoutes = new Hono<{ Variables: BusinessContext }>();

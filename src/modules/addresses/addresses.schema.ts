@@ -1,61 +1,59 @@
-import { businessSchema } from "@/db/schema";
+import { userAddressSchema } from "@/db/schema";
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
-import z from "zod";
+import { z } from "zod";
 
-const schema = {
+const addressesSchema = {
     repository() {
         return {
             create: {
-                input: businessSchema.omit({
+                input: userAddressSchema.omit({
                     id: true,
-                    createdAt: true,
-                    isClosed: true,
                 }),
 
-                output: businessSchema.omit({
-                    ownerId: true,
+                output: userAddressSchema.omit({
+                    userId: true,
                 }),
             },
 
             find: {
-                input: businessSchema.pick({ id: true, ownerId: true }),
+                input: userAddressSchema.pick({
+                    id: true,
+                    userId: true,
+                }),
 
-                output: businessSchema.omit({
-                    ownerId: true,
+                output: userAddressSchema.omit({
+                    userId: true,
                 }),
             },
 
-            findAll: {
-                input: businessSchema.pick({ ownerId: true }),
-
-                output: z.array(
-                    businessSchema.omit({
-                        ownerId: true,
-                    }),
-                ),
-            },
-
             update: {
-                input: businessSchema
-                    .omit({
-                        createdAt: true,
-                    })
-                    .partial()
-                    .required({
-                        ownerId: true,
-                        id: true,
-                    }),
+                input: userAddressSchema.partial().required({
+                    userId: true,
+                    id: true,
+                }),
 
-                output: businessSchema.omit({
-                    ownerId: true,
+                output: userAddressSchema.omit({
+                    userId: true,
                 }),
             },
 
             delete: {
-                input: businessSchema.pick({
+                input: userAddressSchema.pick({
                     id: true,
-                    ownerId: true,
+                    userId: true,
                 }),
+            },
+
+            findAll: {
+                input: userAddressSchema.pick({
+                    userId: true,
+                }),
+
+                output: z.array(
+                    userAddressSchema.omit({
+                        userId: true,
+                    }),
+                ),
             },
         } satisfies DefaultSchemaType.Repository;
     },
@@ -64,9 +62,9 @@ const schema = {
         return {
             create: this.repository().create,
             find: this.repository().find,
-            findAll: this.repository().findAll,
             update: this.repository().update,
             delete: this.repository().delete,
+            findAll: this.repository().findAll,
         } satisfies DefaultSchemaType.Service;
     },
 
@@ -75,7 +73,7 @@ const schema = {
             create: {
                 request: {
                     json: this.service().create.input.omit({
-                        ownerId: true,
+                        userId: true,
                     }),
                 },
 
@@ -87,7 +85,7 @@ const schema = {
             find: {
                 request: {
                     param: z.object({
-                        businessId: z.uuid(),
+                        addressId: z.uuid(),
                     }),
                 },
 
@@ -96,21 +94,14 @@ const schema = {
                 },
             },
 
-            findAll: {
-                response: {
-                    OK: this.service().findAll.output,
-                },
-            },
-
             update: {
                 request: {
                     param: z.object({
-                        businessId: z.uuid(),
+                        addressId: z.uuid(),
                     }),
 
                     json: this.service().update.input.omit({
                         id: true,
-                        ownerId: true,
                     }),
                 },
 
@@ -122,7 +113,7 @@ const schema = {
             delete: {
                 request: {
                     param: z.object({
-                        businessId: z.uuid(),
+                        addressId: z.uuid(),
                     }),
                 },
 
@@ -132,13 +123,19 @@ const schema = {
                     }),
                 },
             },
+
+            findAll: {
+                response: {
+                    OK: this.service().findAll.output,
+                },
+            },
         } satisfies DefaultSchemaType.Route;
     },
 };
 
-export const businessRouteSchema = schema.route();
+export const addressesRouteSchema = addressesSchema.route();
 
-type BusinessSchemaType = InferSchema<typeof schema>;
+type AddressesSchemaType = InferSchema<typeof addressesSchema>;
 
-export type BusinessRepositorySchemaType = BusinessSchemaType["repository"];
-export type BusinessServiceSchemaType = BusinessSchemaType["service"];
+export type AddressesRepositorySchemaType = AddressesSchemaType["repository"];
+export type AddressesServiceSchemaType = AddressesSchemaType["service"];

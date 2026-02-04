@@ -4,9 +4,9 @@ import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import type { BusinessRepositorySchemaType } from "./business.schema";
+import type { BusinessesRepositorySchemaType } from "./businesses.schema";
 
-export const businessRepository = {
+export const businessesRepository = {
     async create(input) {
         const [business] = await db.insert(businesses).values(input).returning({
             id: businesses.id,
@@ -79,4 +79,4 @@ export const businessRepository = {
             .delete(businesses)
             .where(and(eq(businesses.id, id), eq(businesses.ownerId, ownerId)));
     },
-} satisfies ToFunctions<BusinessRepositorySchemaType>;
+} satisfies ToFunctions<BusinessesRepositorySchemaType>;

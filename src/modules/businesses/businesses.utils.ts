@@ -3,12 +3,12 @@ import { HTTP_STATUS } from "@/utils/status-codes";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import z from "zod";
-import type { BusinessServiceSchemaType } from "./business.schema";
-import { businessService } from "./business.service";
+import type { BusinessesServiceSchemaType } from "./businesses.schema";
+import { businessesService } from "./businesses.service";
 
 export type BusinessContext = ProtectedUserContext & {
-    business: BusinessServiceSchemaType["find"]["output"];
-}
+    business: BusinessesServiceSchemaType["find"]["output"];
+};
 
 export const businessMiddleware = () =>
     createMiddleware<{
@@ -32,7 +32,7 @@ export const businessMiddleware = () =>
 
         const userId = c.get("user").id;
 
-        const business = await businessService.find({
+        const business = await businessesService.find({
             id: businessId,
             ownerId: userId,
         });

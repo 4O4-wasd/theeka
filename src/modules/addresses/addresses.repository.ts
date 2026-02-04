@@ -4,9 +4,9 @@ import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import type { AddressRepositorySchemaType } from "./address.schema";
+import type { AddressesRepositorySchemaType } from "./addresses.schema";
 
-export const addressRepository = {
+export const addressesRepository = {
     async find(input) {
         const address = await db.query.userAddresses.findFirst({
             where: (t, { eq, and }) =>
@@ -75,4 +75,4 @@ export const addressRepository = {
                 ),
             );
     },
-} satisfies ToFunctions<AddressRepositorySchemaType>;
+} satisfies ToFunctions<AddressesRepositorySchemaType>;

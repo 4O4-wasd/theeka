@@ -337,9 +337,9 @@
         }
       }
     },
-    "/address": {
+    "/addresses": {
       "get": {
-        "operationId": "getAddress",
+        "operationId": "getAddresses",
         "description": "Find All Addresses",
         "responses": {
           "200": {
@@ -398,7 +398,7 @@
         }
       },
       "post": {
-        "operationId": "postAddress",
+        "operationId": "postAddresses",
         "description": "Create An Addresses",
         "responses": {
           "201": {
@@ -454,9 +454,9 @@
         }
       }
     },
-    "/address/{addressId}": {
+    "/addresses/{addressId}": {
       "get": {
-        "operationId": "getAddress:addressId",
+        "operationId": "getAddresses:addressId",
         "description": "Find An Address",
         "responses": {
           "200": {
@@ -522,7 +522,7 @@
         ]
       },
       "patch": {
-        "operationId": "patchAddress:addressId",
+        "operationId": "patchAddresses:addressId",
         "description": "Update An Address",
         "responses": {
           "200": {
@@ -588,7 +588,7 @@
         ]
       },
       "delete": {
-        "operationId": "deleteAddress:addressId",
+        "operationId": "deleteAddresses:addressId",
         "description": "Delete An Address",
         "responses": {
           "200": {
@@ -620,9 +620,9 @@
         ]
       }
     },
-    "/business": {
+    "/businesses": {
       "get": {
-        "operationId": "getBusiness",
+        "operationId": "getBusinesses",
         "description": "Find All Businesses",
         "responses": {
           "200": {
@@ -765,7 +765,7 @@
         }
       },
       "post": {
-        "operationId": "postBusiness",
+        "operationId": "postBusinesses",
         "description": "Create a Business",
         "responses": {
           "201": {
@@ -1022,9 +1022,9 @@
         }
       }
     },
-    "/business/{businessId}": {
+    "/businesses/{businessId}": {
       "get": {
-        "operationId": "getBusiness:businessId",
+        "operationId": "getBusinesses:businessId",
         "description": "Find A Business",
         "responses": {
           "200": {
@@ -1176,7 +1176,7 @@
         ]
       },
       "patch": {
-        "operationId": "patchBusiness:businessId",
+        "operationId": "patchBusinesses:businessId",
         "description": "Update A Business",
         "responses": {
           "200": {
@@ -1443,7 +1443,7 @@
         }
       },
       "delete": {
-        "operationId": "deleteBusiness:businessId",
+        "operationId": "deleteBusinesses:businessId",
         "description": "Delete A Business",
         "responses": {
           "200": {
@@ -1477,9 +1477,9 @@
         ]
       }
     },
-    "/business/{businessId}/listings": {
+    "/businesses/{businessId}/listings": {
       "get": {
-        "operationId": "getBusiness:businessIdListings",
+        "operationId": "getBusinesses:businessIdListings",
         "description": "Find All",
         "responses": {
           "200": {

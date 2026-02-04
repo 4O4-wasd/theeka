@@ -4,41 +4,41 @@ import { HTTP_STATUS } from "@/utils/status-codes";
 import { sValidator } from "@hono/standard-validator";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
-import { addressRouteSchema } from "./address.schema";
-import { addressService } from "./address.service";
+import { addressesRouteSchema } from "./addresses.schema";
+import { addressesService } from "./addresses.service";
 
-export const addressRoutes = new Hono().use(
+export const addressesRoutes = new Hono().use(
     protectedMiddleware({ type: "user" }),
 );
 
-addressRoutes.get(
+addressesRoutes.get(
     "/",
     describeRoute({
         description: "Find All Addresses",
         responses: generateOpenApiResponseFromSchema(
-            addressRouteSchema.findAll.response,
+            addressesRouteSchema.findAll.response,
         ),
     }),
     async (c) => {
-        const addresses = await addressService.findAll({
+        const addresses = await addressesService.findAll({
             userId: c.get("user").id,
         });
         return c.json(addresses, HTTP_STATUS["OK"]);
     },
 );
 
-addressRoutes.post(
+addressesRoutes.post(
     "/",
     describeRoute({
         description: "Create An Addresses",
         responses: generateOpenApiResponseFromSchema(
-            addressRouteSchema.create.response,
+            addressesRouteSchema.create.response,
         ),
     }),
-    sValidator("json", addressRouteSchema.create.request.json),
+    sValidator("json", addressesRouteSchema.create.request.json),
     async (c) => {
         const data = c.req.valid("json");
-        const address = await addressService.create({
+        const address = await addressesService.create({
             ...data,
             userId: c.get("user").id,
         });
@@ -46,18 +46,18 @@ addressRoutes.post(
     },
 );
 
-addressRoutes.get(
+addressesRoutes.get(
     "/:addressId",
     describeRoute({
         description: "Find An Address",
         responses: generateOpenApiResponseFromSchema(
-            addressRouteSchema.find.response,
+            addressesRouteSchema.find.response,
         ),
     }),
-    sValidator("param", addressRouteSchema.find.request.param),
+    sValidator("param", addressesRouteSchema.find.request.param),
     async (c) => {
         const { addressId } = c.req.valid("param");
-        const address = await addressService.find({
+        const address = await addressesService.find({
             id: addressId,
             userId: c.get("user").id,
         });
@@ -65,20 +65,20 @@ addressRoutes.get(
     },
 );
 
-addressRoutes.patch(
+addressesRoutes.patch(
     "/:addressId",
     describeRoute({
         description: "Update An Address",
         responses: generateOpenApiResponseFromSchema(
-            addressRouteSchema.update.response,
+            addressesRouteSchema.update.response,
         ),
     }),
-    sValidator("param", addressRouteSchema.update.request.param),
-    sValidator("json", addressRouteSchema.update.request.json),
+    sValidator("param", addressesRouteSchema.update.request.param),
+    sValidator("json", addressesRouteSchema.update.request.json),
     async (c) => {
         const { addressId } = c.req.valid("param");
         const data = c.req.valid("json");
-        const address = await addressService.update({
+        const address = await addressesService.update({
             ...data,
             id: addressId,
             userId: c.get("user").id,
@@ -88,18 +88,18 @@ addressRoutes.patch(
     },
 );
 
-addressRoutes.delete(
+addressesRoutes.delete(
     "/:addressId",
     describeRoute({
         description: "Delete An Address",
         responses: generateOpenApiResponseFromSchema(
-            addressRouteSchema.delete.response,
+            addressesRouteSchema.delete.response,
         ),
     }),
-    sValidator("param", addressRouteSchema.delete.request.param),
+    sValidator("param", addressesRouteSchema.delete.request.param),
     async (c) => {
         const { addressId } = c.req.valid("param");
-        await addressService.delete({
+        await addressesService.delete({
             id: addressId,
             userId: c.get("user").id,
         });
