@@ -7,7 +7,7 @@
         "db:push": "drizzle-kit push",
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",
-        "gm": "tsx src/scripts/generate-module/index.ts && npm run openapi",
+        "gm": "tsx src/scripts/generate-module/index.ts",
         "openapi": "tsx src/scripts/generate-openapi.ts"
     },
     "dependencies": {

@@ -1476,6 +1476,38 @@
           }
         ]
       }
+    },
+    "/business/{businessId}/listings": {
+      "get": {
+        "operationId": "getBusiness:businessIdListings",
+        "description": "Find All",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "businessId",
+            "required": true
+          }
+        ]
+      }
     }
   },
   "components": {}

@@ -5,6 +5,10 @@ import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import { businessRouteSchema } from "./business.schema";
 import { businessService } from "./business.service";
+import { listingsRoutes } from "./modules/listings/listings.route";
+import { HTTPException } from "hono/http-exception";
+import z from "zod";
+import { businessMiddleware } from "./business.utils";
 
 export const businessRoutes = new Hono().use(
     protectedMiddleware({ type: "user" }),
@@ -116,3 +120,7 @@ businessRoutes.delete(
         );
     },
 );
+
+businessRoutes.use("/:businessId/*", businessMiddleware());
+
+businessRoutes.route("/:businessId/listings", listingsRoutes);
