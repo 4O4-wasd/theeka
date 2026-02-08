@@ -1,29 +1,74 @@
+import db from "@/db";
+import { businesses } from "@/db/schema";
+import { selectTableColumns } from "@/utils/select-table-columns";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
-import { businessesRepository } from "./businesses.repository";
+import { and, eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import type { BusinessesServiceSchemaType } from "./businesses.schema";
 
 export const businessesService = {
     async create(input) {
-        const business = await businessesRepository.create(input);
+        const [business] = await db
+            .insert(businesses)
+            .values(input)
+            .returning(
+                selectTableColumns(businesses, "omit", {
+                    ownerId: true,
+                }),
+            );
+
         return business;
     },
 
-    async find(input) {
-        const business = await businessesRepository.find(input);
+    async find({ ownerId, id }) {
+        const business = await db.query.businesses.findFirst({
+            columns: {
+                ownerId: false,
+            },
+
+            where: (t, { eq, and }) =>
+                and(eq(t.id, id), eq(t.ownerId, ownerId)),
+        });
+
+        if (!business) {
+            throw new HTTPException(HTTP_STATUS["Not Found"], {
+                message: "Business not found",
+            });
+        }
+
         return business;
     },
 
-    async findAll(input) {
-        const businesses = await businessesRepository.findAll(input);
+    async findAll({ ownerId }) {
+        const businesses = await db.query.businesses.findMany({
+            columns: {
+                ownerId: false,
+            },
+
+            where: (t, { eq }) => eq(t.ownerId, ownerId),
+        });
+
         return businesses;
     },
 
-    async update(input) {
-        const business = await businessesRepository.update(input);
+    async update({ id, ownerId, ...input }) {
+        const [business] = await db
+            .update(businesses)
+            .set(input)
+            .where(and(eq(businesses.id, id), eq(businesses.ownerId, ownerId)))
+            .returning(
+                selectTableColumns(businesses, "omit", {
+                    ownerId: true,
+                }),
+            );
+
         return business;
     },
 
-    async delete(input) {
-        await businessesRepository.delete(input);
+    async delete({ id, ownerId }) {
+        await db
+            .delete(businesses)
+            .where(and(eq(businesses.id, id), eq(businesses.ownerId, ownerId)));
     },
 } satisfies ToFunctions<BusinessesServiceSchemaType>;

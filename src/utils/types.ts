@@ -39,17 +39,15 @@ export type HttpMethod =
     | "OPTIONS";
 
 export namespace DefaultSchemaType {
-    export type Repository = Record<
+    export type Service = Record<
         string,
         {
             input?: z.ZodType;
             output?: z.ZodType;
         }
-    >;
-
-    export type Service = Repository;
-
-    export type RouteType<T = never> = {
+        >;
+    
+    export type RouteType = {
         description: string;
         request: Partial<Record<keyof ValidationTargets, z.ZodType>>;
         response: Partial<Record<keyof typeof HTTP_STATUS, z.ZodType>>;

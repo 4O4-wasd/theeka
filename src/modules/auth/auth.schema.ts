@@ -3,7 +3,7 @@ import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import { z } from "zod";
 
 const schema = {
-    repository() {
+    service() {
         return {
             createAccount: {
                 input: z.object({
@@ -90,24 +90,24 @@ const schema = {
                 }),
             },
 
+            login: {
+                input: z.object({
+                    password: accountSchema.shape.password,
+                    phone: accountSchema.shape.phone,
+                    ipAddress: sessionSchema.shape.ipAddress,
+                    userAgent: sessionSchema.shape.userAgent,
+                }),
+
+                output: sessionSchema.pick({
+                    token: true,
+                }),
+            },
+
             logout: {
                 input: sessionSchema.pick({
                     token: true,
                 }),
             },
-        } satisfies DefaultSchemaType.Repository;
-    },
-
-    service() {
-        return {
-            login: this.repository().createAccount,
-            findAccount: this.repository().findAccount,
-            findAccountByPhone: this.repository().findAccountByPhone,
-            findUser: this.repository().findUser,
-            createUser: this.repository().createUser,
-            findAllSessions: this.repository().findAllSessions,
-            deleteSession: this.repository().deleteSession,
-            logout: this.repository().logout,
         } satisfies DefaultSchemaType.Service;
     },
 
@@ -194,5 +194,4 @@ export const authRouteSchema = schema.route();
 
 type AuthSchemaType = InferSchema<typeof schema>;
 
-export type AuthRepositorySchemaType = AuthSchemaType["repository"];
 export type AuthServiceSchemaType = AuthSchemaType["service"];

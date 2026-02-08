@@ -2,18 +2,12 @@ import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import z from "zod";
 
 const schema = {
-    repository() {
+    service() {
         return {
             findAll: {
                 input: z.object(),
                 output: z.array(z.object()),
             },
-        } satisfies DefaultSchemaType.Repository;
-    },
-
-    service() {
-        return {
-            findAll: this.repository().findAll,
         } satisfies DefaultSchemaType.Service;
     },
 
@@ -36,7 +30,5 @@ export const businessAddressRouteSchema = schema.route();
 
 type BusinessAddressSchemaType = InferSchema<typeof schema>;
 
-export type BusinessAddressRepositorySchemaType =
-    BusinessAddressSchemaType["repository"];
 export type BusinessAddressServiceSchemaType =
     BusinessAddressSchemaType["service"];

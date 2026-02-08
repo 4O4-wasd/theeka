@@ -3,7 +3,7 @@ import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import z from "zod";
 
 const schema = {
-    repository() {
+    service() {
         return {
             create: {
                 input: businessListingsSchema.omit({
@@ -59,16 +59,6 @@ const schema = {
                     businessId: true,
                 }),
             },
-        } satisfies DefaultSchemaType.Repository;
-    },
-
-    service() {
-        return {
-            create: this.repository().create,
-            find: this.repository().find,
-            findAll: this.repository().findAll,
-            update: this.repository().update,
-            delete: this.repository().delete,
         } satisfies DefaultSchemaType.Service;
     },
 
@@ -143,5 +133,4 @@ export const listingsRouteSchema = schema.route();
 
 type ListingsSchemaType = InferSchema<typeof schema>;
 
-export type ListingsRepositorySchemaType = ListingsSchemaType["repository"];
 export type ListingsServiceSchemaType = ListingsSchemaType["service"];
