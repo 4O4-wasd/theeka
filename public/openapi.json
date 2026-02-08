@@ -280,10 +280,13 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "default": true,
-                      "type": "boolean"
+                      "type": "boolean",
+                      "const": true
                     }
-                  }
+                  },
+                  "required": [
+                    "success"
+                  ]
                 }
               }
             }
@@ -324,10 +327,13 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "default": true,
-                      "type": "boolean"
+                      "type": "boolean",
+                      "const": true
                     }
-                  }
+                  },
+                  "required": [
+                    "success"
+                  ]
                 }
               }
             }
@@ -678,10 +684,13 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "default": true,
-                      "type": "boolean"
+                      "type": "boolean",
+                      "const": true
                     }
-                  }
+                  },
+                  "required": [
+                    "success"
+                  ]
                 }
               }
             }
@@ -1535,10 +1544,13 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "default": true,
-                      "type": "boolean"
+                      "type": "boolean",
+                      "const": true
                     }
-                  }
+                  },
+                  "required": [
+                    "success"
+                  ]
                 }
               }
             }
@@ -1553,6 +1565,357 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/businesses/{businessId}/address": {
+      "get": {
+        "operationId": "getBusinesses:businessIdAddress",
+        "description": "Find Address",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "completeAddress": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "pincode": {
+                      "type": "number",
+                      "minimum": 111111,
+                      "maximum": 999999
+                    },
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    },
+                    "minLatitude": {
+                      "type": "number"
+                    },
+                    "maxLatitude": {
+                      "type": "number"
+                    },
+                    "minLongitude": {
+                      "type": "number"
+                    },
+                    "maxLongitude": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "completeAddress",
+                    "city",
+                    "state",
+                    "pincode",
+                    "latitude",
+                    "longitude",
+                    "minLatitude",
+                    "maxLatitude",
+                    "minLongitude",
+                    "maxLongitude"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "businessId",
+            "required": true
+          }
+        ]
+      },
+      "post": {
+        "operationId": "postBusinesses:businessIdAddress",
+        "description": "Create Address",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "completeAddress": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "pincode": {
+                      "type": "number",
+                      "minimum": 111111,
+                      "maximum": 999999
+                    },
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    },
+                    "minLatitude": {
+                      "type": "number"
+                    },
+                    "maxLatitude": {
+                      "type": "number"
+                    },
+                    "minLongitude": {
+                      "type": "number"
+                    },
+                    "maxLongitude": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "completeAddress",
+                    "city",
+                    "state",
+                    "pincode",
+                    "latitude",
+                    "longitude",
+                    "minLatitude",
+                    "maxLatitude",
+                    "minLongitude",
+                    "maxLongitude"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "completeAddress": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "pincode": {
+                    "type": "number",
+                    "minimum": 111111,
+                    "maximum": 999999
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  },
+                  "minLatitude": {
+                    "type": "number"
+                  },
+                  "maxLatitude": {
+                    "type": "number"
+                  },
+                  "minLongitude": {
+                    "type": "number"
+                  },
+                  "maxLongitude": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "completeAddress",
+                  "city",
+                  "state",
+                  "pincode",
+                  "latitude",
+                  "longitude",
+                  "minLatitude",
+                  "maxLatitude",
+                  "minLongitude",
+                  "maxLongitude"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "businessId",
+            "required": true
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "patchBusinesses:businessIdAddress",
+        "description": "Update Address",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "completeAddress": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "pincode": {
+                      "type": "number",
+                      "minimum": 111111,
+                      "maximum": 999999
+                    },
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    },
+                    "minLatitude": {
+                      "type": "number"
+                    },
+                    "maxLatitude": {
+                      "type": "number"
+                    },
+                    "minLongitude": {
+                      "type": "number"
+                    },
+                    "maxLongitude": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "completeAddress",
+                    "city",
+                    "state",
+                    "pincode",
+                    "latitude",
+                    "longitude",
+                    "minLatitude",
+                    "maxLatitude",
+                    "minLongitude",
+                    "maxLongitude"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "completeAddress": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "pincode": {
+                    "type": "number",
+                    "minimum": 111111,
+                    "maximum": 999999
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  },
+                  "minLatitude": {
+                    "type": "number"
+                  },
+                  "maxLatitude": {
+                    "type": "number"
+                  },
+                  "minLongitude": {
+                    "type": "number"
+                  },
+                  "maxLongitude": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "businessId",
+            "required": true
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteBusinesses:businessIdAddress",
+        "description": "Delete Address",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "businessId",
             "required": true
           }
         ]
@@ -2529,10 +2892,13 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "default": true,
-                      "type": "boolean"
+                      "type": "boolean",
+                      "const": true
                     }
-                  }
+                  },
+                  "required": [
+                    "success"
+                  ]
                 }
               }
             }

@@ -5,6 +5,7 @@ import { Hono } from "hono";
 import { businessesRouteSchema } from "./businesses.schema";
 import { businessesService } from "./businesses.service";
 import { businessMiddleware } from "./businesses.utils";
+import { businessAddressRoutes } from "./modules/business-address/business-address.route";
 import { listingsRoutes } from "./modules/listings/listings.route";
 
 export const businessesRoutes = new Hono()
@@ -68,4 +69,5 @@ export const businessesRoutes = new Hono()
     })
 
     .use("/:businessId/*", businessMiddleware())
+    .route("/:businessId/address", businessAddressRoutes)
     .route("/:businessId/listings", listingsRoutes);

@@ -121,7 +121,7 @@ const schema = {
                 },
                 response: {
                     OK: z.object({
-                        success: z.boolean().default(true),
+                        success: z.literal(true),
                     }),
                 },
             },

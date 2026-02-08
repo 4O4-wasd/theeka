@@ -1,25 +1,92 @@
+import { businessAddressSchema } from "@/db/schema";
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import z from "zod";
 
 const schema = {
     service() {
         return {
-            findAll: {
-                input: z.object(),
-                output: z.array(z.object()),
+            create: {
+                input: businessAddressSchema,
+                output: businessAddressSchema.omit({
+                    businessId: true,
+                }),
+            },
+
+            find: {
+                input: businessAddressSchema.pick({
+                    businessId: true,
+                }),
+                output: businessAddressSchema.omit({
+                    businessId: true,
+                }),
+            },
+
+            update: {
+                input: businessAddressSchema.partial().required({
+                    businessId: true,
+                }),
+                output: businessAddressSchema.omit({
+                    businessId: true,
+                }),
+            },
+
+            delete: {
+                input: businessAddressSchema.pick({
+                    businessId: true,
+                }),
             },
         } satisfies DefaultSchemaType.Service;
     },
 
     route() {
         return {
-            "GET /": {
-                description: "Find All BusinessAddress",
+            "POST /": {
+                description: "Create Address",
+
                 request: {
-                    json: this.service().findAll.input,
+                    json: this.service().create.input.omit({
+                        businessId: true,
+                    }),
                 },
+
                 response: {
-                    OK: this.service().findAll.output,
+                    Created: this.service().create.output,
+                },
+            },
+
+            "GET /": {
+                description: "Find Address",
+
+                request: {},
+
+                response: {
+                    OK: this.service().find.output,
+                },
+            },
+
+            "PATCH /": {
+                description: "Update Address",
+
+                request: {
+                    json: this.service().update.input.omit({
+                        businessId: true,
+                    }),
+                },
+
+                response: {
+                    OK: this.service().update.output,
+                },
+            },
+
+            "DELETE /": {
+                description: "Delete Address",
+
+                request: {},
+
+                response: {
+                    OK: z.object({
+                        success: z.literal(true),
+                    }),
                 },
             },
         } satisfies DefaultSchemaType.Route;
