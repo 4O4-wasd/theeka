@@ -1,5 +1,6 @@
 import db from "@/db";
 import { businesses } from "@/db/schema";
+import { selectTableColumns } from "@/utils/select-table-columns";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
@@ -8,17 +9,14 @@ import type { BusinessesRepositorySchemaType } from "./businesses.schema";
 
 export const businessesRepository = {
     async create(input) {
-        const [business] = await db.insert(businesses).values(input).returning({
-            id: businesses.id,
-            phoneNumber: businesses.phoneNumber,
-            businessHours: businesses.businessHours,
-            media: businesses.media,
-            isClosed: businesses.isClosed,
-            title: businesses.title,
-            logo: businesses.logo,
-            description: businesses.description,
-            createdAt: businesses.createdAt,
-        });
+        const [business] = await db
+            .insert(businesses)
+            .values(input)
+            .returning(
+                selectTableColumns(businesses, "omit", {
+                    ownerId: true,
+                }),
+            );
 
         return business;
     },
@@ -59,17 +57,11 @@ export const businessesRepository = {
             .update(businesses)
             .set(input)
             .where(and(eq(businesses.id, id), eq(businesses.ownerId, ownerId)))
-            .returning({
-                id: businesses.id,
-                phoneNumber: businesses.phoneNumber,
-                businessHours: businesses.businessHours,
-                media: businesses.media,
-                isClosed: businesses.isClosed,
-                title: businesses.title,
-                logo: businesses.logo,
-                description: businesses.description,
-                createdAt: businesses.createdAt,
-            });
+            .returning(
+                selectTableColumns(businesses, "omit", {
+                    ownerId: true,
+                }),
+            );
 
         return business;
     },

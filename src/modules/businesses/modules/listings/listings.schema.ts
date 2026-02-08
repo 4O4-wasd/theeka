@@ -74,60 +74,61 @@ const schema = {
 
     route() {
         return {
-            create: {
+            "POST /": {
+                description: "Create A Business Listing",
                 request: {
                     json: this.service().create.input.omit({
                         businessId: true,
                     }),
                 },
-
                 response: {
                     Created: this.service().create.output,
                 },
             },
 
-            find: {
+            "GET /:listingId": {
+                description: "Find A Listing",
                 request: {
                     param: z.object({
                         listingId: z.uuid(),
                     }),
                 },
-
                 response: {
                     OK: this.service().find.output,
                 },
             },
 
-            findAll: {
+            "GET /": {
+                description: "Find All Listings",
+                request: {},
                 response: {
                     OK: this.service().findAll.output,
                 },
             },
 
-            update: {
+            "PATCH /:listingId": {
+                description: "Update A Listing",
                 request: {
                     param: z.object({
                         listingId: z.uuid(),
                     }),
-
                     json: this.service().update.input.omit({
                         id: true,
                         businessId: true,
                     }),
                 },
-
                 response: {
                     OK: this.service().update.output,
                 },
             },
 
-            delete: {
+            "DELETE /:listingId": {
+                description: "Delete A Listing",
                 request: {
                     param: z.object({
                         listingId: z.uuid(),
                     }),
                 },
-
                 response: {
                     OK: z.object({
                         success: z.boolean().default(true),

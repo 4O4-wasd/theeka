@@ -1,42 +1,22 @@
 import { protectedMiddleware } from "@/middlewares/protected";
-import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
+import { route } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
-import { describeRoute, validator } from "hono-openapi";
 import { businessesRouteSchema } from "./businesses.schema";
 import { businessesService } from "./businesses.service";
 import { businessMiddleware } from "./businesses.utils";
 import { listingsRoutes } from "./modules/listings/listings.route";
 
-export const businessesRoutes = new Hono().use(
-    protectedMiddleware({ type: "user" }),
-);
+export const businessesRoutes = new Hono()
+    .use(protectedMiddleware({ type: "user" }))
 
-businessesRoutes.get(
-    "/",
-    describeRoute({
-        description: "Find All Businesses",
-        responses: generateOpenApiResponseFromSchema(
-            businessesRouteSchema.findAll.response,
-        ),
-    }),
-    async (c) => {
+    .on(...route("GET /", businessesRouteSchema), async (c) => {
         const userId = c.get("user").id;
         const businesses = await businessesService.findAll({ ownerId: userId });
         return c.json(businesses, HTTP_STATUS["OK"]);
-    },
-);
+    })
 
-businessesRoutes.post(
-    "/",
-    describeRoute({
-        description: "Create a Business",
-        responses: generateOpenApiResponseFromSchema(
-            businessesRouteSchema.create.response,
-        ),
-    }),
-    validator("json", businessesRouteSchema.create.request.json),
-    async (c) => {
+    .on(...route("POST /", businessesRouteSchema), async (c) => {
         const json = c.req.valid("json");
         const userId = c.get("user").id;
         const business = await businessesService.create({
@@ -45,19 +25,9 @@ businessesRoutes.post(
         });
 
         return c.json(business, HTTP_STATUS["Created"]);
-    },
-);
+    })
 
-businessesRoutes.get(
-    "/:businessId",
-    describeRoute({
-        description: "Find A Business",
-        responses: generateOpenApiResponseFromSchema(
-            businessesRouteSchema.find.response,
-        ),
-    }),
-    validator("param", businessesRouteSchema.find.request.param),
-    async (c) => {
+    .on(...route("GET /:businessId", businessesRouteSchema), async (c) => {
         const { businessId } = c.req.valid("param");
         const userId = c.get("user").id;
         const business = await businessesService.find({
@@ -66,20 +36,9 @@ businessesRoutes.get(
         });
 
         return c.json(business, HTTP_STATUS["OK"]);
-    },
-);
+    })
 
-businessesRoutes.patch(
-    "/:businessId",
-    describeRoute({
-        description: "Update A Business",
-        responses: generateOpenApiResponseFromSchema(
-            businessesRouteSchema.update.response,
-        ),
-    }),
-    validator("param", businessesRouteSchema.update.request.param),
-    validator("json", businessesRouteSchema.update.request.json),
-    async (c) => {
+    .on(...route("PATCH /:businessId", businessesRouteSchema), async (c) => {
         const { businessId } = c.req.valid("param");
         const json = c.req.valid("json");
         const userId = c.get("user").id;
@@ -90,19 +49,9 @@ businessesRoutes.patch(
         });
 
         return c.json(business, HTTP_STATUS["OK"]);
-    },
-);
+    })
 
-businessesRoutes.delete(
-    "/:businessId",
-    describeRoute({
-        description: "Delete A Business",
-        responses: generateOpenApiResponseFromSchema(
-            businessesRouteSchema.delete.response,
-        ),
-    }),
-    validator("param", businessesRouteSchema.delete.request.param),
-    async (c) => {
+    .on(...route("DELETE /:businessId", businessesRouteSchema), async (c) => {
         const { businessId } = c.req.valid("param");
         const userId = c.get("user").id;
         await businessesService.delete({
@@ -116,9 +65,7 @@ businessesRoutes.delete(
             },
             HTTP_STATUS["OK"],
         );
-    },
-);
+    })
 
-businessesRoutes.use("/:businessId/*", businessMiddleware());
-
-businessesRoutes.route("/:businessId/listings", listingsRoutes);
+    .use("/:businessId/*", businessMiddleware())
+    .route("/:businessId/listings", listingsRoutes);

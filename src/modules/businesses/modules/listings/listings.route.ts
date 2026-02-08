@@ -1,20 +1,59 @@
-import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
+import { route } from "@/utils/open-api";
+import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
-import { describeRoute } from "hono-openapi";
 import type { BusinessContext } from "../../businesses.utils";
 import { listingsRouteSchema } from "./listings.schema";
+import { listingsService } from "./listings.service";
 
-export const listingsRoutes = new Hono<{ Variables: BusinessContext }>();
+export const listingsRoutes = new Hono<{ Variables: BusinessContext }>()
+    .on(...route("GET /", listingsRouteSchema), async (c) => {
+        const listings = await listingsService.findAll({
+            businessId: c.get("business").id,
+        });
+        return c.json(listings, HTTP_STATUS["OK"]);
+    })
 
-listingsRoutes.get(
-    "/",
-    describeRoute({
-        description: "Find All",
-        responses: generateOpenApiResponseFromSchema(
-            listingsRouteSchema.findAll.response,
-        ),
-    }),
-    async (c) => {
-        return c.json(c.get("business"));
-    },
-);
+    .on(...route("POST /", listingsRouteSchema), async (c) => {
+        const data = c.req.valid("json");
+        const listing = await listingsService.create({
+            ...data,
+            businessId: c.get("business").id,
+        });
+        return c.json(listing, HTTP_STATUS["Created"]);
+    })
+
+    .on(...route("GET /:listingId", listingsRouteSchema), async (c) => {
+        const { listingId } = c.req.valid("param");
+        const address = await listingsService.find({
+            id: listingId,
+            businessId: c.get("business").id,
+        });
+        return c.json(address, HTTP_STATUS["OK"]);
+    })
+
+    .on(...route("PATCH /:listingId", listingsRouteSchema), async (c) => {
+        const { listingId } = c.req.valid("param");
+        const data = c.req.valid("json");
+        const address = await listingsService.update({
+            ...data,
+            id: listingId,
+            businessId: c.get("business").id,
+        });
+
+        return c.json(address, HTTP_STATUS["OK"]);
+    })
+
+    .on(...route("DELETE /:listingId", listingsRouteSchema), async (c) => {
+        const { listingId } = c.req.valid("param");
+        await listingsService.delete({
+            id: listingId,
+            businessId: c.get("business").id,
+        });
+
+        return c.json(
+            {
+                success: true,
+            },
+            HTTP_STATUS["OK"],
+        );
+    });

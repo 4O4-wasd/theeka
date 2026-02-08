@@ -1,5 +1,6 @@
 import db from "@/db";
 import { userAddresses } from "@/db/schema";
+import { selectTableColumns } from "@/utils/select-table-columns";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
@@ -40,16 +41,12 @@ export const addressesRepository = {
         const [address] = await db
             .insert(userAddresses)
             .values(input)
-            .returning({
-                id: userAddresses.id,
-                name: userAddresses.name,
-                completeAddress: userAddresses.completeAddress,
-                city: userAddresses.city,
-                state: userAddresses.state,
-                pincode: userAddresses.pincode,
-                latitude: userAddresses.latitude,
-                longitude: userAddresses.longitude,
-            });
+            .returning(
+                selectTableColumns(userAddresses, "omit", {
+                    userId: true,
+                }),
+            );
+
         return address;
     },
 
@@ -60,7 +57,11 @@ export const addressesRepository = {
             .where(
                 and(eq(userAddresses.id, id), eq(userAddresses.userId, userId)),
             )
-            .returning();
+            .returning(
+                selectTableColumns(userAddresses, "omit", {
+                    userId: true,
+                }),
+            );
 
         return address;
     },

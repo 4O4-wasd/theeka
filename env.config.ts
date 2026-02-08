@@ -5,6 +5,7 @@ const envSchema = z.object({
     NODE_ENV: z.enum(["dev", "prod"]).default("prod"),
     DATABASE_URL: z.string(),
     DATABASE_AUTH_TOKEN: z.string().optional(),
+    PORT: z.coerce.number().optional()
 });
 
 export type Env = z.infer<typeof envSchema>;

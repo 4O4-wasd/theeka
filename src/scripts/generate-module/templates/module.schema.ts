@@ -19,7 +19,8 @@ const schema = {
 
     route() {
         return {
-            findAll: {
+            "GET /": {
+                description: "Find All Module",
                 request: {
                     json: this.service().findAll.input,
                 },

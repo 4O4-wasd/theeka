@@ -70,7 +70,9 @@ const schema = {
 
     route() {
         return {
-            create: {
+            "POST /": {
+                description: "Create An Addresses",
+
                 request: {
                     json: this.service().create.input.omit({
                         userId: true,
@@ -82,7 +84,9 @@ const schema = {
                 },
             },
 
-            find: {
+            "GET /:addressId": {
+                description: "Find An Address",
+
                 request: {
                     param: z.object({
                         addressId: z.uuid(),
@@ -94,7 +98,9 @@ const schema = {
                 },
             },
 
-            update: {
+            "PATCH /:addressId": {
+                description: "Update An Address",
+
                 request: {
                     param: z.object({
                         addressId: z.uuid(),
@@ -102,6 +108,7 @@ const schema = {
 
                     json: this.service().update.input.omit({
                         id: true,
+                        userId: true,
                     }),
                 },
 
@@ -110,7 +117,9 @@ const schema = {
                 },
             },
 
-            delete: {
+            "DELETE /:addressId": {
+                description: "Delete An Address",
+
                 request: {
                     param: z.object({
                         addressId: z.uuid(),
@@ -124,7 +133,11 @@ const schema = {
                 },
             },
 
-            findAll: {
+            "GET /": {
+                description: "Find All Addresses",
+
+                request: {},
+
                 response: {
                     OK: this.service().findAll.output,
                 },
@@ -139,3 +152,4 @@ type AddressesSchemaType = InferSchema<typeof schema>;
 
 export type AddressesRepositorySchemaType = AddressesSchemaType["repository"];
 export type AddressesServiceSchemaType = AddressesSchemaType["service"];
+export type AddressesRouteSchemaType = AddressesSchemaType["route"];

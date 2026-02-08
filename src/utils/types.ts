@@ -30,6 +30,14 @@ export type ToFunctions<T> = {
     : () => Promise<void>;
 };
 
+export type HttpMethod =
+    | "GET"
+    | "POST"
+    | "PUT"
+    | "PATCH"
+    | "DELETE"
+    | "OPTIONS";
+
 export namespace DefaultSchemaType {
     export type Repository = Record<
         string,
@@ -41,11 +49,30 @@ export namespace DefaultSchemaType {
 
     export type Service = Repository;
 
-    export type Route = Record<
-        string,
-        {
-            request?: Partial<Record<keyof ValidationTargets, z.ZodType>>;
-            response?: Partial<Record<keyof typeof HTTP_STATUS, z.ZodType>>;
-        }
-    >;
+    export type RouteType<T = never> = {
+        description: string;
+        request: Partial<Record<keyof ValidationTargets, z.ZodType>>;
+        response: Partial<Record<keyof typeof HTTP_STATUS, z.ZodType>>;
+    };
+
+    export type Route = {
+        [K in `${HttpMethod} /` | (`${string} /${string}` & {})]?: RouteType;
+    };
 }
+
+// i do not understand any of this, my respect for library devs has increased. it's 2:47 AM pls send help i wanna cry
+// edit: uh it's pretty easy to understand it's 3:25 AM, yeah...
+type UnionToIntersection<U> =
+    (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I
+    :   never;
+
+type LastOf<T> =
+    UnionToIntersection<T extends any ? () => T : never> extends () => infer R ?
+        R
+    :   never;
+
+export type UnionToTuple<
+    T,
+    L = LastOf<T>,
+    N = [T] extends [never] ? true : false,
+> = true extends N ? [] : [...UnionToTuple<Exclude<T, L>>, L];

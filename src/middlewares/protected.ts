@@ -80,13 +80,9 @@ export const invertedProtectedMiddleware = ({
         }
 
         if (type === "account") {
-            const account = await authService.findAccount({ token });
-
-            if (account) {
-                throw new HTTPException(HTTP_STATUS["Forbidden"], {
-                    message: "You already have an account",
-                });
-            }
+            throw new HTTPException(HTTP_STATUS["Forbidden"], {
+                message: "You already have an account",
+            });
         }
 
         if (type === "user") {
@@ -98,6 +94,4 @@ export const invertedProtectedMiddleware = ({
                 });
             }
         }
-
-        await next();
     });

@@ -1,5 +1,6 @@
 import db from "@/db";
 import { accounts, sessions, users } from "@/db/schema";
+import { selectTableColumns } from "@/utils/select-table-columns";
 import type { ToFunctions } from "@/utils/types";
 import { and, eq } from "drizzle-orm";
 import type { AuthRepositorySchemaType } from "./auth.schema";
@@ -88,11 +89,14 @@ export const authRepository = {
     },
 
     async createUser(input) {
-        const [user] = await db.insert(users).values(input).returning({
-            id: users.id,
-            name: users.name,
-            avatar: users.avatar,
-        });
+        const [user] = await db
+            .insert(users)
+            .values(input)
+            .returning(
+                selectTableColumns(users, "omit", {
+                    accountId: true,
+                }),
+            );
 
         return user;
     },

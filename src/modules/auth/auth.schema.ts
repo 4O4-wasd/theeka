@@ -113,32 +113,37 @@ const schema = {
 
     route() {
         return {
-            login: {
+            "POST /login": {
+                description: "Login",
                 request: {
                     json: this.service().login.input.pick({
                         phone: true,
                         password: true,
                     }),
                 },
-
                 response: {
                     OK: this.service().login.output,
                 },
             },
 
-            findAccount: {
+            "GET /account": {
+                description: "Find Account",
+                request: {},
                 response: {
                     OK: this.service().findAccount.output,
                 },
             },
 
-            findUser: {
+            "GET /user": {
+                description: "Find User",
+                request: {},
                 response: {
                     OK: this.service().findUser.output,
                 },
             },
 
-            createUser: {
+            "POST /user": {
+                description: "Create User",
                 request: {
                     json: this.service().createUser.input.omit({
                         accountId: true,
@@ -150,19 +155,21 @@ const schema = {
                 },
             },
 
-            findAllSessions: {
+            "GET /sessions": {
+                description: "Find All Sessions",
+                request: {},
                 response: {
                     OK: this.service().findAllSessions.output,
                 },
             },
 
-            deleteSession: {
+            "DELETE /sessions": {
+                description: "Delete A Session",
                 request: {
                     json: this.service().deleteSession.input.pick({
                         token: true,
                     }),
                 },
-
                 response: {
                     OK: z.object({
                         success: z.boolean().default(true),
@@ -170,7 +177,9 @@ const schema = {
                 },
             },
 
-            logout: {
+            "GET /logout": {
+                description: "Logout",
+                request: {},
                 response: {
                     OK: z.object({
                         success: z.boolean().default(true),

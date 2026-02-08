@@ -1,20 +1,10 @@
-import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
 import { Hono } from "hono";
-import { describeRoute, validator } from "hono-openapi";
 import { moduleRouteSchema } from "./module.schema";
 import { moduleService } from "./module.service";
+import { route } from "@/utils/open-api";
 
-export const moduleRoutes = new Hono();
-
-moduleRoutes.get(
-    "/",
-    describeRoute({
-        description: "Find All",
-        responses: generateOpenApiResponseFromSchema(
-            moduleRouteSchema.findAll.response,
-        ),
-    }),
-    validator("json", moduleRouteSchema.findAll.request.json),
+export const moduleRoutes = new Hono().on(
+    ...route("GET /", moduleRouteSchema),
     async (c) => {
         const input = c.req.valid("json");
 

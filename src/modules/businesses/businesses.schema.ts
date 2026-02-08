@@ -72,37 +72,40 @@ const businessesSchema = {
 
     route() {
         return {
-            create: {
+            "POST /": {
+                description: "Create A Business",
                 request: {
                     json: this.service().create.input.omit({
                         ownerId: true,
                     }),
                 },
-
                 response: {
                     Created: this.service().create.output,
                 },
             },
 
-            find: {
+            "GET /:businessId": {
+                description: "Find A Business",
                 request: {
                     param: z.object({
                         businessId: z.uuid(),
                     }),
                 },
-
                 response: {
                     OK: this.service().find.output,
                 },
             },
 
-            findAll: {
+            "GET /": {
+                description: "Find All Businesses",
+                request: {},
                 response: {
                     OK: this.service().findAll.output,
                 },
             },
 
-            update: {
+            "PATCH /:businessId": {
+                description: "Update A Business",
                 request: {
                     param: z.object({
                         businessId: z.uuid(),
@@ -113,13 +116,13 @@ const businessesSchema = {
                         ownerId: true,
                     }),
                 },
-
                 response: {
                     OK: this.service().update.output,
                 },
             },
 
-            delete: {
+            "DELETE /:businessId": {
+                description: "Delete A Business",
                 request: {
                     param: z.object({
                         businessId: z.uuid(),

@@ -2,7 +2,7 @@ import {
     invertedProtectedMiddleware,
     protectedMiddleware,
 } from "@/middlewares/protected";
-import { generateOpenApiResponseFromSchema } from "@/utils/open-api";
+import { route } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
@@ -10,149 +10,103 @@ import { HTTPException } from "hono/http-exception";
 import { authRouteSchema } from "./auth.schema";
 import { authService } from "./auth.service";
 
-export const authRoutes = new Hono();
-
-authRoutes.post(
-    "/login",
-    describeRoute({
-        description: "Login",
-        responses: generateOpenApiResponseFromSchema(
-            authRouteSchema.login.response,
-        ),
-    }),
-    validator("json", authRouteSchema.login.request.json),
-    invertedProtectedMiddleware({ type: "account" }),
-    async (c) => {
-        const body = c.req.valid("json");
-        const token = await authService.login({
-            ...body,
-            ipAddress: "127.0.0.1",
-            userAgent: "no useragent",
-        });
-
-        return c.json(token, HTTP_STATUS["OK"]);
-    },
-);
-
-authRoutes.post(
-    "/user",
-    describeRoute({
-        description: "Create User",
-        responses: generateOpenApiResponseFromSchema(
-            authRouteSchema.createUser.response,
-        ),
-    }),
-    validator("json", authRouteSchema.createUser.request.json),
-    invertedProtectedMiddleware({ type: "user" }),
-    protectedMiddleware({ type: "account" }),
-    async (c) => {
-        const body = c.req.valid("json");
-        const user = await authService.createUser({
-            ...body,
-            accountId: c.get("account").id,
-        });
-
-        return c.json(user, HTTP_STATUS["Created"]);
-    },
-);
-
-authRoutes.get(
-    "/user",
-    describeRoute({
-        description: "Find User",
-        responses: generateOpenApiResponseFromSchema(
-            authRouteSchema.findUser.response,
-        ),
-    }),
-    protectedMiddleware({ type: "user" }),
-    async (c) => {
-        return c.json(c.get("user"), HTTP_STATUS["OK"]);
-    },
-);
-
-authRoutes.get(
-    "/account",
-    describeRoute({
-        description: "Find Account",
-        responses: generateOpenApiResponseFromSchema(
-            authRouteSchema.findAccount.response,
-        ),
-    }),
-    protectedMiddleware({ type: "account" }),
-    async (c) => {
-        return c.json(c.get("account"), HTTP_STATUS["OK"]);
-    },
-);
-
-authRoutes.get(
-    "/sessions",
-    describeRoute({
-        description: "Find All Sessions",
-        responses: generateOpenApiResponseFromSchema(
-            authRouteSchema.findAllSessions.response,
-        ),
-    }),
-    protectedMiddleware({ type: "account" }),
-    async (c) => {
-        const sessions = await authService.findAllSessions({
-            accountId: c.get("account").id,
-        });
-        return c.json(sessions, HTTP_STATUS["OK"]);
-    },
-);
-
-authRoutes.delete(
-    "/sessions",
-    describeRoute({
-        description: "Delete A Session",
-        responses: generateOpenApiResponseFromSchema(
-            authRouteSchema.deleteSession.response,
-        ),
-    }),
-    validator("json", authRouteSchema.deleteSession.request.json),
-    protectedMiddleware({ type: "account" }),
-    async (c) => {
-        const token = c.req.valid("json").token;
-
-        if (token === c.get("sessionToken")) {
-            throw new HTTPException(HTTP_STATUS["Forbidden"], {
-                message: "You cannot delete your current session",
+export const authRoutes = new Hono()
+    .on(
+        ...route("POST /login", authRouteSchema),
+        invertedProtectedMiddleware({ type: "account" }),
+        async (c) => {
+            const body = c.req.valid("json");
+            const token = await authService.login({
+                ...body,
+                ipAddress: "127.0.0.1",
+                userAgent: "no useragent",
             });
-        }
 
-        await authService.deleteSession({
-            token,
-            accountId: c.get("account").id,
-        });
+            return c.json(token, HTTP_STATUS["OK"]);
+        },
+    )
 
-        return c.json(
-            {
-                success: true,
-            },
-            HTTP_STATUS["OK"],
-        );
-    },
-);
+    .on(
+        ...route("POST /user", authRouteSchema),
+        protectedMiddleware({ type: "account" }),
+        invertedProtectedMiddleware({ type: "user" }),
+        async (c) => {
+            const body = c.req.valid("json");
+            const user = await authService.createUser({
+                ...body,
+                accountId: c.get("account").id,
+            });
 
-authRoutes.get(
-    "/logout",
-    describeRoute({
-        description: "Logout",
-        responses: generateOpenApiResponseFromSchema(
-            authRouteSchema.logout.response,
-        ),
-    }),
-    protectedMiddleware({ type: "account" }),
-    async (c) => {
-        await authService.logout({
-            token: c.get("sessionToken"),
-        });
+            return c.json(user, HTTP_STATUS["Created"]);
+        },
+    )
 
-        return c.json(
-            {
-                success: true,
-            },
-            HTTP_STATUS["OK"],
-        );
-    },
-);
+    .on(
+        ...route("GET /user", authRouteSchema),
+        protectedMiddleware({ type: "user" }),
+        async (c) => {
+            return c.json(c.get("user"), HTTP_STATUS["OK"]);
+        },
+    )
+
+    .on(
+        ...route("GET /account", authRouteSchema),
+        protectedMiddleware({ type: "account" }),
+        async (c) => {
+            return c.json(c.get("account"), HTTP_STATUS["OK"]);
+        },
+    )
+
+    .on(
+        ...route("GET /sessions", authRouteSchema),
+        protectedMiddleware({ type: "account" }),
+        async (c) => {
+            const sessions = await authService.findAllSessions({
+                accountId: c.get("account").id,
+            });
+            return c.json(sessions, HTTP_STATUS["OK"]);
+        },
+    )
+
+    .on(
+        ...route("DELETE /sessions", authRouteSchema),
+        protectedMiddleware({ type: "account" }),
+        async (c) => {
+            const token = c.req.valid("json").token;
+
+            if (token === c.get("sessionToken")) {
+                throw new HTTPException(HTTP_STATUS["Forbidden"], {
+                    message: "You cannot delete your current session",
+                });
+            }
+
+            await authService.deleteSession({
+                token,
+                accountId: c.get("account").id,
+            });
+
+            return c.json(
+                {
+                    success: true,
+                },
+                HTTP_STATUS["OK"],
+            );
+        },
+    )
+
+    .on(
+        ...route("GET /logout", authRouteSchema),
+        protectedMiddleware({ type: "account" }),
+        async (c) => {
+            await authService.logout({
+                token: c.get("sessionToken"),
+            });
+
+            return c.json(
+                {
+                    success: true,
+                },
+                HTTP_STATUS["OK"],
+            );
+        },
+    );
