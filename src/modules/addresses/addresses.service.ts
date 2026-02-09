@@ -1,15 +1,15 @@
-import type { ToFunctions } from "@/utils/types";
-import type { AddressesServiceSchemaType } from "./addresses.schema";
 import db from "@/db";
-import { userAddresses } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { userAddressesTable } from "@/db/tables";
 import { selectTableColumns } from "@/utils/select-table-columns";
-import { HTTPException } from "hono/http-exception";
 import { HTTP_STATUS } from "@/utils/status-codes";
+import type { ToFunctions } from "@/utils/types";
+import { and, eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
+import type { AddressesServiceSchemaType } from "./addresses.schema";
 
 export const addressesService = {
     async find(input) {
-        const address = await db.query.userAddresses.findFirst({
+        const address = await db.query.userAddressesTable.findFirst({
             where: (t, { eq, and }) =>
                 and(eq(t.id, input.id), eq(t.userId, input.userId)),
             columns: {
@@ -27,7 +27,7 @@ export const addressesService = {
     },
 
     async findAll(input) {
-        const addresses = await db.query.userAddresses.findMany({
+        const addresses = await db.query.userAddressesTable.findMany({
             where: (t, { eq }) => eq(t.userId, input.userId),
             columns: {
                 userId: false,
@@ -39,10 +39,10 @@ export const addressesService = {
 
     async create(input) {
         const [address] = await db
-            .insert(userAddresses)
+            .insert(userAddressesTable)
             .values(input)
             .returning(
-                selectTableColumns(userAddresses, "omit", {
+                selectTableColumns(userAddressesTable, "omit", {
                     userId: true,
                 }),
             );
@@ -52,13 +52,16 @@ export const addressesService = {
 
     async update({ userId, id, ...input }) {
         const [address] = await db
-            .update(userAddresses)
+            .update(userAddressesTable)
             .set(input)
             .where(
-                and(eq(userAddresses.id, id), eq(userAddresses.userId, userId)),
+                and(
+                    eq(userAddressesTable.id, id),
+                    eq(userAddressesTable.userId, userId),
+                ),
             )
             .returning(
-                selectTableColumns(userAddresses, "omit", {
+                selectTableColumns(userAddressesTable, "omit", {
                     userId: true,
                 }),
             );
@@ -68,11 +71,11 @@ export const addressesService = {
 
     async delete(input) {
         await db
-            .delete(userAddresses)
+            .delete(userAddressesTable)
             .where(
                 and(
-                    eq(userAddresses.id, input.id),
-                    eq(userAddresses.userId, input.userId),
+                    eq(userAddressesTable.id, input.id),
+                    eq(userAddressesTable.userId, input.userId),
                 ),
             );
     },

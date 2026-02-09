@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { compress } from "hono/compress";
 import { addressesRoutes } from "./modules/addresses/addresses.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
-import { businessesRoutes } from "./modules/businesses/businesses.route";
+import { businessesRoutes } from "./modules/businesses/businesses.routes";
 
 const app = new Hono()
     .use(compress())

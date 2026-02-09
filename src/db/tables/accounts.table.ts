@@ -2,10 +2,10 @@ import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
-import { sessions } from "./sessions.schema";
-import { users } from "./users.schema";
+import { sessionsTable } from "./sessions.table";
+import { usersTable } from "./users.table";
 
-export const accounts = sqliteTable("accounts", {
+export const accountsTable = sqliteTable("accounts", {
     id: text("id")
         .primaryKey()
         .$default(() => crypto.randomUUID()),
@@ -16,12 +16,15 @@ export const accounts = sqliteTable("accounts", {
         .$defaultFn(() => new Date()),
 });
 
-export const accountsRelations = relations(accounts, ({ many, one }) => ({
-    sessions: many(sessions),
-    user: one(users),
-}));
+export const accountsTableRelations = relations(
+    accountsTable,
+    ({ many, one }) => ({
+        sessions: many(sessionsTable),
+        user: one(usersTable),
+    }),
+);
 
-export const accountSchema = createSelectSchema(accounts, {
+export const accountSchema = createSelectSchema(accountsTable, {
     id: z.uuid(),
     phone: z
         .number()
@@ -30,5 +33,3 @@ export const accountSchema = createSelectSchema(accounts, {
     password: z.string().min(6).max(128),
     createdAt: z.date(),
 });
-
-export type AccountSchemaType = z.infer<typeof accountSchema>;

@@ -1,4 +1,4 @@
-import { userAddressSchema } from "@/db/schema";
+import { userAddressSchema } from "@/db/tables";
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import { z } from "zod";
 

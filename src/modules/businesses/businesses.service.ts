@@ -1,5 +1,5 @@
 import db from "@/db";
-import { businesses } from "@/db/schema";
+import { businessesTable } from "@/db/tables";
 import { selectTableColumns } from "@/utils/select-table-columns";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
@@ -10,10 +10,10 @@ import type { BusinessesServiceSchemaType } from "./businesses.schema";
 export const businessesService = {
     async create(input) {
         const [business] = await db
-            .insert(businesses)
+            .insert(businessesTable)
             .values(input)
             .returning(
-                selectTableColumns(businesses, "omit", {
+                selectTableColumns(businessesTable, "omit", {
                     ownerId: true,
                 }),
             );
@@ -22,7 +22,7 @@ export const businessesService = {
     },
 
     async find({ ownerId, id }) {
-        const business = await db.query.businesses.findFirst({
+        const business = await db.query.businessesTable.findFirst({
             columns: {
                 ownerId: false,
             },
@@ -41,7 +41,7 @@ export const businessesService = {
     },
 
     async findAll({ ownerId }) {
-        const businesses = await db.query.businesses.findMany({
+        const businesses = await db.query.businessesTable.findMany({
             columns: {
                 ownerId: false,
             },
@@ -54,11 +54,16 @@ export const businessesService = {
 
     async update({ id, ownerId, ...input }) {
         const [business] = await db
-            .update(businesses)
+            .update(businessesTable)
             .set(input)
-            .where(and(eq(businesses.id, id), eq(businesses.ownerId, ownerId)))
+            .where(
+                and(
+                    eq(businessesTable.id, id),
+                    eq(businessesTable.ownerId, ownerId),
+                ),
+            )
             .returning(
-                selectTableColumns(businesses, "omit", {
+                selectTableColumns(businessesTable, "omit", {
                     ownerId: true,
                 }),
             );
@@ -68,7 +73,12 @@ export const businessesService = {
 
     async delete({ id, ownerId }) {
         await db
-            .delete(businesses)
-            .where(and(eq(businesses.id, id), eq(businesses.ownerId, ownerId)));
+            .delete(businessesTable)
+            .where(
+                and(
+                    eq(businessesTable.id, id),
+                    eq(businessesTable.ownerId, ownerId),
+                ),
+            );
     },
 } satisfies ToFunctions<BusinessesServiceSchemaType>;

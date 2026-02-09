@@ -1,4 +1,4 @@
-import { businessListingsSchema } from "@/db/schema";
+import { businessListingsSchema } from "@/db/tables";
 import type { DefaultSchemaType, InferSchema } from "@/utils/types";
 import z from "zod";
 

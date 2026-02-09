@@ -2,13 +2,8 @@ import { protectedMiddleware } from "@/middlewares/protected";
 import { route } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
-import { hc } from "hono/client";
 import { addressesRouteSchema } from "./addresses.schema";
 import { addressesService } from "./addresses.service";
-
-new Hono().get("/:id/:all", async (c) => {
-    c.req.param("all")
-})
 
 export const addressesRoutes = new Hono()
     .use(protectedMiddleware({ type: "user" }))

@@ -4,8 +4,9 @@ import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
 import { businessesRouteSchema } from "./businesses.schema";
 import { businessesService } from "./businesses.service";
-import { businessAddressRoutes } from "./modules/business-address/business-address.route";
-import { listingsRoutes } from "./modules/listings/listings.route";
+import { businessAddressRoutes } from "./modules/business-address/business-address.routes";
+import { listingsRoutes } from "./modules/listings/listings.routes";
+import { employeesRoutes } from "./modules/employees/employees.routes";
 
 export const businessesRoutes = new Hono()
     .use(protectedMiddleware({ type: "user" }))
@@ -68,4 +69,5 @@ export const businessesRoutes = new Hono()
     })
 
     .route("/:businessId/address", businessAddressRoutes)
-    .route("/:businessId/listings", listingsRoutes);
+    .route("/:businessId/listings", listingsRoutes)
+    .route("/:businessId/employees", employeesRoutes);

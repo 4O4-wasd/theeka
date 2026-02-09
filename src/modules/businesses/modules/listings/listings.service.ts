@@ -1,5 +1,5 @@
 import db from "@/db";
-import { businessListings } from "@/db/schema";
+import { businessListingsTable } from "@/db/tables";
 import { selectTableColumns } from "@/utils/select-table-columns";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
@@ -10,10 +10,10 @@ import type { ListingsServiceSchemaType } from "./listings.schema";
 export const listingsService = {
     async create(input) {
         const [listing] = await db
-            .insert(businessListings)
+            .insert(businessListingsTable)
             .values(input)
             .returning(
-                selectTableColumns(businessListings, "omit", {
+                selectTableColumns(businessListingsTable, "omit", {
                     businessId: true,
                 }),
             );
@@ -22,7 +22,7 @@ export const listingsService = {
     },
 
     async find({ businessId, id }) {
-        const listing = await db.query.businessListings.findFirst({
+        const listing = await db.query.businessListingsTable.findFirst({
             columns: {
                 businessId: false,
             },
@@ -41,7 +41,7 @@ export const listingsService = {
     },
 
     async findAll({ businessId }) {
-        const listings = await db.query.businessListings.findMany({
+        const listings = await db.query.businessListingsTable.findMany({
             columns: {
                 businessId: false,
             },
@@ -54,16 +54,16 @@ export const listingsService = {
 
     async update({ id, businessId, ...input }) {
         const [listings] = await db
-            .update(businessListings)
+            .update(businessListingsTable)
             .set(input)
             .where(
                 and(
-                    eq(businessListings.id, id),
-                    eq(businessListings.businessId, businessId),
+                    eq(businessListingsTable.id, id),
+                    eq(businessListingsTable.businessId, businessId),
                 ),
             )
             .returning(
-                selectTableColumns(businessListings, "omit", {
+                selectTableColumns(businessListingsTable, "omit", {
                     businessId: true,
                 }),
             );
@@ -73,11 +73,11 @@ export const listingsService = {
 
     async delete({ id, businessId }) {
         await db
-            .delete(businessListings)
+            .delete(businessListingsTable)
             .where(
                 and(
-                    eq(businessListings.id, id),
-                    eq(businessListings.businessId, businessId),
+                    eq(businessListingsTable.id, id),
+                    eq(businessListingsTable.businessId, businessId),
                 ),
             );
     },

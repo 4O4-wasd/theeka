@@ -2,16 +2,16 @@ import { relations } from "drizzle-orm";
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
-import { orders } from "./orders.schema";
-import { users } from "./users.schema";
+import { ordersTable } from "./orders.table";
+import { usersTable } from "./users.table";
 
-export const userAddresses = sqliteTable("user_addresses", {
+export const userAddressesTable = sqliteTable("user_addresses", {
     id: text("id")
         .primaryKey()
         .$default(() => crypto.randomUUID()),
     name: text("name").notNull(),
     userId: text("user_id")
-        .references(() => users.id, { onDelete: "cascade" })
+        .references(() => usersTable.id, { onDelete: "cascade" })
         .notNull(),
 
     completeAddress: text("complete_address").notNull(),
@@ -24,18 +24,18 @@ export const userAddresses = sqliteTable("user_addresses", {
     longitude: real("longitude").notNull(),
 });
 
-export const userAddressesRelations = relations(
-    userAddresses,
+export const userAddressesTableRelations = relations(
+    userAddressesTable,
     ({ one, many }) => ({
-        user: one(users, {
-            fields: [userAddresses.userId],
-            references: [users.id],
+        user: one(usersTable, {
+            fields: [userAddressesTable.userId],
+            references: [usersTable.id],
         }),
-        orders: many(orders),
+        orders: many(ordersTable),
     }),
 );
 
-export const userAddressSchema = createSelectSchema(userAddresses, {
+export const userAddressSchema = createSelectSchema(userAddressesTable, {
     id: z.uuid(),
     name: z.string(),
     userId: z.uuid(),

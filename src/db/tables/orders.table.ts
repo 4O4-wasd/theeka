@@ -2,13 +2,13 @@ import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
-import { businessListings } from "./business-listings.schema";
-import { businesses } from "./businesses.schema";
-import { employees } from "./employees.schema";
-import { userAddresses } from "./user-addresses.schema";
-import { users } from "./users.schema";
+import { businessListingsTable } from "./business-listings.table";
+import { businessesTable } from "./businesses.table";
+import { employeesTable } from "./employees.table";
+import { userAddressesTable } from "./user-addresses.table";
+import { usersTable } from "./users.table";
 
-export const orders = sqliteTable("orders", {
+export const ordersTable = sqliteTable("orders", {
     id: text("id")
         .primaryKey()
         .$default(() => crypto.randomUUID()),
@@ -35,48 +35,46 @@ export const orders = sqliteTable("orders", {
     shopNotes: text("shop_notes"),
     customerId: text("customer_id")
         .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
+        .references(() => usersTable.id, { onDelete: "cascade" }),
     addressId: text("address_id")
         .notNull()
-        .references(() => userAddresses.id, { onDelete: "cascade" }),
+        .references(() => userAddressesTable.id, { onDelete: "cascade" }),
     businessId: text("business_id")
         .notNull()
-        .references(() => businesses.id, { onDelete: "cascade" }),
+        .references(() => businessesTable.id, { onDelete: "cascade" }),
     listingId: text("listing_id")
         .notNull()
-        .references(() => businessListings.id, { onDelete: "cascade" }),
-    deliveryEmployeeId: text("delivery_employee_id")
-        .notNull()
-        .references(() => employees.id, { onDelete: "cascade" }),
+        .references(() => businessListingsTable.id, { onDelete: "cascade" }),
+    deliveryEmployeeId: text("delivery_employee_id").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .$defaultFn(() => new Date()),
 });
 
-export const ordersRelations = relations(orders, ({ one, many }) => ({
-    customer: one(users, {
-        fields: [orders.customerId],
-        references: [users.id],
+export const ordersTableRelations = relations(ordersTable, ({ one, many }) => ({
+    customer: one(usersTable, {
+        fields: [ordersTable.customerId],
+        references: [usersTable.id],
     }),
-    address: one(userAddresses, {
-        fields: [orders.addressId],
-        references: [userAddresses.id],
+    address: one(userAddressesTable, {
+        fields: [ordersTable.addressId],
+        references: [userAddressesTable.id],
     }),
-    business: one(businesses, {
-        fields: [orders.businessId],
-        references: [businesses.id],
+    business: one(businessesTable, {
+        fields: [ordersTable.businessId],
+        references: [businessesTable.id],
     }),
-    listing: one(businessListings, {
-        fields: [orders.listingId],
-        references: [businessListings.id],
+    listing: one(businessListingsTable, {
+        fields: [ordersTable.listingId],
+        references: [businessListingsTable.id],
     }),
-    deliveryEmployee: one(employees, {
-        fields: [orders.deliveryEmployeeId],
-        references: [employees.id],
+    deliveryEmployee: one(employeesTable, {
+        fields: [ordersTable.deliveryEmployeeId],
+        references: [employeesTable.userId],
     }),
 }));
 
-export const orderSchema = createSelectSchema(orders, {
+export const orderSchema = createSelectSchema(ordersTable, {
     id: z.uuid(),
     customerPhone: z.number(),
     status: z

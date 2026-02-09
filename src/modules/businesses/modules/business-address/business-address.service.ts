@@ -1,5 +1,5 @@
 import db from "@/db";
-import { businessAddresses } from "@/db/schema";
+import { businessAddressesTable } from "@/db/tables";
 import { selectTableColumns } from "@/utils/select-table-columns";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
@@ -9,7 +9,7 @@ import type { BusinessAddressServiceSchemaType } from "./business-address.schema
 
 export const businessAddressService = {
     async find(input) {
-        const address = await db.query.businessAddresses.findFirst({
+        const address = await db.query.businessAddressesTable.findFirst({
             where: (t, { eq, and }) => eq(t.businessId, input.businessId),
             columns: {
                 businessId: false,
@@ -27,10 +27,10 @@ export const businessAddressService = {
 
     async create(input) {
         const [address] = await db
-            .insert(businessAddresses)
+            .insert(businessAddressesTable)
             .values(input)
             .returning(
-                selectTableColumns(businessAddresses, "omit", {
+                selectTableColumns(businessAddressesTable, "omit", {
                     businessId: true,
                 }),
             );
@@ -40,11 +40,11 @@ export const businessAddressService = {
 
     async update(input) {
         const [address] = await db
-            .update(businessAddresses)
+            .update(businessAddressesTable)
             .set(input)
-            .where(eq(businessAddresses.businessId, input.businessId))
+            .where(eq(businessAddressesTable.businessId, input.businessId))
             .returning(
-                selectTableColumns(businessAddresses, "omit", {
+                selectTableColumns(businessAddressesTable, "omit", {
                     businessId: true,
                 }),
             );
@@ -54,7 +54,7 @@ export const businessAddressService = {
 
     async delete(input) {
         await db
-            .delete(businessAddresses)
-            .where(eq(businessAddresses.businessId, input.businessId));
+            .delete(businessAddressesTable)
+            .where(eq(businessAddressesTable.businessId, input.businessId));
     },
 } satisfies ToFunctions<BusinessAddressServiceSchemaType>;

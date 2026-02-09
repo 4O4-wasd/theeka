@@ -2,28 +2,28 @@ import { relations } from "drizzle-orm";
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
-import { accounts } from "./accounts.schema";
+import { accountsTable } from "./accounts.table";
 
-export const sessions = sqliteTable("sessions", {
+export const sessionsTable = sqliteTable("sessions", {
     token: text("token").primaryKey(),
     userAgent: text("user_agent").notNull(),
     ipAddress: text("ip_address").notNull(),
     accountId: text("account_id")
-        .references(() => accounts.id, { onDelete: "cascade" })
+        .references(() => accountsTable.id, { onDelete: "cascade" })
         .notNull(),
     createdAt: int("created_at", { mode: "timestamp" })
         .notNull()
         .$default(() => new Date()),
 });
 
-export const sessionsRelations = relations(sessions, ({ one }) => ({
-    account: one(accounts, {
-        fields: [sessions.accountId],
-        references: [accounts.id],
+export const sessionsTableRelations = relations(sessionsTable, ({ one }) => ({
+    account: one(accountsTable, {
+        fields: [sessionsTable.accountId],
+        references: [accountsTable.id],
     }),
 }));
 
-export const sessionSchema = createSelectSchema(sessions, {
+export const sessionSchema = createSelectSchema(sessionsTable, {
     token: z.base64(),
     userAgent: z.string(),
     ipAddress: z.ipv4(),

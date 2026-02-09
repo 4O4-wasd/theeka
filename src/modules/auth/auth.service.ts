@@ -1,5 +1,5 @@
 import db from "@/db";
-import { accounts, sessions, users } from "@/db/schema";
+import { accountsTable, sessionsTable, usersTable } from "@/db/tables";
 import { selectTableColumns } from "@/utils/select-table-columns";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
@@ -11,7 +11,7 @@ import { generateBase64Token } from "./auth.utils";
 
 export const authService = {
     async findAccountByPhone(input) {
-        const account = await db.query.accounts.findFirst({
+        const account = await db.query.accountsTable.findFirst({
             where: (t, { eq }) => eq(t.phone, input.phone),
         });
 
@@ -19,7 +19,7 @@ export const authService = {
     },
 
     async findAccount(input) {
-        const session = await db.query.sessions.findFirst({
+        const session = await db.query.sessionsTable.findFirst({
             where: (t, { eq }) => eq(t.token, input.token),
             columns: {},
             with: {
@@ -33,7 +33,7 @@ export const authService = {
     },
 
     async findUser(input) {
-        const session = await db.query.sessions.findFirst({
+        const session = await db.query.sessionsTable.findFirst({
             where: (t, { eq }) => eq(t.token, input.token),
             columns: {},
             with: {
@@ -58,12 +58,12 @@ export const authService = {
         const sessionToken = generateBase64Token();
 
         await db.batch([
-            db.insert(accounts).values({
+            db.insert(accountsTable).values({
                 id: accountId,
                 phone: input.phone,
                 password: input.password,
             }),
-            db.insert(sessions).values({
+            db.insert(sessionsTable).values({
                 accountId,
                 ipAddress: "127.0.0.1",
                 token: sessionToken,
@@ -79,7 +79,7 @@ export const authService = {
     async createSession(input) {
         const sessionToken = generateBase64Token();
 
-        await db.insert(sessions).values({
+        await db.insert(sessionsTable).values({
             accountId: input.accountId,
             ipAddress: input.ipAddress,
             token: sessionToken,
@@ -93,10 +93,10 @@ export const authService = {
 
     async createUser(input) {
         const [user] = await db
-            .insert(users)
+            .insert(usersTable)
             .values(input)
             .returning(
-                selectTableColumns(users, "omit", {
+                selectTableColumns(usersTable, "omit", {
                     accountId: true,
                 }),
             );
@@ -105,7 +105,7 @@ export const authService = {
     },
 
     async findAllSessions(input) {
-        const sessions = await db.query.sessions.findMany({
+        const sessions = await db.query.sessionsTable.findMany({
             where: (t, { eq }) => eq(t.accountId, input.accountId),
             columns: {
                 accountId: false,
@@ -117,11 +117,11 @@ export const authService = {
 
     async deleteSession(input) {
         await db
-            .delete(sessions)
+            .delete(sessionsTable)
             .where(
                 and(
-                    eq(sessions.accountId, input.accountId),
-                    eq(sessions.token, input.token),
+                    eq(sessionsTable.accountId, input.accountId),
+                    eq(sessionsTable.token, input.token),
                 ),
             );
     },
@@ -162,6 +162,8 @@ export const authService = {
     },
 
     async logout(input) {
-        await db.delete(sessions).where(eq(sessions.token, input.token));
+        await db
+            .delete(sessionsTable)
+            .where(eq(sessionsTable.token, input.token));
     },
 } satisfies ToFunctions<AuthServiceSchemaType>;
