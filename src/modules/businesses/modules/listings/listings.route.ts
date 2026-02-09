@@ -1,11 +1,13 @@
 import { route } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
-import type { BusinessContext } from "../../businesses.utils";
+import { businessProtectedMiddleware } from "../../businesses.utils";
 import { listingsRouteSchema } from "./listings.schema";
 import { listingsService } from "./listings.service";
 
-export const listingsRoutes = new Hono<{ Variables: BusinessContext }>()
+export const listingsRoutes = new Hono()
+    .use(businessProtectedMiddleware())
+
     .on(...route("GET /", listingsRouteSchema), async (c) => {
         const listings = await listingsService.findAll({
             businessId: c.get("business").id,

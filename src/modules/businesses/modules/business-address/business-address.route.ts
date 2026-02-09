@@ -1,13 +1,13 @@
 import { route } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
-import type { BusinessContext } from "../../businesses.utils";
+import { businessProtectedMiddleware } from "../../businesses.utils";
 import { businessAddressRouteSchema } from "./business-address.schema";
 import { businessAddressService } from "./business-address.service";
 
-export const businessAddressRoutes = new Hono<{
-    Variables: BusinessContext;
-}>()
+export const businessAddressRoutes = new Hono()
+    .use(businessProtectedMiddleware())
+
     .on(...route("GET /", businessAddressRouteSchema), async (c) => {
         const { id } = c.get("business");
         const address = await businessAddressService.find({ businessId: id });

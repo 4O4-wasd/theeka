@@ -10,7 +10,7 @@ export type BusinessContext = ProtectedUserContext & {
     business: BusinessesServiceSchemaType["find"]["output"];
 };
 
-export const businessMiddleware = () =>
+export const businessProtectedMiddleware = () =>
     createMiddleware<{
         Variables: BusinessContext;
     }>(async (c, next) => {
