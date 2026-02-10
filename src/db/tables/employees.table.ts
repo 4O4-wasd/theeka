@@ -21,7 +21,7 @@ export const employeesTable = sqliteTable(
             .references(() => businessesTable.id, { onDelete: "cascade" })
             .notNull(),
         role: text("role", {
-            enum: ["manager", "staff"],
+            enum: ["owner", "manager", "staff"],
         })
             .default("staff")
             .notNull(),
@@ -55,5 +55,5 @@ export const employeesSchema = createSelectSchema(employeesTable, {
     userId: z.uuid(),
     businessId: z.uuid(),
     createdAt: z.date(),
-    role: z.enum(["manager", "staff"]),
+    role: z.enum(["owner", "manager", "staff"]),
 });

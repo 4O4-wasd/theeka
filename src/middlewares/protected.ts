@@ -65,33 +65,3 @@ export const protectedMiddleware = <T extends keyof MiddlewareContextType>({
 
         await next();
     });
-
-export const invertedProtectedMiddleware = ({
-    type,
-}: {
-    type: "account" | "user";
-}) =>
-    createMiddleware(async (c, next) => {
-        const token = c.req.header("Authorization");
-
-        if (!token) {
-            await next();
-            return;
-        }
-
-        if (type === "account") {
-            throw new HTTPException(HTTP_STATUS["Forbidden"], {
-                message: "You already have an account",
-            });
-        }
-
-        if (type === "user") {
-            const user = await authService.findUser({ token });
-
-            if (user) {
-                throw new HTTPException(HTTP_STATUS["Forbidden"], {
-                    message: "Your already have a user",
-                });
-            }
-        }
-    });

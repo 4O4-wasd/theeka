@@ -52,5 +52,10 @@ export const addressesRoutes = new Hono()
             userId: c.get("user").id,
         });
 
-        return c.json("hello", HTTP_STATUS["OK"]);
+        return c.json(
+            {
+                success: true,
+            },
+            HTTP_STATUS["OK"],
+        );
     });

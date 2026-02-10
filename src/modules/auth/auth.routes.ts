@@ -1,35 +1,34 @@
-import {
-    invertedProtectedMiddleware,
-    protectedMiddleware,
-} from "@/middlewares/protected";
+import { protectedMiddleware } from "@/middlewares/protected";
 import { route } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
-import { describeRoute, validator } from "hono-openapi";
 import { HTTPException } from "hono/http-exception";
 import { authRouteSchema } from "./auth.schema";
 import { authService } from "./auth.service";
 
 export const authRoutes = new Hono()
-    .on(
-        ...route("POST /login", authRouteSchema),
-        invertedProtectedMiddleware({ type: "account" }),
-        async (c) => {
-            const body = c.req.valid("json");
-            const token = await authService.login({
-                ...body,
-                ipAddress: "127.0.0.1",
-                userAgent: "no useragent",
-            });
+    .on(...route("POST /login", authRouteSchema), async (c) => {
+        const authToken = c.req.header("Authorization");
 
-            return c.json(token, HTTP_STATUS["OK"]);
-        },
-    )
+        if (authToken) {
+            throw new HTTPException(HTTP_STATUS["Forbidden"], {
+                message: "You already have an account",
+            });
+        }
+
+        const body = c.req.valid("json");
+        const token = await authService.login({
+            ...body,
+            ipAddress: "127.0.0.1",
+            userAgent: "no useragent",
+        });
+
+        return c.json(token, HTTP_STATUS["OK"]);
+    })
 
     .on(
         ...route("POST /user", authRouteSchema),
         protectedMiddleware({ type: "account" }),
-        invertedProtectedMiddleware({ type: "user" }),
         async (c) => {
             const body = c.req.valid("json");
             const user = await authService.createUser({

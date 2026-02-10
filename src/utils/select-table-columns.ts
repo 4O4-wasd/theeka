@@ -36,10 +36,3 @@ export const selectTableColumns = <
         }
     :   never;
 };
-
-type a = {
-    abc: "hello";
-    bc: "he";
-};
-
-type b = Omit<a, "abc">;

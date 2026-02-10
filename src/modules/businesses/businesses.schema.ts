@@ -6,33 +6,31 @@ const businessesSchema = {
     service() {
         return {
             create: {
-                input: businessSchema.omit({
-                    id: true,
-                    createdAt: true,
-                    isClosed: true,
-                }),
+                input: businessSchema
+                    .omit({
+                        id: true,
+                        createdAt: true,
+                        isClosed: true,
+                    })
+                    .extend({
+                        userId: z.uuid(),
+                    }),
 
-                output: businessSchema.omit({
-                    ownerId: true,
-                }),
+                output: businessSchema,
             },
 
             find: {
-                input: businessSchema.pick({ id: true, ownerId: true }),
+                input: businessSchema.pick({ id: true }),
 
-                output: businessSchema.omit({
-                    ownerId: true,
-                }),
+                output: businessSchema,
             },
 
             findAll: {
-                input: businessSchema.pick({ ownerId: true }),
+                input: z.object({
+                    userId: z.uuid(),
+                }),
 
-                output: z.array(
-                    businessSchema.omit({
-                        ownerId: true,
-                    }),
-                ),
+                output: z.array(businessSchema),
             },
 
             update: {
@@ -42,20 +40,23 @@ const businessesSchema = {
                     })
                     .partial()
                     .required({
-                        ownerId: true,
                         id: true,
+                    })
+                    .extend({
+                        userId: z.uuid(),
                     }),
 
-                output: businessSchema.omit({
-                    ownerId: true,
-                }),
+                output: businessSchema,
             },
 
             delete: {
-                input: businessSchema.pick({
-                    id: true,
-                    ownerId: true,
-                }),
+                input: businessSchema
+                    .pick({
+                        id: true,
+                    })
+                    .extend({
+                        userId: z.uuid(),
+                    }),
             },
         } satisfies DefaultSchemaType.Service;
     },
@@ -64,11 +65,13 @@ const businessesSchema = {
         return {
             "POST /": {
                 description: "Create A Business",
+
                 request: {
                     json: this.service().create.input.omit({
-                        ownerId: true,
+                        userId: true,
                     }),
                 },
+
                 response: {
                     Created: this.service().create.output,
                 },
@@ -76,19 +79,23 @@ const businessesSchema = {
 
             "GET /:businessId": {
                 description: "Find A Business",
+
                 request: {
                     param: z.object({
                         businessId: z.uuid(),
                     }),
                 },
+
                 response: {
                     OK: this.service().find.output,
                 },
             },
 
             "GET /": {
-                description: "Find All Businesses",
+                description: "Find All Businesses That You Joined In",
+
                 request: {},
+
                 response: {
                     OK: this.service().findAll.output,
                 },
@@ -96,6 +103,7 @@ const businessesSchema = {
 
             "PATCH /:businessId": {
                 description: "Update A Business",
+
                 request: {
                     param: z.object({
                         businessId: z.uuid(),
@@ -103,9 +111,10 @@ const businessesSchema = {
 
                     json: this.service().update.input.omit({
                         id: true,
-                        ownerId: true,
+                        userId: true,
                     }),
                 },
+
                 response: {
                     OK: this.service().update.output,
                 },
@@ -113,6 +122,7 @@ const businessesSchema = {
 
             "DELETE /:businessId": {
                 description: "Delete A Business",
+
                 request: {
                     param: z.object({
                         businessId: z.uuid(),

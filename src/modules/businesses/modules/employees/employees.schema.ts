@@ -157,6 +157,7 @@ const schema = {
 };
 
 export const employeesRouteSchema = schema.route();
+export const employeesServiceSchema = schema.service();
 
 type EmployeesSchemaType = InferSchema<typeof schema>;
 

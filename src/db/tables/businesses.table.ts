@@ -14,9 +14,6 @@ export const businessesTable = sqliteTable("businesses", {
     id: text("id")
         .primaryKey()
         .$default(() => crypto.randomUUID()),
-    ownerId: text("owner_id")
-        .notNull()
-        .references(() => usersTable.id, { onDelete: "cascade" }),
     phoneNumber: integer("phone_number").notNull(),
     businessHours: text("business_hours", {
         mode: "json",
@@ -47,10 +44,6 @@ export const businessesTable = sqliteTable("businesses", {
 export const businessesTableRelations = relations(
     businessesTable,
     ({ one, many }) => ({
-        owner: one(usersTable, {
-            fields: [businessesTable.ownerId],
-            references: [usersTable.id],
-        }),
         address: one(businessAddressesTable),
         employees: many(employeesTable),
         orders: many(ordersTable),
@@ -82,7 +75,6 @@ const businessMediaSchema = z.object({
 
 export const businessSchema = createSelectSchema(businessesTable, {
     id: z.uuid(),
-    ownerId: z.uuid(),
     phoneNumber: z
         .number()
         .min(1000000000, "phone is not valid")

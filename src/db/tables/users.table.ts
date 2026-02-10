@@ -3,7 +3,6 @@ import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { accountsTable } from "./accounts.table";
-import { businessesTable } from "./businesses.table";
 import { employeesTable } from "./employees.table";
 import { ordersTable } from "./orders.table";
 import { reviewsTable } from "./reviews.table";
@@ -27,7 +26,6 @@ export const usersTableRelations = relations(usersTable, ({ one, many }) => ({
         references: [accountsTable.id],
     }),
     employeesProfiles: many(employeesTable),
-    businesses: many(businessesTable),
     addresses: many(userAddressesTable),
     orders: many(ordersTable),
     reviews: many(reviewsTable),

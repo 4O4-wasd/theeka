@@ -1,34 +1,31 @@
 import db from "@/db";
 import { businessesTable } from "@/db/tables";
-import { selectTableColumns } from "@/utils/select-table-columns";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import type { ToFunctions } from "@/utils/types";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import type { BusinessesServiceSchemaType } from "./businesses.schema";
+import { employeesService } from "./modules/employees/employees.service";
 
 export const businessesService = {
-    async create(input) {
+    async create({ userId, ...input }) {
         const [business] = await db
             .insert(businessesTable)
             .values(input)
-            .returning(
-                selectTableColumns(businessesTable, "omit", {
-                    ownerId: true,
-                }),
-            );
+            .returning();
+
+        await employeesService.create({
+            role: "owner",
+            userId,
+            businessId: business.id,
+        });
 
         return business;
     },
 
-    async find({ ownerId, id }) {
+    async find({ id }) {
         const business = await db.query.businessesTable.findFirst({
-            columns: {
-                ownerId: false,
-            },
-
-            where: (t, { eq, and }) =>
-                and(eq(t.id, id), eq(t.ownerId, ownerId)),
+            where: (t, { eq }) => eq(t.id, id),
         });
 
         if (!business) {
@@ -40,45 +37,33 @@ export const businessesService = {
         return business;
     },
 
-    async findAll({ ownerId }) {
-        const businesses = await db.query.businessesTable.findMany({
-            columns: {
-                ownerId: false,
+    async findAll({ userId }) {
+        const employees = await db.query.employeesTable.findMany({
+            columns: {},
+
+            with: {
+                business: true,
             },
 
-            where: (t, { eq }) => eq(t.ownerId, ownerId),
+            where: (t, { eq }) => eq(t.userId, userId),
         });
+
+        const businesses = employees.map((e) => e.business);
 
         return businesses;
     },
 
-    async update({ id, ownerId, ...input }) {
+    async update({ id, userId, ...input }) {
         const [business] = await db
             .update(businessesTable)
             .set(input)
-            .where(
-                and(
-                    eq(businessesTable.id, id),
-                    eq(businessesTable.ownerId, ownerId),
-                ),
-            )
-            .returning(
-                selectTableColumns(businessesTable, "omit", {
-                    ownerId: true,
-                }),
-            );
+            .where(eq(businessesTable.id, id))
+            .returning();
 
         return business;
     },
 
-    async delete({ id, ownerId }) {
-        await db
-            .delete(businessesTable)
-            .where(
-                and(
-                    eq(businessesTable.id, id),
-                    eq(businessesTable.ownerId, ownerId),
-                ),
-            );
+    async delete({ id, userId }) {
+        await db.delete(businessesTable).where(eq(businessesTable.id, id));
     },
 } satisfies ToFunctions<BusinessesServiceSchemaType>;

@@ -713,7 +713,7 @@
     "/businesses": {
       "get": {
         "operationId": "getBusinesses",
-        "description": "Find All Businesses",
+        "description": "Find All Businesses That You Joined In",
         "responses": {
           "200": {
             "description": "OK",
@@ -2943,6 +2943,7 @@
                       "role": {
                         "type": "string",
                         "enum": [
+                          "owner",
                           "manager",
                           "staff"
                         ]
@@ -3018,6 +3019,7 @@
                     "role": {
                       "type": "string",
                       "enum": [
+                        "owner",
                         "manager",
                         "staff"
                       ]
@@ -3081,6 +3083,7 @@
                   "role": {
                     "type": "string",
                     "enum": [
+                      "owner",
                       "manager",
                       "staff"
                     ]
@@ -3121,6 +3124,7 @@
                     "role": {
                       "type": "string",
                       "enum": [
+                        "owner",
                         "manager",
                         "staff"
                       ]
@@ -3205,6 +3209,7 @@
                     "role": {
                       "type": "string",
                       "enum": [
+                        "owner",
                         "manager",
                         "staff"
                       ]
@@ -3283,6 +3288,7 @@
                   "role": {
                     "type": "string",
                     "enum": [
+                      "owner",
                       "manager",
                       "staff"
                     ]
