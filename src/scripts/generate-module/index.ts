@@ -18,7 +18,7 @@ Examples:
 }
 
 const modulePath = args[0];
-const parts = modulePath.replace("/", "/modules/").split("/");
+const parts = modulePath.replaceAll("/", "/modules/").split("/");
 const moduleName = parts[parts.length - 1];
 
 const basePath = path.join(process.cwd(), "src", "modules", ...parts);

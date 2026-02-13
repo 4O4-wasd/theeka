@@ -1,5 +1,7 @@
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
+import z from "zod";
 import { businessListingsTable } from "./business-listings.table";
 import { businessesTable } from "./businesses.table";
 import { usersTable } from "./users.table";
@@ -50,3 +52,30 @@ export const reviewsTableRelations = relations(
         }),
     }),
 );
+
+export const reviewsSchema = createSelectSchema(reviewsTable, {
+    id: z.uuid(),
+    rating: z.union([
+        z.literal(0),
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(4),
+        z.literal(5),
+    ]),
+    title: z.string(),
+    comment: z.string(),
+    userId: z.uuid(),
+    businessId: z.uuid(),
+    listingId: z.uuid(),
+    media: z
+        .array(
+            z.object({
+                type: z.enum(["image", "video"]),
+                url: z.string(),
+            }),
+        )
+        .nullable()
+        .optional(),
+    createdAt: z.date(),
+});

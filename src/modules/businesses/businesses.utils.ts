@@ -1,11 +1,10 @@
-import { type ProtectedUserContext } from "@/middlewares/protected";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import type { BusinessesServiceSchemaType } from "./businesses.schema";
 import { businessesService } from "./businesses.service";
 
-export type BusinessContext = ProtectedUserContext & {
+export type BusinessContext = {
     business: BusinessesServiceSchemaType["find"]["output"];
 };
 

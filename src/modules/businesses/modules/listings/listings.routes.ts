@@ -31,11 +31,11 @@ export const listingsRoutes = new Hono()
 
     .on(...route("GET /:listingId", listingsRouteSchema), async (c) => {
         const { listingId } = c.req.valid("param");
-        const address = await listingsService.find({
+        const listing = await listingsService.find({
             id: listingId,
             businessId: c.get("business").id,
         });
-        return c.json(address, HTTP_STATUS["OK"]);
+        return c.json(listing, HTTP_STATUS["OK"]);
     })
 
     .on(
@@ -44,13 +44,13 @@ export const listingsRoutes = new Hono()
         async (c) => {
             const { listingId } = c.req.valid("param");
             const data = c.req.valid("json");
-            const address = await listingsService.update({
+            const listing = await listingsService.update({
                 ...data,
                 id: listingId,
                 businessId: c.get("business").id,
             });
 
-            return c.json(address, HTTP_STATUS["OK"]);
+            return c.json(listing, HTTP_STATUS["OK"]);
         },
     )
 

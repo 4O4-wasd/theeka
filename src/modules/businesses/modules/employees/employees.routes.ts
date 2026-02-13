@@ -9,10 +9,10 @@ import { employeeRoleProtectedMiddleware } from "./employees.utils";
 export const employeesRoutes = new Hono()
     .use(businessProtectedMiddleware())
     .on(...route("GET /", employeesRouteSchema), async (c) => {
-        const addresses = await employeesService.findAll({
+        const employees = await employeesService.findAll({
             businessId: c.get("business").id,
         });
-        return c.json(addresses, HTTP_STATUS["OK"]);
+        return c.json(employees, HTTP_STATUS["OK"]);
     })
 
     .on(
@@ -20,21 +20,21 @@ export const employeesRoutes = new Hono()
         employeeRoleProtectedMiddleware({ role: "manager" }),
         async (c) => {
             const data = c.req.valid("json");
-            const address = await employeesService.create({
+            const employee = await employeesService.create({
                 ...data,
                 businessId: c.get("business").id,
             });
-            return c.json(address, HTTP_STATUS["Created"]);
+            return c.json(employee, HTTP_STATUS["Created"]);
         },
     )
 
     .on(...route("GET /:employeeUserId", employeesRouteSchema), async (c) => {
         const { employeeUserId } = c.req.valid("param");
-        const address = await employeesService.find({
+        const employee = await employeesService.find({
             userId: employeeUserId,
             businessId: c.get("business").id,
         });
-        return c.json(address, HTTP_STATUS["OK"]);
+        return c.json(employee, HTTP_STATUS["OK"]);
     })
 
     .on(
@@ -43,13 +43,13 @@ export const employeesRoutes = new Hono()
         async (c) => {
             const { employeeUserId } = c.req.valid("param");
             const json = c.req.valid("json");
-            const address = await employeesService.update({
+            const employee = await employeesService.update({
                 ...json,
                 userId: employeeUserId,
                 businessId: c.get("business").id,
             });
 
-            return c.json(address, HTTP_STATUS["OK"]);
+            return c.json(employee, HTTP_STATUS["OK"]);
         },
     )
 

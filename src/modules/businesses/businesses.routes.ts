@@ -1,4 +1,3 @@
-import { protectedMiddleware } from "@/middlewares/protected";
 import { route } from "@/utils/open-api";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { Hono } from "hono";
@@ -8,17 +7,16 @@ import { businessAddressRoutes } from "./modules/business-address/business-addre
 import { employeesRoutes } from "./modules/employees/employees.routes";
 import { employeeRoleProtectedMiddleware } from "./modules/employees/employees.utils";
 import { listingsRoutes } from "./modules/listings/listings.routes";
+import { protectedMiddleware } from "@/middlewares/protected";
 
 export const businessesRoutes = new Hono()
-    .use(protectedMiddleware({ type: "user" }))
-
-    .on(...route("GET /", businessesRouteSchema), async (c) => {
+    .on(...route("GET /", businessesRouteSchema), protectedMiddleware({ type: "user" }), async (c) => {
         const userId = c.get("user").id;
         const businesses = await businessesService.findAll({ userId });
         return c.json(businesses, HTTP_STATUS["OK"]);
     })
 
-    .on(...route("POST /", businessesRouteSchema), async (c) => {
+    .on(...route("POST /", businessesRouteSchema), protectedMiddleware({ type: "user" }), async (c) => {
         const json = c.req.valid("json");
         const userId = c.get("user").id;
         const business = await businessesService.create({

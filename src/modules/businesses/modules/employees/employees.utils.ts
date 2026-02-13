@@ -1,5 +1,5 @@
 import type { employeesSchema } from "@/db/tables";
-import type { ProtectedUserContext } from "@/middlewares/protected";
+import { type ProtectedUserContext } from "@/middlewares/protected";
 import { HTTP_STATUS } from "@/utils/status-codes";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
