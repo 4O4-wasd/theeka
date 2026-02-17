@@ -1,27 +1,10 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "preserve",
-    "strict": true,
-    "verbatimModuleSyntax": true,
-    "moduleResolution": "bundler",
-    "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "outDir": "./dist",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@env": [
-        "./env.config.ts"
-      ]
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/api"
     }
-  },
-  "exclude": [
-    "node_modules"
   ]
 }

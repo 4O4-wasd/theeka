@@ -1,32 +1,35 @@
 {
-    "name": "api",
-    "type": "module",
-    "scripts": {
-        "dev": "npm run openapi && tsx watch src/index.ts",
-        "build": "tsc --noEmit && npm run openapi && node build.config.mjs",
-        "db:push": "drizzle-kit push",
-        "db:migrate": "drizzle-kit migrate",
-        "db:studio": "drizzle-kit studio",
-        "gm": "tsx src/scripts/generate-module/index.ts",
-        "openapi": "tsx src/scripts/generate-openapi.ts"
-    },
-    "dependencies": {
-        "@hono/node-server": "^1.19.9",
-        "@hono/standard-validator": "^0.2.1",
-        "@libsql/client": "^0.15.15",
-        "argon2": "^0.44.0",
-        "dotenv": "^17.2.3",
-        "drizzle-orm": "^0.45.1",
-        "drizzle-zod": "^0.8.3",
-        "hono": "^4.11.3",
-        "zod": "^4.3.5",
-        "hono-openapi": "^1.2.0"
-    },
-    "devDependencies": {
-        "@types/node": "^20.11.17",
-        "drizzle-kit": "^0.31.8",
-        "esbuild": "^0.27.2",
-        "tsx": "^4.7.1",
-        "typescript": "^5.8.3"
-    }
+  "name": "@theeka/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "devDependencies": {
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.0",
+    "@nx/js": "22.5.1",
+    "@nx/nest": "^22.5.1",
+    "@nx/node": "22.5.1",
+    "@nx/web": "22.5.1",
+    "@nx/webpack": "22.5.1",
+    "@swc-node/register": "~1.11.1",
+    "@swc/core": "~1.15.5",
+    "@swc/helpers": "~0.5.18",
+    "@types/node": "20.19.9",
+    "nx": "22.5.1",
+    "tslib": "^2.3.0",
+    "typescript": "~5.9.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0"
+  }
 }
